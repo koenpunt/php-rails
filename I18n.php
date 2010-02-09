@@ -3,6 +3,10 @@ if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300) {
 	die('PHP I18n requires PHP 5.3 or higher');
 }
 
+require_once('SymfonyComponents/YAML/sfYaml.php');
+
+$yaml = sfYaml::load('test/test_data/locales/en.yml');
+
 spl_autoload_register('i18n_autoload');
 
 function i18n_autoload($class_name)
@@ -85,10 +89,10 @@ class I18n
 
 	public function translate($args)
 	{
-		$options = ?;
-		$key = ?;
-		$locale = ?;
-		$raises
+		// $options = ?;
+		// $key = ?;
+		// $locale = ?;
+		// $raises
 	}
 
 	public function translate_exception($key, $options = array())
