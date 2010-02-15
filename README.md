@@ -19,8 +19,8 @@ Ruby/Rails programming conventions have been maintained as much as possible. Dev
 
 ## Minimum Requirements ##
 
-PHP 5.3+
-Symfony PEAR Yaml Parser
+* PHP 5.3+
+* Symfony PEAR Yaml Parser
 
 ## Installation ##
 
@@ -33,5 +33,6 @@ pear install symfony/YAML
 ## Features ##
 
 - Internationalization similar to I18n found in Ruby on Rails I18n.
+- PHP can be used within the .yml/.php locales files.
 
 ## Usage ##
