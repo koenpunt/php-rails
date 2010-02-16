@@ -59,8 +59,9 @@ class I18n
 
 	public function get_backend()
 	{
-		if (self::$backend === null)
+		if (self::$backend === null) {
 			self::$backend = new Backend\Base();
+		}
 		return self::$backend;
 	}
 
@@ -81,8 +82,9 @@ class I18n
 
 	public function get_locale()
 	{
-		if (self::$current_locale === null)
+		if (self::$current_locale === null) {
 			self::$current_locale = self::$default_locale;
+		}
 		return self::$current_locale;
 	}
 
@@ -93,9 +95,9 @@ class I18n
 
 	public function get_available_locales()
 	{
-		if (empty(self::$available_locales))
+		if (empty(self::$available_locales)) {
 			self::$available_locales = self::$backend->available_locales();
-
+		}
 		return self::$available_locales;
 	}
 
@@ -121,9 +123,9 @@ class I18n
 
 	public function get_load_path()
 	{
-		if (self::$load_path === null)
+		if (self::$load_path === null) {
 			self::$load_path = array();
-
+		}
 		return self::$load_path;
 	}
 
@@ -149,9 +151,9 @@ class I18n
 		try {
 			return self::get_backend()->translate($locale, $key, $options);
 		} catch (I18n\ArgumentError $exception) {
-			if ($raises)
+			if ($raises) {
 				throw $exception;
-
+			}
 			self::handle_exception($exception, $locale, $key, $options);
 		}
 	}
@@ -169,12 +171,15 @@ class I18n
 	public function normalize_keys($locale, $key, $scope, $separator = null)
 	{
 		// $keys = array_merge(array($locale), array($scope), array($key));
-		if ($locale)
+		if ($locale) {
 			$keys[] = explode(self::$default_separator, $locale);
-		if ($scope)
+		}
+		if ($scope) {
 			$keys[] = explode(self::$default_separator, $scope);
-		if ($key)
+		}
+		if ($key) {
 			$keys[] = explode(self::$default_separator, $key);
+		}
 		// if any value is a dot key, split
 		// return implode(self::$default_separator, $keys);
 		$keys = array_flatten($keys);

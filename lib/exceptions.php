@@ -11,7 +11,7 @@ class InvalidLocale extends InvalidArgumentException
 	public function __construct($locale)
 	{
 		$this->locale = $locale;
-		parent::__construct("{$this->locale} is not a valid locale");
+		parent::__construct("$locale is not a valid locale");
 	}
 }
 
@@ -24,10 +24,13 @@ class MissingTranslationData extends InvalidArgumentException
 	public function __construct($locale, $key, $options = array())
 	{
 		list($this->key, $this->locale, $this->options) = array($key, $locale, $options);
+		$options['scope'] = isset($options['scope']) ? $options['scope'] : '';
 		$keys = I18n::normalize_keys($locale, $key, $options['scope']);
-		if (count($keys) < 2)
+		if (count($keys) < 2) {
 			$keys[] = 'no key';
-		parent::__construct("translation missing: {implode('.', $keys)}");
+		}
+		$keys = implode('.', $keys);
+		parent::__construct("translation missing: $keys");
 	}
 }
 
@@ -39,7 +42,8 @@ class InvalidPluralizationData extends InvalidArgumentException
 	public function __construct($entry, $count)
 	{
 		list($this->entry, $this->count) = array($entry, $count);
-		parent::__construct("translation data {var_dump($entry)} can not be used with count => $count");
+		$entry = var_dump($entry);
+		parent::__construct("translation data $entry can not be used with count => $count");
 	}
 }
 
@@ -51,7 +55,9 @@ class MissingInterpolationArgument extends InvalidArgumentException
 	public function __construct($values, $string)
 	{
 		list($this->values, $this->string) = array($values, $string);
-		parent::__construct("missing interpolation argument in {var_dump($string)} ({var_dump($values)} given)");
+		$string = var_dump($string);
+		$values = var_dump($values);
+		parent::__construct("missing interpolation argument in $string ($values given)");
 	}
 }
 
@@ -63,7 +69,9 @@ class ReservedInterpolationKey extends InvalidArgumentException
 	public function __construct($key, $string)
 	{
 		list($this->key, $this->string) = array($key, $string);
-		parent::__construct("reserved key {var_dump($key)} used in {var_dump($string)}");
+		$key = var_dump($key);
+		$string = var_dump($string);
+		parent::__construct("reserved key $key used in $string");
 	}
 }
 
