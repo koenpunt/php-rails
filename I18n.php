@@ -6,6 +6,7 @@ if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300) {
 	die('PHP I18n requires PHP 5.3 or higher');
 }
 
+require_once('lib/exceptions.php');
 require_once('lib/backend/base.php');
 
 define('APP', dirname(__FILE__));

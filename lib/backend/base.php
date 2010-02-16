@@ -2,6 +2,10 @@
 
 namespace I18n\Backend;
 
+use \I18n\I18n;
+use \I18n\MissingTranslationData;
+use \I18n\UnknownFileType;
+
 require_once('SymfonyComponents/YAML/sfYaml.php');
 
 class Base
@@ -28,17 +32,16 @@ class Base
 			throw new InvalidLocale($locale);
 
 		if (is_array($key)) {
-			// key.map
-			//array_map(array($this, 'translate'), $key, array($locale, $k, $options));
-			// foreach ($keys as $key) {
-			// 	$to_translate = $this->translate($locale, $key, $options);
-			// }
+			foreach ($keys as $key) {
+				$to_translate[] = $this->translate($locale, $key, $options);
+			}
+			return $to_translate;
 		}
 
 		if (empty($options)) {
 			$entry = $this->resolve($locale, $key, $this->lookup($locale, $key), $options);
 			if ($entry === null)
-				throw new I18n\MissingTranslationData($locale, $key, $options);
+				throw new MissingTranslationData($locale, $key, $options);
 		} else {
 			$count = isset($options['count']) ? $options['count'] : '';
 			$scope = isset($options['scope']) ? $options['scope'] : '';
@@ -49,7 +52,7 @@ class Base
 			if ($entry === null)
 				$entry = $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
 			if ($entry === null)
-				throw new I18n\MissingTranslationData($locale, $key, $options);
+				throw new MissingTranslationData($locale, $key, $options);
 
 			if ($count)
 				$entry = $this->pluralize($locale, $entry, $count);
@@ -77,12 +80,13 @@ class Base
 
 	public function reload()
 	{
-
+		$this->initialized = false;
+		$this->translations = null;
 	}
 
 	public function init_translations()
 	{
-		self::load_translations(\I18n\array_flatten(\I18n\I18n::get_load_path()));
+		self::load_translations(\I18n\array_flatten(I18n::get_load_path()));
 		// \I18n\array_flatten(array(''));
 		$this->initialized = true;
 	}
@@ -100,7 +104,7 @@ class Base
 			return;
 		if (!$this->initialized)
 			$this->init_translations();
-		$keys = \I18n\I18n::normalize_keys($locale, $key, $scope, $options);
+		$keys = I18n::normalize_keys($locale, $key, $scope, $options);
 		$x = $this->translations[array_shift($keys)];
 		$result = null;
 		while ($x !== null && !empty($keys)) {
