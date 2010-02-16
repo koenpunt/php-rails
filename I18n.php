@@ -6,10 +6,11 @@ if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300) {
 	die('PHP I18n requires PHP 5.3 or higher');
 }
 
-require_once('SymfonyComponents/YAML/sfYaml.php');
 require_once('lib/backend/base.php');
 
-function array_flatten(&$a,$pref='') {
+define('APP', dirname(__FILE__));
+
+function array_flatten($a, $pref='') {
 	$ret = array();
 	foreach ($a as $i => $j) {
 		if (is_array($j)) {
@@ -145,14 +146,13 @@ class I18n
 			unset($options['raises']);
 		}
 		try {
-			self::get_backend()->translate($locale, $key, $options);
+			return self::get_backend()->translate($locale, $key, $options);
 		} catch (I18n\ArgumentError $exception) {
 			if ($raises)
 				throw $exception;
 
 			self::handle_exception($exception, $locale, $key, $options);
 		}
-
 	}
 
 	public function translate_exception($key, $options = array())
@@ -167,8 +167,16 @@ class I18n
 
 	public function normalize_keys($locale, $key, $scope, $separator = null)
 	{
-		$keys = array_merge($locale, $scope, $key);
-		return implode(self::$default_separator, $keys);
+		// $keys = array_merge(array($locale), array($scope), array($key));
+		if ($locale)
+			$keys[] = $locale;
+		if ($scope)
+			$keys[] = $scope;
+		if ($key)
+			$keys[] = $key;
+		// if any value is a dot key, split
+		// return implode(self::$default_separator, $keys);
+		return $keys;
 	}
 
 	private function default_exception_handler($exception, $locale, $key, $options)

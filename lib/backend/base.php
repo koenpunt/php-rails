@@ -2,6 +2,8 @@
 
 namespace I18n\Backend;
 
+require_once('SymfonyComponents/YAML/sfYaml.php');
+
 class Base
 {
 	private static $RESERVED_KEYS = array('scope', 'default', 'separator', 'resolve');
@@ -79,7 +81,8 @@ class Base
 
 	public function init_translations()
 	{
-		self::load_translations(array_flatten(I18n::get_load_path()));
+		self::load_translations(\I18n\array_flatten(\I18n\I18n::get_load_path()));
+		// \I18n\array_flatten(array(''));
 		$this->initialized = true;
 	}
 
@@ -96,8 +99,18 @@ class Base
 			return;
 		if (!$this->initialized)
 			$this->init_translations();
-		$keys = I18n::normalize_keys($locale, $key, $scope, $options);
+		$keys = \I18n\I18n::normalize_keys($locale, $key, $scope, $options);
+		$x = $this->translations[array_shift($keys)];
+		$result = null;
+		while ($x !== null) {
+			$x = $x[array_shift($keys)];
+			if (!is_array($x)) {
+				$result = $x;
+				break;
+			}
+		}
 
+		return $result;
 		// key.inject
 	}
 
@@ -108,8 +121,8 @@ class Base
 
 	public function resolve($locale, $object, $subject, $options = null)
 	{
-		if ($options['resolve'] === false)
-			return $subject;
+		// if ($options['resolve'] === false)
+		// 	return $subject;
 		// switch($subject) {
 		// 	// ?
 		// }
@@ -140,7 +153,7 @@ class Base
 	{
 		$extension = end(explode('.', $filename));
 		$method_name = 'load_' . $extension;
-		if (method_exists($this, $method_name))
+		if (!method_exists($this, $method_name))
 			throw new UnknownFileType($extension, $filename);
 
 		$data = $this->$method_name($filename);
@@ -157,13 +170,13 @@ class Base
 
 	public function load_yml($filename)
 	{
-		return sfYaml::load($filename);
+		return \sfYaml::load($filename);
 	}
 
 	public function merge_translations($locale, $data, $options = array())
 	{
 		// $this->translations
-
+		$this->translations[$locale] = $data;
 	}
 }
 

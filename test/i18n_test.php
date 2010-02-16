@@ -8,17 +8,13 @@ class I18n_test extends PHPUnit_Framework_TestCase
 	{
 		parent::__construct();
 		I18n\I18n::set_locale('en');
-		// I18n::backend->store_translations('en');
+		I18n\I18n::set_load_path(array(APP . '/test/test_data/locales/en.yml', APP . '/test/test_data/locales/fr.yml'));
 	}
-
-	// public function test_uses_simple_backend_set_by_default()
-	// {
-	// 	// $this->assertTrue
-	// }
 
 	public function test_base()
 	{
-		 // $this->assertEquals('Hello', I18n\I18n::translate('hello'));
+		 $this->assertEquals('Hello', I18n\I18n::translate('hello'));
+		$this->assertEquals('Bonjour', I18n\I18n::translate('hello', array('locale' => 'fr')));
 	}
 }
 
