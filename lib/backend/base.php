@@ -40,13 +40,14 @@ class Base
 			if ($entry === null)
 				throw new I18n\MissingTranslationData($locale, $key, $options);
 		} else {
-			$count = $options['count'];
-			$scope = $options['scope'];
-			$default = $options['default'];
+			$count = isset($options['count']) ? $options['count'] : '';
+			$scope = isset($options['scope']) ? $options['scope'] : '';
+			$default = isset($options['default']) ? $options['default'] : '';
 			$values = array_diff($options, self::$RESERVED_KEYS);
 
 			$entry = $this->lookup($locale, $key, $scope, $options);
-			$entry = $entry === null && $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
+			if ($entry === null)
+				$entry = $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
 			if ($entry === null)
 				throw new I18n\MissingTranslationData($locale, $key, $options);
 
@@ -102,7 +103,7 @@ class Base
 		$keys = \I18n\I18n::normalize_keys($locale, $key, $scope, $options);
 		$x = $this->translations[array_shift($keys)];
 		$result = null;
-		while ($x !== null) {
+		while ($x !== null && !empty($keys)) {
 			$x = $x[array_shift($keys)];
 			if (!is_array($x)) {
 				$result = $x;
@@ -131,12 +132,20 @@ class Base
 
 	public function pluralize($locale, $entry, $count)
 	{
-
+		return $entry;
 	}
 
 	public function interpolate($locale, $string, $values = array())
 	{
+		if (!is_string($string) && empty($values))
+			return $string;
 
+		foreach ($values as $key => $value) {
+			$keys[] = '{{' . $key . '}}';
+			$vals[] = $value;
+		}
+
+		return str_replace($keys, $vals, $string);
 	}
 
 	public function preserve_encoding($string)

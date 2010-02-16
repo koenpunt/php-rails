@@ -169,13 +169,15 @@ class I18n
 	{
 		// $keys = array_merge(array($locale), array($scope), array($key));
 		if ($locale)
-			$keys[] = $locale;
+			$keys[] = explode(self::$default_separator, $locale);
 		if ($scope)
-			$keys[] = $scope;
+			$keys[] = explode(self::$default_separator, $scope);
 		if ($key)
-			$keys[] = $key;
+			$keys[] = explode(self::$default_separator, $key);
 		// if any value is a dot key, split
 		// return implode(self::$default_separator, $keys);
+		$keys = array_flatten($keys);
+
 		return $keys;
 	}
 

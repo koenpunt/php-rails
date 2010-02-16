@@ -1,8 +1,8 @@
 # PHP I18n #
 
-by Tom Rochette
-<roctom@gmail.com>
-<http://www.tomrochette.com>
+by Tom Rochette  
+<roctom@gmail.com>  
+<http://www.tomrochette.com>  
 
 ## Introduction ##
 A brief summarization of what I18n is:
@@ -27,7 +27,7 @@ Ruby/Rails programming conventions have been maintained as much as possible. Dev
 Setup is very easy and straight-forward. Essentially, you have to point to the locales folder, and that's pretty much it.
 
 ### Installing required PEAR package ###
-pear channel-discover pear.symfony-project.com
+pear channel-discover pear.symfony-project.com  
 pear install symfony/YAML
 
 ## Features ##
