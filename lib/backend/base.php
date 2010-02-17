@@ -118,6 +118,10 @@ class Base
 		}
 		$keys = I18n::normalize_keys($locale, $key, $scope, $options);
 		$x = $this->translations();
+		// echo '<pre>';
+		// print_r($x);
+		// echo '</pre>';
+		// exit;
 		$result = null;
 		while ($x !== null && !empty($keys)) {
 			$keyToFind = array_shift($keys);
@@ -135,11 +139,25 @@ class Base
 
 	private function _default($locale, $object, $subject, $options = array())
 	{
+		unset($options['default']);
+		if (!is_array($subject)) {
+			return $this->resolve($locale, $object, $subject, $options);
+		}
 
+		foreach ($subject as $item) {
+			$result = $this->resolve($locale, $object, $item, $options);
+			if ($result !== null) {
+				return $result;
+			}
+		}
+		return null;
 	}
 
 	private function resolve($locale, $object, $subject, $options = null)
 	{
+		// echo "\nresolve: $subject\n";
+		// return $subject;
+		// return I18n::translate($subject, $options);
 		return $subject;
 	}
 
@@ -155,6 +173,9 @@ class Base
 		}
 
 		foreach ($values as $key => $value) {
+			if (is_array($value)) {
+				continue;
+			}
 			$keys[] = '{{' . $key . '}}';
 			$vals[] = $value;
 		}

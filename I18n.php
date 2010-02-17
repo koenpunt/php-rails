@@ -110,6 +110,11 @@ class I18n
 		self::$load_path = $load_path;
 	}
 
+	public function push_load_path($load_path)
+	{
+		self::$load_path[] = $load_path;
+	}
+
 	public function translate($key, $options = array())
 	{
 		// $options = array_diff_key($args, array(0));
@@ -118,8 +123,9 @@ class I18n
 			$locale = $options['locale'];
 			unset($options['locale']);
 		} else {
-			$locale = self::$current_locale;
+			$locale = self::get_locale();
 		}
+		$raises = false;
 		if (array_key_exists('raise', $options)) {
 			$raises = $options['raise'];
 			unset($options['raise']);
@@ -152,7 +158,11 @@ class I18n
 			$keys[] = explode(self::$default_separator, $locale);
 		}
 		if ($scope) {
-			$keys[] = explode(self::$default_separator, $scope);
+			if (is_array($scope)) {
+				$keys[] = $scope;
+			} else {
+				$keys[] = explode(self::$default_separator, $scope);
+			}
 		}
 		if ($key) {
 			$keys[] = explode(self::$default_separator, $key);
