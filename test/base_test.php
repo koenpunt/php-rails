@@ -65,18 +65,36 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
+	/**
+	 * @expectedException \I18n\MissingTranslationData
+	 */
 	public function test_translate_invalid_locale()
 	{
-		$actual = $this->base->translate('invalid', 'hello');
-		// $expected = 'this banana is quite yellow';
-		// $this->assertEquals($expected, $actual);
+		$this->base->translate('invalid', 'hello');
 	}
 
+	/**
+	 * @expectedException \I18n\InvalidLocale
+	 */
 	public function test_translate_null_locale()
 	{
-		$actual = $this->base->translate(null, 'hello');
-		// $expected = 'this banana is quite yellow';
-		// $this->assertEquals($expected, $actual);
+		$this->base->translate(null, 'hello');
+	}
+
+	/**
+	 * @expectedException \I18n\MissingTranslationData
+	 */
+	public function test_translate_null_key()
+	{
+		$this->base->translate('en', null);
+	}
+
+	/**
+	 * @expectedException \I18n\MissingTranslationData
+	 */
+	public function test_translate_null_key_with_options()
+	{
+		$this->base->translate('en', null, array('scope' => '', 'anoption' => 'value'));
 	}
 
 	public function test_localize()
@@ -96,12 +114,28 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 		$this->assertEquals(array('en', 'fr'), $this->base->available_locales());
 	}
 
+	public function test_available_locales_no_locales()
+	{
+		$this->base->reload();
+		$this->assertEquals(array(), $this->base->available_locales());
+	}
+
 	public function test_reload()
 	{
 		$this->base->available_locales();
 		$this->assertTrue($this->base->is_initialized());
 		$this->base->reload();
 		$this->assertFalse($this->base->is_initialized());
+	}
+
+	public function test_load_php()
+	{
+		$this->base = null;
+		$this->base = new Base();
+		$this->assertEquals(array(), $this->base->available_locales());
+		$this->base->load_translations(array(APP . '/test/test_data/locales/en.php'));
+		$this->assertNotEquals(array(), $this->base->available_locales());
+		$this->assertEquals('Hello 2', $this->base->translate('en', 'hello2'));
 	}
 }
 

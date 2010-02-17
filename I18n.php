@@ -23,30 +23,6 @@ function array_flatten($a, $pref='') {
 	return $ret;
 }
 
-// spl_autoload_register('i18n_autoload');
-//
-// function i18n_autoload($class_name)
-// {
-// 	$path = I18n\Config::instance()->get_model_directory();
-// 	$root = realpath(isset($path) ? $path : '.');
-//
-// 	if (($namespaces = I18n\get_namespaces($class_name)))
-// 	{
-// 		$class_name = array_pop($namespaces);
-// 		$directories = array();
-//
-// 		foreach ($namespaces as $directory)
-// 			$directories[] = $directory;
-//
-// 		$root .= DIRECTORY_SEPARATOR . implode($directories, DIRECTORY_SEPARATOR);
-// 	}
-//
-// 	$file = "$root/$class_name.php";
-//
-// 	if (file_exists($file))
-// 		require $file;
-// }
-
 class I18n
 {
 	private static $backend = null;
@@ -101,7 +77,7 @@ class I18n
 		return self::$available_locales;
 	}
 
-	public function set_available_locales($Locale)
+	public function set_available_locales($locale)
 	{
 		self::$available_locales = $locale;
 	}
@@ -144,13 +120,13 @@ class I18n
 		} else {
 			$locale = self::$current_locale;
 		}
-		if (array_key_exists('raises', $options)) {
-			$raises = $options['raises'];
-			unset($options['raises']);
+		if (array_key_exists('raise', $options)) {
+			$raises = $options['raise'];
+			unset($options['raise']);
 		}
 		try {
 			return self::get_backend()->translate($locale, $key, $options);
-		} catch (I18n\ArgumentError $exception) {
+		} catch (\InvalidArgumentException $exception) {
 			if ($raises) {
 				throw $exception;
 			}
@@ -160,7 +136,8 @@ class I18n
 
 	public function translate_exception($key, $options = array())
 	{
-
+		$options['raise'] = true;
+		return self::translate($key, $options);
 	}
 
 	public function localize($object, $options = array())
@@ -189,7 +166,10 @@ class I18n
 
 	private function default_exception_handler($exception, $locale, $key, $options)
 	{
-
+		if (is_a($exception, 'MissingTranslationData')) {
+			return $exception->getMessage();
+		}
+		throw $exception;
 	}
 
 	private function handle_exception($exception, $locale, $key, $options)

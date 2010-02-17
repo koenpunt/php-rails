@@ -85,11 +85,7 @@ class Base
 		if (!$this->initialized) {
 			$this->init_translations();
 		}
-		if (!empty($this->translations)) {
-			return array_keys($this->translations);
-		} else {
-			return array();
-		}
+		return array_keys($this->translations());
 	}
 
 	public function reload()
@@ -121,7 +117,7 @@ class Base
 			$this->init_translations();
 		}
 		$keys = I18n::normalize_keys($locale, $key, $scope, $options);
-		$x = $this->translations;
+		$x = $this->translations();
 		$result = null;
 		while ($x !== null && !empty($keys)) {
 			$keyToFind = array_shift($keys);
@@ -134,9 +130,7 @@ class Base
 				break;
 			}
 		}
-
 		return $result;
-		// key.inject
 	}
 
 	private function _default($locale, $object, $subject, $options = array())
@@ -146,11 +140,6 @@ class Base
 
 	private function resolve($locale, $object, $subject, $options = null)
 	{
-		// if ($options['resolve'] === false)
-		// 	return $subject;
-		// switch($subject) {
-		// 	// ?
-		// }
 		return $subject;
 	}
 
@@ -161,7 +150,7 @@ class Base
 
 	private function interpolate($locale, $string, $values = array())
 	{
-		if (!is_string($string) && empty($values)) {
+		if (!is_string($string) || empty($values)) {
 			return $string;
 		}
 

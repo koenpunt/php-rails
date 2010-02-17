@@ -29,7 +29,7 @@ class MissingTranslationData extends InvalidArgumentException
 		if (count($keys) < 2) {
 			$keys[] = 'no key';
 		}
-		$keys = implode('.', $keys);
+		$keys = implode(', ', $keys);
 		parent::__construct("translation missing: $keys");
 	}
 }
