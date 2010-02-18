@@ -41,8 +41,7 @@ class Base
 		}
 
 		if (empty($options)) {
-			// $entry = $this->resolve($locale, $key, $this->lookup($locale, $key), $options);
-			$entry = $this->lookup($locale, $key);
+			$entry = $this->resolve($locale, $key, $this->lookup($locale, $key), $options);
 			if ($entry === null) {
 				throw new MissingTranslationData($locale, $key, $options);
 			}
@@ -54,8 +53,8 @@ class Base
 
 			$entry = $this->lookup($locale, $key, $scope, $options);
 			if ($entry === null) {
-				//$entry = $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
-				$entry = $default ? $this->_default($locale, $key, $default, $options) : null;
+				$entry = $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
+				// $entry = $default ? $this->_default($locale, $key, $default, $options) : null;
 			}
 			if ($entry === null) {
 				throw new MissingTranslationData($locale, $key, $options);
@@ -118,16 +117,17 @@ class Base
 		if (!$this->initialized) {
 			$this->init_translations();
 		}
-		$keys = I18n::normalize_keys($locale, $key, $scope, $options);
+		$separator = isset($options['separator']) ? $options['separator'] : null;
+		$keys = I18n::normalize_keys($locale, $key, $scope, $separator);
 		$result = $this->translations();
 		while ($result !== null && !empty($keys)) {
-			$keyToFind = array_shift($keys);
-			if (!array_key_exists($keyToFind, $result)) {
+			$key = new Symbol(array_shift($keys));
+			if (!array_key_exists($key->get_value(), $result)) {
 				return null;
 			}
-			$result = $result[$keyToFind];
-			if (!is_array($result)) {
-				break;
+			$result = $result[$key->get_value()];
+			if ($result instanceof Symbol) {
+				$result = $this->resolve($locale, $key, $result, $options);
 			}
 		}
 		return $result;
@@ -137,10 +137,11 @@ class Base
 	{
 		unset($options['default']);
 		if (!is_array($subject)) {
-			return $this->lookup($locale, $object, $subject, $options);
+			return $this->resolve($locale, $object, $subject, $options);
 		}
 
 		foreach ($subject as $item) {
+			$item = new Symbol($item);
 			$result = $this->resolve($locale, $object, $item, $options);
 			if ($result !== null) {
 				return $result;
@@ -151,24 +152,32 @@ class Base
 
 	private function resolve($locale, $object, $subject, $options = null)
 	{
-		unset($options['default']);
 		if (isset($options['resolve']) && $options['resolve'] === false) {
 			return $subject;
 		}
 
-		$options['locale'] = $locale;
-		$options['raise'] = true;
 		try {
-			$subject = I18n::translate($subject, $options);
+			if ($subject instanceof Symbol) {
+				$options['locale'] = $locale;
+				$options['raise'] = true;
+				return I18n::translate($subject->get_value(), $options);
+			} else {
+				return $subject;
+			}
 		} catch (MissingTranslationData $exception) {
 			return null;
 		}
-
-		return $subject;
 	}
 
 	private function pluralize($locale, $entry, $count)
 	{
+		// if ($count === 0) {
+		// 	$key = 'zero';
+		// }
+		// $key = isset($key) ? $key : ($count === 1 ? 'one' : 'other');
+		// if ($entry) {
+		// 	throw new InvalidPluralizationData($entry, $count);
+		// }
 		return $entry;
 	}
 
@@ -231,6 +240,29 @@ class Base
 		} else {
 			$this->translations[$locale] = $data;
 		}
+	}
+}
+
+class Symbol
+{
+	private $value;
+
+	public function __construct($value = null)
+	{
+		$this->set_value($value);
+	}
+
+	public function get_value()
+	{
+		return $this->value;
+	}
+
+	public function set_value($value = null)
+	{
+		if ($value instanceof Symbol) {
+			$value = $value->get_value();
+		}
+		$this->value = $value;
 	}
 }
 
