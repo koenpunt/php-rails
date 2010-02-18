@@ -54,7 +54,6 @@ class Base
 			$entry = $this->lookup($locale, $key, $scope, $options);
 			if ($entry === null) {
 				$entry = $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
-				// $entry = $default ? $this->_default($locale, $key, $default, $options) : null;
 			}
 			if ($entry === null) {
 				throw new MissingTranslationData($locale, $key, $options);
@@ -130,6 +129,7 @@ class Base
 				$result = $this->resolve($locale, $key, $result, $options);
 			}
 		}
+
 		return $result;
 	}
 
@@ -137,6 +137,7 @@ class Base
 	{
 		unset($options['default']);
 		if (!is_array($subject)) {
+			$subject =  new Symbol($subject);
 			return $this->resolve($locale, $object, $subject, $options);
 		}
 
@@ -224,7 +225,10 @@ class Base
 
 	private function load_php($filename)
 	{
-		require_once($filename);
+		require($filename);
+		if (!isset($language)) {
+			return array();
+		}
 		return $language;
 	}
 
