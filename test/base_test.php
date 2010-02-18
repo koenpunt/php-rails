@@ -97,6 +97,27 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 		$this->base->translate('en', null, array('scope' => '', 'anoption' => 'value'));
 	}
 
+	public function test_translate_with_array_scope()
+	{
+		$expected = 'is not included in the list';
+		$actual = $this->base->translate('en', 'inclusion', array('scope' => array('activerecord', 'errors', 'messages')));
+		$this->assertEquals($expected, $actual);
+	}
+
+	public function test_translate_with_default_message()
+	{
+		$expected = 'this is a custom message';
+		$actual = $this->base->translate('en', 'inclusion', array('default' => 'custom_message'));
+		$this->assertEquals($expected, $actual);
+	}
+
+	public function test_translate_with_default_message_and_incorrect_scope()
+	{
+		$expected = 'this is a custom message';
+		$actual = $this->base->translate('en', 'inclusion', array('default' => 'custom_message', 'scope' => array('activerecord', 'errors', 'message')));
+		$this->assertEquals($expected, $actual);
+	}
+
 	public function test_localize()
 	{
 

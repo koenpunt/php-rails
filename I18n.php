@@ -6,22 +6,11 @@ if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300) {
 	die('PHP I18n requires PHP 5.3 or higher');
 }
 
-require_once('lib/exceptions.php');
-require_once('lib/backend/base.php');
-
 define('APP', dirname(__FILE__));
 
-function array_flatten($a, $pref='') {
-	$ret = array();
-	foreach ($a as $i => $j) {
-		if (is_array($j)) {
-			$ret = array_merge($ret, array_flatten($j, $pref . $i));
-		} else {
-			$ret[$pref . $i] = $j;
-		}
-	}
-	return $ret;
-}
+require_once('lib/exceptions.php');
+require_once('lib/backend/base.php');
+require_once('lib/utils.php');
 
 class I18n
 {
@@ -112,11 +101,16 @@ class I18n
 
 	public function push_load_path($load_path)
 	{
-		self::$load_path[] = $load_path;
+		if (count(self::$load_path) === 0 || !in_array($load_path, self::$load_path)) {
+			self::$load_path[] = $load_path;
+		}
 	}
 
 	public function translate($key, $options = array())
 	{
+		if ($key === null) {
+			return null;
+		}
 		// $options = array_diff_key($args, array(0));
 		// $key = $args[0];
 		if (array_key_exists('locale', $options)) {
@@ -170,7 +164,6 @@ class I18n
 		// if any value is a dot key, split
 		// return implode(self::$default_separator, $keys);
 		$keys = array_flatten($keys);
-
 		return $keys;
 	}
 

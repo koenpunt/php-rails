@@ -11,7 +11,7 @@ require_once('SymfonyComponents/YAML/sfYaml.php');
 
 class Base
 {
-	private static $RESERVED_KEYS = array('scope', 'default', 'separator', 'resolve');
+	private static $RESERVED_KEYS = array('scope' => null, 'default' => null, 'separator' => null, 'resolve' => null);
 	private $initialized = false;
 	private $translations = null;
 
@@ -41,19 +41,21 @@ class Base
 		}
 
 		if (empty($options)) {
-			$entry = $this->resolve($locale, $key, $this->lookup($locale, $key), $options);
+			// $entry = $this->resolve($locale, $key, $this->lookup($locale, $key), $options);
+			$entry = $this->lookup($locale, $key);
 			if ($entry === null) {
 				throw new MissingTranslationData($locale, $key, $options);
 			}
 		} else {
-			$count = isset($options['count']) ? $options['count'] : '';
-			$scope = isset($options['scope']) ? $options['scope'] : '';
-			$default = isset($options['default']) ? $options['default'] : '';
-			$values = array_diff($options, self::$RESERVED_KEYS);
+			$count = isset($options['count']) ? $options['count'] : null;
+			$scope = isset($options['scope']) ? $options['scope'] : null;
+			$default = isset($options['default']) ? $options['default'] : null;
+			$values = array_diff_key($options, self::$RESERVED_KEYS);
 
 			$entry = $this->lookup($locale, $key, $scope, $options);
 			if ($entry === null) {
-				$entry = $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
+				//$entry = $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
+				$entry = $default ? $this->_default($locale, $key, $default, $options) : null;
 			}
 			if ($entry === null) {
 				throw new MissingTranslationData($locale, $key, $options);
@@ -117,20 +119,14 @@ class Base
 			$this->init_translations();
 		}
 		$keys = I18n::normalize_keys($locale, $key, $scope, $options);
-		$x = $this->translations();
-		// echo '<pre>';
-		// print_r($x);
-		// echo '</pre>';
-		// exit;
-		$result = null;
-		while ($x !== null && !empty($keys)) {
+		$result = $this->translations();
+		while ($result !== null && !empty($keys)) {
 			$keyToFind = array_shift($keys);
-			if (!array_key_exists($keyToFind, $x)) {
+			if (!array_key_exists($keyToFind, $result)) {
 				return null;
 			}
-			$x = $x[$keyToFind];
-			if (!is_array($x)) {
-				$result = $x;
+			$result = $result[$keyToFind];
+			if (!is_array($result)) {
 				break;
 			}
 		}
@@ -141,7 +137,7 @@ class Base
 	{
 		unset($options['default']);
 		if (!is_array($subject)) {
-			return $this->resolve($locale, $object, $subject, $options);
+			return $this->lookup($locale, $object, $subject, $options);
 		}
 
 		foreach ($subject as $item) {
@@ -155,9 +151,19 @@ class Base
 
 	private function resolve($locale, $object, $subject, $options = null)
 	{
-		// echo "\nresolve: $subject\n";
-		// return $subject;
-		// return I18n::translate($subject, $options);
+		unset($options['default']);
+		if (isset($options['resolve']) && $options['resolve'] === false) {
+			return $subject;
+		}
+
+		$options['locale'] = $locale;
+		$options['raise'] = true;
+		try {
+			$subject = I18n::translate($subject, $options);
+		} catch (MissingTranslationData $exception) {
+			return null;
+		}
+
 		return $subject;
 	}
 
@@ -220,7 +226,11 @@ class Base
 
 	private function merge_translations($locale, $data, $options = array())
 	{
-		$this->translations[$locale] = $data;
+		if (isset($this->translations[$locale])) {
+			$this->translations[$locale] = array_merge_recursive($this->translations[$locale], $data);
+		} else {
+			$this->translations[$locale] = $data;
+		}
 	}
 }
 
