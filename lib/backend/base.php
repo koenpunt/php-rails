@@ -6,6 +6,7 @@ use \I18n\I18n;
 use \I18n\InvalidLocale;
 use \I18n\MissingTranslationData;
 use \I18n\UnknownFileType;
+use \I18n\Symbol;
 
 require_once('SymfonyComponents/YAML/sfYaml.php');
 
@@ -52,6 +53,9 @@ class Base
 			$values = array_diff_key($options, self::$RESERVED_KEYS);
 
 			$entry = $this->lookup($locale, $key, $scope, $options);
+			// echo "\n";
+			// print_r($values);
+			// echo "\n";
 			if ($entry === null) {
 				$entry = $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
 			}
@@ -119,6 +123,7 @@ class Base
 		$separator = isset($options['separator']) ? $options['separator'] : null;
 		$keys = I18n::normalize_keys($locale, $key, $scope, $separator);
 		$result = $this->translations();
+		// print_r($keys);
 		while ($result !== null && !empty($keys)) {
 			$key = new Symbol(array_shift($keys));
 			if (!array_key_exists($key->get_value(), $result)) {
@@ -135,6 +140,7 @@ class Base
 
 	private function _default($locale, $object, $subject, $options = array())
 	{
+		// echo "\n$subject\n";
 		unset($options['default']);
 		if (!is_array($subject)) {
 			$subject =  new Symbol($subject);
@@ -184,6 +190,7 @@ class Base
 
 	private function interpolate($locale, $string, $values = array())
 	{
+		// print_r($values);
 		if (!is_string($string) || empty($values)) {
 			return $string;
 		}
@@ -244,29 +251,6 @@ class Base
 		} else {
 			$this->translations[$locale] = $data;
 		}
-	}
-}
-
-class Symbol
-{
-	private $value;
-
-	public function __construct($value = null)
-	{
-		$this->set_value($value);
-	}
-
-	public function get_value()
-	{
-		return $this->value;
-	}
-
-	public function set_value($value = null)
-	{
-		if ($value instanceof Symbol) {
-			$value = $value->get_value();
-		}
-		$this->value = $value;
 	}
 }
 

@@ -10,6 +10,7 @@ define('APP', dirname(__FILE__));
 
 require_once('lib/exceptions.php');
 require_once('lib/backend/base.php');
+require_once('lib/symbol.php');
 require_once('lib/utils.php');
 
 class I18n
@@ -159,6 +160,10 @@ class I18n
 			}
 		}
 		if ($key) {
+			if ($key instanceof Symbol) {
+				$key = $key->get_value();
+			}
+
 			$keys[] = explode(self::$default_separator, $key);
 		}
 		// if any value is a dot key, split
