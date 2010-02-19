@@ -112,8 +112,6 @@ class I18n
 		if ($key === null) {
 			return null;
 		}
-		// $options = array_diff_key($args, array(0));
-		// $key = $args[0];
 		if (array_key_exists('locale', $options)) {
 			$locale = $options['locale'];
 			unset($options['locale']);
@@ -148,7 +146,6 @@ class I18n
 
 	public function normalize_keys($locale, $key, $scope, $separator = null)
 	{
-		// $keys = array_merge(array($locale), array($scope), array($key));
 		if ($locale) {
 			$keys[] = explode(self::$default_separator, $locale);
 		}
@@ -166,8 +163,6 @@ class I18n
 
 			$keys[] = explode(self::$default_separator, $key);
 		}
-		// if any value is a dot key, split
-		// return implode(self::$default_separator, $keys);
 		$keys = array_flatten($keys);
 		return $keys;
 	}
