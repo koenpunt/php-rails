@@ -2,7 +2,7 @@
 
 by Tom Rochette  
 <roctom@gmail.com>  
-<http://www.tomrochette.com>  
+<http://www.tomrochette.com>
 
 ## Introduction ##
 A brief summarization of what I18n is:
@@ -14,7 +14,7 @@ A brief summarization of what I18n is:
 > components and translating text.
 > Source : [Wikipedia](http://en.wikipedia.org/wiki/Internationalization_and_localization)
 
-This implementation is inspired and thus borrows heavily from Ruby on Rails' I18n.
+This implementation is inspired and thus borrows heavily from Ruby on Rails' I18n.  
 Ruby/Rails programming conventions have been maintained as much as possible. Deviation is due to language differences.
 
 ## Minimum Requirements ##
@@ -26,6 +26,10 @@ Ruby/Rails programming conventions have been maintained as much as possible. Dev
 
 Setup is very easy and straight-forward. Essentially, you have to point to the locales folder, and that's pretty much it.
 
+You can use _I18n::push\_load\_path(__PATH\_TO\_LOCALE__)_ to load a specific file, such as
+
+    I18n::push_load_path('/home/myapp/locales/fr.yml');
+
 ### Installing required PEAR package ###
 pear channel-discover pear.symfony-project.com  
 pear install symfony/YAML
@@ -35,4 +39,26 @@ pear install symfony/YAML
 - Internationalization similar to I18n found in Ruby on Rails I18n.
 - PHP can be used within the .yml/.php locales files.
 
+## Work in Progress ##
+
+- Localize support
+- Pluralize
+
 ## Usage ##
+Usage is similar to how you would use I18n in Rails.
+
+    I18n::translate('hello'); // Hello
+    I18n::translate('hello', array('locale' => 'fr')); // Bonjour
+    I18n::translate('hello_to', array('name' => 'Tom')); // Hello Tom
+    I18n::translate('hello_to', array('locale' => 'fr', 'name' => 'Tom')); // Bonjour Tom
+
+You can easily create an helper t() with something similar to
+
+    function t($key, $options = array())
+    {
+    	return I18n::translate($key, $options);
+    }
+
+which can be later used as
+
+    t('hello', array('locale' => 'fr', 'name' => 'Tom')); // Bonjour Tom
