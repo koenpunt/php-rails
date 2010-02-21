@@ -138,12 +138,10 @@ class Base
 	{
 		unset($options['default']);
 		if (!is_array($subject)) {
-			$subject =  new Symbol($subject);
 			return $this->resolve($locale, $object, $subject, $options);
 		}
 
 		foreach ($subject as $item) {
-			$item = new Symbol($item);
 			$result = $this->resolve($locale, $object, $item, $options);
 			if ($result !== null) {
 				return $result;
@@ -240,6 +238,9 @@ class Base
 
 	private function merge_translations($locale, $data, $options = array())
 	{
+		if (!is_array($data)) {
+			return;
+		}
 		if (isset($this->translations[$locale])) {
 			$this->translations[$locale] = array_merge_recursive($this->translations[$locale], $data);
 		} else {

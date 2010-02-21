@@ -10,6 +10,7 @@ define('APP', dirname(__FILE__));
 
 require_once('lib/exceptions.php');
 require_once('lib/backend/base.php');
+require_once('lib/helpers.php');
 require_once('lib/symbol.php');
 require_once('lib/utils.php');
 
@@ -177,7 +178,7 @@ class I18n
 
 	private function handle_exception($exception, $locale, $key, $options)
 	{
-
+		return self::default_exception_handler($exception, $locale, $key, $options);
 	}
 }
 

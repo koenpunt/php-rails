@@ -2,7 +2,7 @@
 
 by Tom Rochette  
 <roctom@gmail.com>  
-<http://www.tomrochette.com>
+<http://www.jolteon.net/projects/php-i18n>
 
 ## Introduction ##
 A brief summarization of what I18n is:
@@ -62,3 +62,19 @@ You can easily create an helper t() with something similar to
 which can be later used as
 
     t('hello', array('locale' => 'fr', 'name' => 'Tom')); // Bonjour Tom
+
+In order to differentiate symbols from strings, we have decided to use
+_s to specify it's a symbol.
+
+To use a symbol (which will be resolved), you simply do
+
+    I18n::translate('hello', array('default' => _s('hi'));	// if hello doesn't exist, the translation of hi is returned
+
+If you do not specifically use the _s() function, you'll be returning the string you passed
+
+    I18n::translate('hello', array('default' => 'Hello');	// if hello doesn't exist, Hello is returned
+
+Using symbols is only necessary when specifying default messages. If you specify an array of defaults messages to default to, you'd do something like
+
+    $defaults = array(_s('model.A'), _s('model.B'), 'Model A');
+    I18n::translate('hello', array('default' => $defaults);	// if hello doesn't exist, try to translate model.A, then model.B and if nothing is found, return string 'Model A'

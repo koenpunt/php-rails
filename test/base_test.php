@@ -108,10 +108,17 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
-	public function test_translate_with_default_message()
+	public function test_translate_with_default_message_as_string()
 	{
 		$expected = 'this is a custom message';
-		$actual = $this->base->translate('en', 'inclusion', array('default' => 'custom_message'));
+		$actual = $this->base->translate('en', 'inclusion', array('default' => 'this is a custom message'));
+		$this->assertEquals($expected, $actual);
+	}
+
+	public function test_translate_with_default_message_as_symbol()
+	{
+		$expected = 'this is a custom message';
+		$actual = $this->base->translate('en', 'inclusion', array('default' => _s('custom_message')));
 		$this->assertEquals($expected, $actual);
 	}
 
@@ -120,7 +127,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	 */
 	public function test_translate_with_default_message_and_incorrect_scope()
 	{
-		$this->base->translate('en', 'inclusion', array('default' => 'custom_message', 'scope' => array('activerecord', 'errors', 'message')));
+		echo $this->base->translate('en', 'inclusion', array('default' => _s('custom_message'), 'scope' => array('activerecord', 'errors', 'message')));
 	}
 
 	public function test_localize()
