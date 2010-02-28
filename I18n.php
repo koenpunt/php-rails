@@ -130,7 +130,7 @@ class I18n
 			if ($raises) {
 				throw $exception;
 			}
-			self::handle_exception($exception, $locale, $key, $options);
+			return self::handle_exception($exception, $locale, $key, $options);
 		}
 	}
 
@@ -140,10 +140,10 @@ class I18n
 		return self::translate($key, $options);
 	}
 
-	public function localize($object, $options = array())
-	{
-
-	}
+	// public function localize($object, $options = array())
+	// {
+	//
+	// }
 
 	public function normalize_keys($locale, $key, $scope, $separator = null)
 	{
@@ -165,12 +165,13 @@ class I18n
 			$keys[] = explode(self::$default_separator, $key);
 		}
 		$keys = array_flatten($keys);
+		array_map('_s', $keys);
 		return $keys;
 	}
 
 	private function default_exception_handler($exception, $locale, $key, $options)
 	{
-		if (is_a($exception, 'MissingTranslationData')) {
+		if ($exception instanceof MissingTranslationData) {
 			return $exception->getMessage();
 		}
 		throw $exception;

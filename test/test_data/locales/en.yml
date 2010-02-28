@@ -3,6 +3,7 @@ en:
   hello_to:
     world: Hello world
   string_to_interpolate: "this {{object}} is quite {{adjective}}"
+  string_to_interpolate_with_reserved_key: "this {{scope}} is incorrect"
   custom_message: this is a custom message
 
   activerecord:

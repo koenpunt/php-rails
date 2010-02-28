@@ -1,6 +1,6 @@
 <?php
 
-require_once('../I18n.php');
+require_once(dirname(__FILE__) . '/../I18n.php');
 
 use I18n\I18n;
 use I18n\Backend\Base;
@@ -70,6 +70,36 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @expectedException \I18n\MissingInterpolationArgument
+	 */
+	public function test_translate_with_interpolation_with_array_values()
+	{
+		$actual = $this->base->translate('en', 'string_to_interpolate', array('object' => array('banana', 'carrot')));
+		$expected = 'this banana is quite yellow';
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @expectedException \I18n\MissingInterpolationArgument
+	 */
+	public function test_translate_with_interpolation_without_required_values()
+	{
+		$actual = $this->base->translate('en', 'string_to_interpolate', array('_object' => 'banana', '_adjective' => 'yellow'));
+		$expected = 'this banana is quite yellow';
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @expectedException \I18n\ReservedInterpolationKey
+	 */
+	public function test_translate_with_interpolation_string_with_reserved_key()
+	{
+		$actual = $this->base->translate('en', 'string_to_interpolate_with_reserved_key', array('_object' => 'banana', '_adjective' => 'yellow'));
+		$expected = 'this banana is quite yellow';
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
 	 * @expectedException \I18n\MissingTranslationData
 	 */
 	public function test_translate_invalid_locale()
@@ -122,12 +152,34 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
+	public function test_translate_with_default_message_as_symbol_without_resolving()
+	{
+		$expected = _s('this is a custom message');
+		$actual = $this->base->translate('en', 'inclusion', array('default' => _s('this is a custom message'), 'resolve' => false));
+		$this->assertEquals($expected, $actual);
+	}
+
+	public function test_translate_with_default_messages()
+	{
+		$expected = 'this is a custom message';
+		$actual = $this->base->translate('en', 'inclusion', array('default' => array(_s('another_custom_message'), _s('custom_message'))));
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @expectedException \I18n\MissingTranslationData
+	 */
+	public function test_translate_with_default_messages_none_found()
+	{
+		$this->base->translate('en', 'inclusion', array('default' => array(_s('another_custom_message'), _s('custom_message_not_working'))));
+	}
+
 	/**
 	 * @expectedException \I18n\MissingTranslationData
 	 */
 	public function test_translate_with_default_message_and_incorrect_scope()
 	{
-		echo $this->base->translate('en', 'inclusion', array('default' => _s('custom_message'), 'scope' => array('activerecord', 'errors', 'message')));
+		$this->base->translate('en', 'inclusion', array('default' => _s('custom_message'), 'scope' => array('activerecord', 'errors', 'message')));
 	}
 
 	public function test_localize()

@@ -18,4 +18,12 @@ function array_flatten(array $array)
     return $array;
 }
 
+function var_dump_to_string($var)
+{
+	ob_start();
+	print_r($var);
+	$result = ob_get_clean();
+	return $result;
+}
+
 ?>

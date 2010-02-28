@@ -5,6 +5,8 @@ namespace I18n\Backend;
 use \I18n\I18n;
 use \I18n\InvalidLocale;
 use \I18n\MissingTranslationData;
+use \I18n\MissingInterpolationArgument;
+use \I18n\ReservedInterpolationKey;
 use \I18n\UnknownFileType;
 use \I18n\Symbol;
 
@@ -187,10 +189,29 @@ class Base
 			return $string;
 		}
 
+		preg_match('/{{(.*?)}}/', $string, $results);
+		array_shift($results);
+
+		foreach ($results as $key) {
+			if (array_key_exists($key, self::$RESERVED_KEYS)) {
+				throw new ReservedInterpolationKey($key, $string);
+			}
+		}
+
+		// if value is an array, we cannot consider it a usable value
 		foreach ($values as $key => $value) {
 			if (is_array($value)) {
-				continue;
+				unset($values[$key]);
 			}
+		}
+
+		$difference = array_diff($results, array_keys($values));
+		if (!empty($difference)) {
+			throw new MissingInterpolationArgument($values, $string);
+		}
+
+		$keys = $vals = array();
+		foreach ($values as $key => $value) {
 			$keys[] = '{{' . $key . '}}';
 			$vals[] = $value;
 		}
