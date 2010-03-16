@@ -24,7 +24,7 @@ class I18n
 	private static $available_locales = array();
 	private static $current_locale = null;
 
-	public function get_backend()
+	public static function get_backend()
 	{
 		if (self::$backend === null) {
 			self::$backend = new Backend\Base();
@@ -32,22 +32,22 @@ class I18n
 		return self::$backend;
 	}
 
-	public function set_backend($backend)
+	public static function set_backend($backend)
 	{
 		self::$backend = $backend;
 	}
 
-	public function get_default_locale()
+	public static function get_default_locale()
 	{
 		return self::$default_locale;
 	}
 
-	public function set_default_locale($locale)
+	public static function set_default_locale($locale)
 	{
 		self::$default_locale = $locale;
 	}
 
-	public function get_locale()
+	public static function get_locale()
 	{
 		if (self::$current_locale === null) {
 			self::$current_locale = self::$default_locale;
@@ -55,12 +55,12 @@ class I18n
 		return self::$current_locale;
 	}
 
-	public function set_locale($locale)
+	public static function set_locale($locale)
 	{
 		self::$current_locale = $locale;
 	}
 
-	public function get_available_locales()
+	public static function get_available_locales()
 	{
 		if (empty(self::$available_locales)) {
 			self::$available_locales = self::$backend->available_locales();
@@ -68,27 +68,27 @@ class I18n
 		return self::$available_locales;
 	}
 
-	public function set_available_locales($locale)
+	public static function set_available_locales($locale)
 	{
 		self::$available_locales = $locale;
 	}
 
-	public function get_default_separator()
+	public static function get_default_separator()
 	{
 		return self::$default_separator;
 	}
 
-	public function set_default_separator($separator)
+	public static function set_default_separator($separator)
 	{
 		self::$default_separator = $separator;
 	}
 
-	public function set_exception_handler($exception_handler)
+	public static function set_exception_handler($exception_handler)
 	{
 		self::$exception_handler = $exception_handler;
 	}
 
-	public function get_load_path()
+	public static function get_load_path()
 	{
 		if (self::$load_path === null) {
 			self::$load_path = array();
@@ -96,19 +96,19 @@ class I18n
 		return self::$load_path;
 	}
 
-	public function set_load_path($load_path)
+	public static function set_load_path($load_path)
 	{
 		self::$load_path = $load_path;
 	}
 
-	public function push_load_path($load_path)
+	public static function push_load_path($load_path)
 	{
 		if (count(self::$load_path) === 0 || !in_array($load_path, self::$load_path)) {
 			self::$load_path[] = $load_path;
 		}
 	}
 
-	public function translate($key, $options = array())
+	public static function translate($key, $options = array())
 	{
 		if ($key === null) {
 			return null;
@@ -134,7 +134,7 @@ class I18n
 		}
 	}
 
-	public function translate_exception($key, $options = array())
+	public static function translate_exception($key, $options = array())
 	{
 		$options['raise'] = true;
 		return self::translate($key, $options);
@@ -145,7 +145,7 @@ class I18n
 	//
 	// }
 
-	public function normalize_keys($locale, $key, $scope, $separator = null)
+	public static function normalize_keys($locale, $key, $scope, $separator = null)
 	{
 		if ($locale) {
 			$keys[] = explode(self::$default_separator, $locale);
@@ -169,7 +169,7 @@ class I18n
 		return $keys;
 	}
 
-	private function default_exception_handler($exception, $locale, $key, $options)
+	private static function default_exception_handler($exception, $locale, $key, $options)
 	{
 		if ($exception instanceof MissingTranslationData) {
 			return $exception->getMessage();
@@ -177,7 +177,7 @@ class I18n
 		throw $exception;
 	}
 
-	private function handle_exception($exception, $locale, $key, $options)
+	private static function handle_exception($exception, $locale, $key, $options)
 	{
 		return self::default_exception_handler($exception, $locale, $key, $options);
 	}
