@@ -157,7 +157,7 @@ class REnumerable implements Countable{
 		
 	}
 	public function entries(){
-		
+		return $this->_enumerable;
 	}
 	public function find(){
 		
@@ -240,14 +240,14 @@ class REnumerable implements Countable{
 	public function sort_by(){
 		
 	}
-	public function take(){
-		
+	public function take($n){
+		return array_slice($this->_enumerable, 0, $n);
 	}
 	public function take_while(){
 		
 	}
 	public function to_a(){
-		
+		return $this->entries();
 	}
 	public function zip(){
 		

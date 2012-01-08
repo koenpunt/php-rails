@@ -229,7 +229,9 @@ class REnumerableTest extends PHPUnit_Framework_TestCase{
 		
 	}
 	public function testTake(){
+		$e = new REnumerable(array(1,2,3,4,5,6,7,8));
 		
+		$this->assertEquals(array(1,2), $e->take(2));
 	}
 	public function testTake_while(){
 		
