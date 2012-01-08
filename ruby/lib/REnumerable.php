@@ -9,54 +9,6 @@ class REnumerable implements Countable{
 		$this->_enumerable = $enumerable;
 	}
 	
-	#all?
-	#any?
-	#chunk
-	#collect
-	#collect_concat
-	#count
-	#cycle
-	#detect
-	#drop
-	#drop_while
-	#each_cons
-	#each_entry
-	#each_slice
-	#each_with_index
-	#each_with_object
-	#entries
-	#find
-	#find_all
-	#find_index
-	#first
-	#flat_map
-	#grep
-	#group_by
-	#include?
-	#inject
-	#map
-	#max
-	#max_by
-	#member?
-	#min
-	#min_by
-	#minmax
-	#minmax_by
-	#none?
-	#one?
-	#partition
-	#reduce
-	#reject
-	#reverse_each
-	#select
-	#slice_before
-	#sort
-	#sort_by
-	#take
-	#take_while
-	#to_a
-	#zip
-	
 	
 	public function all__($block = false){
 		if(!$block){
