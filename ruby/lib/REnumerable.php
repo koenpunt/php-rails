@@ -6,7 +6,16 @@ class REnumerable implements Countable{
 		$_enumerable = null;
 	
 	public function __construct($enumerable){
-		$this->_enumerable = $enumerable;
+		if(is_array($enumerable)){
+			$this->_enumerable = $enumerable;
+		}elseif(is_string($enumerable)){
+			if(preg_match('/(?<start>\d+)\.\.(?<end>\d+)/', $enumerable, $matches)){
+				$this->_enumerable = range(intval($matches['start']), intval($matches['end']));
+			}elseif(preg_match('/(.* ?)*/', $enumerable)){
+				$this->_enumerable = explode(' ', $enumerable);
+			}
+			
+		}
 	}
 	
 	
@@ -111,51 +120,107 @@ class REnumerable implements Countable{
 		return $result;
 	}
 	
-	public function detect(){
-		
+	public function detect($ifnone = null, $block = false){
+		$result = null;
+		foreach($this->_enumerable as $entry){
+			if(call_user_func($block, $entry)){
+				$result = $entry; 
+				break;
+			}
+		}
+		if($result){
+			return $result;
+		}
+		if(is_callable($ifnone)){
+			return call_user_func($ifnone);
+		}
 	}
-	public function drop(){
-		
+	
+	public function drop($n){
+		return array_slice($this->_enumerable, $n);
 	}
-	public function drop_while(){
-		
+	
+	public function drop_while($block){
+		if(!$block){
+			return $this;
+		}
+		$result = array();
+		$i = -1;
+		foreach($this->_enumerable as $entry){
+			$i ++;
+			$result = call_user_func($block, $entry);
+			if(!$result || is_null($result)) break;
+		}
+		return $this->drop($i);
 	}
-	public function each_cons(){
+	
+	public function each_cons($n, $block = false){
+		if(!$block){
+			$result = array();
+			$block = function($entry) use (&$result){
+				array_push($result, $entry);
+			};
+		}
+		$count = count($this->_enumerable);
+		$count = $count - ($n % $count) + 1;
+		for($i = 0; $i < $count ; $i ++){
+			call_user_func($block, array_slice($this->_enumerable, $i, $n));
+		}
 		
+		return $result ? new REnumerable($result) : null;
 	}
+	
 	public function each_entry(){
+		/**
+		 * Not implementable? see: http://ruby-doc.org/core-1.9.3/Enumerable.html#method-i-each_entry
+		 *
+		 * @author Koen Punt
+		 */
+	}
+	
+	public function each_slice($n, $block = false){
+		#if($n <= 0)throw new ArgumentError('invalid slice slice');
+		if(!$block){
+			$result = array();
+			$block = function($entry) use (&$result){
+				array_push($result, $entry);
+			};
+		}
+		$count = count($this->_enumerable);
+		for($i = 0; $i < $count ; $i += $n){
+			call_user_func($block, array_slice($this->_enumerable, $i, $n));
+		}
+		
+		return $result ? new REnumerable($result) : null;
 		
 	}
-	public function each_slice($size, $block = false){
+	
+	public function each_with_index($args_or_block = null, $block = false){
+		if(!$block){
+			if(is_callable($args_or_block)){
+				$args = array();
+				$block = $args_or_block;
+			}else{
+				$args = is_null($args_or_block) ? array() : $args;
+				$result = array();
+				$block = function($entry, $key) use (&$result){
+					$result[$entry] = $key;
+				};
+			}
+		}
+		$e = new REnumerable('cat dog wombat');
+		#$hash = array();
+		foreach($this->_enumerable as $key => $entry){
+			call_user_func_array($block, array($entry, $key) + $args);
+		}
 		
-		
-		if($size <= 0)throw new ArgumentError('invalid slice slice');
-		
-		
-		
-		# long size = NUM2LONG(n);
-		# VALUE args[2], ary;
-		# 
-		# if (size <= 0) rb_raise(rb_eArgError, "invalid slice size");
-		# RETURN_ENUMERATOR(obj, 1, &n);
-		# args[0] = rb_ary_new2(size);
-		# args[1] = (VALUE)size;
-		# 
-		# rb_block_call(obj, id_each, 0, 0, each_slice_i, (VALUE)args);
-		# 
-		# ary = args[0];
-		# if (RARRAY_LEN(ary) > 0) rb_yield(ary);
-		# 
-		# return Qnil;
-		
-		
+		return $result ? new REnumerable($result) : null;
 	}
-	public function each_with_index(){
-		
-	}
+	
 	public function each_with_object(){
 		
 	}
+	
 	public function entries(){
 		return $this->_enumerable;
 	}

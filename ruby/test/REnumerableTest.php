@@ -121,31 +121,142 @@ class REnumerableTest extends PHPUnit_Framework_TestCase{
 	}
 	
 	public function testDetect(){
+		$e = new REnumerable('1..10');
+		$ifnone = null;
+		$false_result = $e->detect(function(){
+			return 'ifnone';
+		}, function($i){
+			return  $i % 5 == 0 && $i % 7 == 0;
+		});
 		
+		$e = new REnumerable('1..100');
+		$true_result = $e->detect(null, function($i){
+			return  $i % 5 == 0 && $i % 7 == 0;
+		});
+		
+		$this->assertEquals(35, $true_result);
+		
+		$this->assertEquals('ifnone', $false_result);
 	}
+	
 	public function testDrop(){
-		
+		$e = new REnumerable(array(1, 2, 3, 4, 5, 0));
+		$this->assertEquals(array(4, 5, 0), $e->drop(3));
 	}
+	
+	/**
+	 * @depends testDrop
+	 */
 	public function testDrop_while(){
+		$e = new REnumerable(array(1, 2, 3, 4, 5, 0));
+		$result = $e->drop_while(function($i){
+			return $i < 3;
+		});
+		$this->assertEquals(array(3, 4, 5, 0), $result);
+		
+		$e = new REnumerable(array(1, 2, 3, 4, 5, 0));
+		$result = $e->drop_while(function($i){
+			return $i < 1;
+		});
+		$this->assertEquals(array(1, 2, 3, 4, 5, 0), $result);
 		
 	}
+	
+	
 	public function testEach_cons(){
+		$e = new REnumerable('0..10');
 		
+		$this->assertEquals(new REnumerable(array(
+			array(0, 1, 2),
+			array(1, 2, 3),
+			array(2, 3, 4),
+			array(3, 4, 5),
+			array(4, 5, 6),
+			array(5, 6, 7),
+			array(6, 7, 8),
+			array(7, 8, 9),
+			array(8, 9, 10)
+		)), $e->each_cons(3));
 	}
+	
+	public function testEach_consWithBlock(){
+		$e = new REnumerable('0..10');
+		$result = array();
+		$e->each_cons(4, function($entry) use (&$result){
+			array_push($result, $entry);
+		});
+		
+		$this->assertEquals(array(
+			array(0, 1, 2, 3),
+			array(1, 2, 3, 4),
+			array(2, 3, 4, 5),
+			array(3, 4, 5, 6),
+			array(4, 5, 6, 7),
+			array(5, 6, 7, 8),
+			array(6, 7, 8, 9),
+			array(7, 8, 9, 10)
+		), $result);
+	}
+	
 	public function testEach_entry(){
 		
 	}
+	
 	public function testEach_slice(){
+		$e = new REnumerable('1..10');
+		$this->assertEquals(new REnumerable(array(
+			array(1, 2, 3),
+			array(4, 5, 6),
+			array(7, 8, 9),
+			array(10)
+		)), $e->each_slice(3));
 		
 	}
+	
+	public function testEach_sliceWithBlock(){
+		$e = new REnumerable('1..10');
+		$result = array();
+		$e->each_slice(4, function($entry) use (&$result){
+			array_push($result, $entry);
+		});
+		
+		$this->assertEquals(array(
+			array(1, 2, 3, 4),
+			array(5, 6, 7, 8),
+			array(9, 10)
+		), $result);
+	}
+	
+	
 	public function testEach_with_index(){
-		
+		$e = new REnumerable('cat dog wombat');
+		$result = $e->each_with_index();
+		$this->assertEquals(new REnumerable(array(
+			'cat' => 0,
+			'dog' => 1, 
+			'wombat' => 2
+		)), $result);
 	}
+	
+	public function testEach_with_indexWithBlock(){
+		$e = new REnumerable('cat dog wombat');
+		$hash = array();
+		$e->each_with_index(function($item, $index) use (&$hash){
+			$hash[$item] = $index;
+		});
+		$this->assertEquals(array(
+			'cat' => 0,
+			'dog' => 1, 
+			'wombat' => 2
+		), $hash);
+	}
+	
 	public function testEach_with_object(){
 		
 	}
 	public function testEntries(){
-		
+		$e = new REnumerable('cat dog wombat');
+		$this->assertEquals(array('cat', 'dog', 'wombat'), $e->entries());
 	}
 	public function testFind(){
 		
