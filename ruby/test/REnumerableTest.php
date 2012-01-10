@@ -87,7 +87,7 @@ class REnumerableTest extends PHPUnit_Framework_TestCase{
 		
 		$result = $e->collect_concat();
 		
-		$this->assertEquals(new REnumerable(array(1,2,3,4)), $result);
+		$this->assertEquals(new REnumerator(array(1,2,3,4)), $result);
 	}
 	
 	public function testCollect_concatWithBlock(){
@@ -166,7 +166,7 @@ class REnumerableTest extends PHPUnit_Framework_TestCase{
 	public function testEach_cons(){
 		$e = new REnumerable('0..10');
 		
-		$this->assertEquals(new REnumerable(array(
+		$this->assertEquals(new REnumerator(array(
 			array(0, 1, 2),
 			array(1, 2, 3),
 			array(2, 3, 4),
@@ -177,6 +177,7 @@ class REnumerableTest extends PHPUnit_Framework_TestCase{
 			array(7, 8, 9),
 			array(8, 9, 10)
 		)), $e->each_cons(3));
+		unset($e);
 	}
 	
 	public function testEach_consWithBlock(){
@@ -196,6 +197,7 @@ class REnumerableTest extends PHPUnit_Framework_TestCase{
 			array(6, 7, 8, 9),
 			array(7, 8, 9, 10)
 		), $result);
+		unset($e);
 	}
 	
 	public function testEach_entry(){
@@ -204,13 +206,13 @@ class REnumerableTest extends PHPUnit_Framework_TestCase{
 	
 	public function testEach_slice(){
 		$e = new REnumerable('1..10');
-		$this->assertEquals(new REnumerable(array(
+		$this->assertEquals(new REnumerator(array(
 			array(1, 2, 3),
 			array(4, 5, 6),
 			array(7, 8, 9),
 			array(10)
 		)), $e->each_slice(3));
-		
+		unset($e);
 	}
 	
 	public function testEach_sliceWithBlock(){
@@ -225,17 +227,19 @@ class REnumerableTest extends PHPUnit_Framework_TestCase{
 			array(5, 6, 7, 8),
 			array(9, 10)
 		), $result);
+		unset($e);
 	}
 	
 	
 	public function testEach_with_index(){
 		$e = new REnumerable('cat dog wombat');
 		$result = $e->each_with_index();
-		$this->assertEquals(new REnumerable(array(
+		$this->assertEquals(new REnumerator(array(
 			'cat' => 0,
 			'dog' => 1, 
 			'wombat' => 2
 		)), $result);
+		unset($e);
 	}
 	
 	public function testEach_with_indexWithBlock(){
@@ -249,39 +253,147 @@ class REnumerableTest extends PHPUnit_Framework_TestCase{
 			'dog' => 1, 
 			'wombat' => 2
 		), $hash);
+		unset($e);
 	}
 	
 	public function testEach_with_object(){
+		$e = new REnumerable('1..10');
+		$result = $e->each_with_object(array());
 		
+		$this->assertEquals(new REnumerator(array(
+			array(1,array()),
+			array(2,array()),
+			array(3,array()),
+			array(4,array()),
+			array(5,array()),
+			array(6,array()),
+			array(7,array()),
+			array(8,array()),
+			array(9,array()),
+			array(10,array())
+		)), $result);
 	}
+	
+	public function testEach_with_objectWithBlock(){
+		$e = new REnumerable('1..10');
+		$result = $e->each_with_object(array('test'), function($entry, $object){
+			array_push($object, $entry);
+		});
+		
+		$this->assertEquals(array('test', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), $result);
+	}
+	
 	public function testEntries(){
 		$e = new REnumerable('cat dog wombat');
 		$this->assertEquals(array('cat', 'dog', 'wombat'), $e->entries());
+		unset($e);
 	}
+	
 	public function testFind(){
+		$e = new REnumerable('1..10');
+		$ifnone = null;
+		$false_result = $e->find(function(){
+			return 'ifnone';
+		}, function($i){
+			return  $i % 5 == 0 && $i % 7 == 0;
+		});
 		
+		$e = new REnumerable('1..100');
+		$true_result = $e->find(null, function($i){
+			return  $i % 5 == 0 && $i % 7 == 0;
+		});
+		
+		$this->assertEquals(35, $true_result);
+		
+		$this->assertEquals('ifnone', $false_result);
+		unset($e);
 	}
+	
 	public function testFind_all(){
+		$e = new REnumerable('1..10');
+		$result = $e->find_all(function($i){
+			return $i % 3 == 0;
+		});
+		$this->assertEquals(array(3, 6, 9), $result);
 		
+		$result = $e->find_all(function($i){
+			return $i > 10;
+		});
+		$this->assertEquals(array(), $result);
+		
+		$result = $e->find_all();
+		$this->assertInstanceOf('REnumerator', $result);
+		unset($e);
 	}
+	
 	public function testFind_index(){
+		$e = new REnumerable('1..100');
+		$this->assertEquals(49, $e->find_index(50));
+		
+		$se = new REnumerable('1..10');
+		$result = $se->find_index(function($i){ return $i % 5 == 0 && $i % 7 == 0; });
+		$this->assertEquals(null, $result);  #=> nil
+		
+		$result = $e->find_index(function($i){ return $i % 5 == 0 && $i % 7 == 0; });
+		$this->assertEquals(34, $result);   #=> 34
 		
 	}
+	
 	public function testFirst(){
+		$e = new REnumerable('foo bar baz');
+		
+		$this->assertEquals('foo', $e->first());
+		
+		$this->assertEquals(array('foo', 'bar'), $e->first(2));
+		
+		$e = new REnumerable(array());
+		
+		$this->assertEquals(null, $e->first());
+		
 		
 	}
+	
 	public function testFlat_map(){
+		$e = new REnumerable(array(array(1,2),array(3,4)));
 		
+		$result = $e->flat_map();
+		
+		$this->assertEquals(new REnumerator(array(1,2,3,4)), $result);
 	}
+	
+	public function testFlat_mapWithBlock(){
+		$e = new REnumerable(array(array(1,2),array(3,4)));
+		
+		$result = $e->flat_map(function($entry){
+			return $entry;
+		});
+		
+		$this->assertEquals(array(1, 2, 3, 4), $result);
+	}
+	
 	public function testGrep(){
-		
 	}
+	
 	public function testGroup_by(){
+		$e = new REnumerable('1..6');
 		
+		$this->assertInstanceOf('REnumerator', $e->group_by());
+		
+		$result = $e->group_by(function($i){
+			return $i % 3;
+		});
+		
+		$this->assertEquals(new RHash(array(
+			0 => array(3, 6),
+			1 => array(1, 4),
+			2 => array(2, 5)
+		)), $result);
 	}
+	
 	public function testInclude__(){
 		
 	}
+	
 	public function testInject(){
 		
 	}
