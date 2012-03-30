@@ -34,6 +34,8 @@
 # p SecureRandom.random_bytes(10) #=> "\016\t{\370g\310pbr\301"
 # p SecureRandom.random_bytes(10) #=> "\323U\030TO\234\357\020\a\337"
 # ...
+	
+require_once 'php/lib/Math.php';
 
 class RSecureRandom{
 	# SecureRandom.random_bytes generates a random binary string.
@@ -177,10 +179,9 @@ class RSecureRandom{
 	#
 	public static function random_number($n=1){
 		return mt_rand(0, $n);
-		/*
 		if(0 < $n){
 			$hex = dechex($n);
-			if((strlen($hex) & 1) == 1)
+			if((strlen($hex) & 1) == 1){
 				$hex = '0' . $hex;
 			}
 			$bin = pack("H*", $hex);
@@ -191,14 +192,13 @@ class RSecureRandom{
 			do{
 				$rnd = self::random_bytes(strlen($bin));
 				$rnd[0] = chr(ord($rnd[0]) & $mask);
-			} while(rnd > bin);
+			} while($rnd >= $bin);
 			return hexdec(unpack("H*", $rnd)[0]);
 		}else{
 			# assumption: Float::MANT_DIG <= 64
-			$i64 = unpack("Q", SecureRandom::random_bytes(8))[0];
-			Math.ldexp(i64 >> (64-Float::MANT_DIG), -Float::MANT_DIG)
-		end
-		*/
+			$i64 = unpack("Q", RSecureRandom::random_bytes(8))[0];
+			return Math::ldexp($i64 >> (64-RFloat::MANT_DIG), -RFloat::MANT_DIG);
+		}
 	}
 	
 	# SecureRandom.uuid generates a v4 random UUID (Universally Unique IDentifier).

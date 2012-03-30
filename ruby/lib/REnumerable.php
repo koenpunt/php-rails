@@ -2,6 +2,13 @@
 require_once 'REnumerator.php';
 require_once 'RHash.php';
 
+
+/**
+ * http://ruby-doc.org/core-1.9.3/Enumerable.html
+ *
+ * @package default
+ * @author Koen Punt
+ */
 class REnumerable implements Countable{
 		
 	protected 
@@ -77,7 +84,7 @@ class REnumerable implements Countable{
 	
 	public function collect($block = false){
 		if(!$block){
-			return $this;
+			return new REnumerator($this->_enumerable);
 		}
 		
 		return array_map($block, $this->_enumerable);
@@ -309,23 +316,25 @@ class REnumerable implements Countable{
 		return new RHash($result);
 	}
 	
-	public function include__(){
+	public function include__($object){
 		
 	}
 	public function inject(){
 		
 	}
-	public function map(){
-		
+	
+	public function map($block = false){
+		return $this->collect($block);
 	}
+	
 	public function max(){
 		
 	}
 	public function max_by(){
 		
 	}
-	public function member__(){
-		
+	public function member__($object){
+		return include__($object);
 	}
 	public function min(){
 		
@@ -357,8 +366,8 @@ class REnumerable implements Countable{
 	public function reverse_each(){
 		
 	}
-	public function select(){
-		
+	public function select($block = false){
+		return $this->find_all($block);
 	}
 	public function slice_before(){
 		
