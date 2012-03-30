@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Math methods explained: http://lua-users.org/wiki/MathLibraryTutorial
+ */
+
 class Math {
 
 	/**

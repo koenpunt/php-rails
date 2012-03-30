@@ -35,8 +35,6 @@
 # p SecureRandom.random_bytes(10) #=> "\323U\030TO\234\357\020\a\337"
 # ...
 	
-require_once 'php/lib/Math.php';
-
 class RSecureRandom{
 	# SecureRandom.random_bytes generates a random binary string.
 	#
@@ -195,6 +193,7 @@ class RSecureRandom{
 			} while($rnd >= $bin);
 			return hexdec(unpack("H*", $rnd)[0]);
 		}else{
+			require_once 'php/lib/Math.php';
 			# assumption: Float::MANT_DIG <= 64
 			$i64 = unpack("Q", RSecureRandom::random_bytes(8))[0];
 			return Math::ldexp($i64 >> (64-RFloat::MANT_DIG), -RFloat::MANT_DIG);
