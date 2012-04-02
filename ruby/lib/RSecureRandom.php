@@ -195,7 +195,7 @@ class RSecureRandom{
 		}else{
 			require_once 'php/lib/Math.php';
 			# assumption: Float::MANT_DIG <= 64
-			$i64 = unpack("Q", RSecureRandom::random_bytes(8))[0];
+			$i64 = current(unpack("Q", RSecureRandom::random_bytes(8)));
 			return Math::ldexp($i64 >> (64-RFloat::MANT_DIG), -RFloat::MANT_DIG);
 		}
 	}
