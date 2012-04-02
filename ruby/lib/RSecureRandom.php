@@ -191,7 +191,7 @@ class RSecureRandom{
 				$rnd = self::random_bytes(strlen($bin));
 				$rnd[0] = chr(ord($rnd[0]) & $mask);
 			} while($rnd >= $bin);
-			return hexdec(unpack("H*", $rnd)[0]);
+			return hexdec(current(unpack("H*", $rnd)));
 		}else{
 			require_once 'php/lib/Math.php';
 			# assumption: Float::MANT_DIG <= 64
