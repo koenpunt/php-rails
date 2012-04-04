@@ -99,7 +99,7 @@ class RSecureRandom{
 	# NotImplementedError is raised.
 	public static function hex($n=16){
 		$h = unpack("H*", self::random_bytes($n));
-		return $h[0];
+		return $h[1];
 	}
 	
 	# SecureRandom.base64 generates a random base64 string.
