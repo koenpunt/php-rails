@@ -1,5 +1,5 @@
 <?php 
-
+# http://www.ruby-doc.org/stdlib-1.9.3/libdoc/fileutils/rdoc/index.html
 #
 # = fileutils.rb
 #
@@ -136,8 +136,24 @@ class RFileUtils{
     end
 	*/
 		
-	public function mkdir_p($path){
+	public static function mkdir_p($path){
 		return @mkdir($path, 0777, true);
+	}
+	
+	public static function rm_r($list, $options=array()){
+		$force = $options['force'] ? 'f' : '';
+		$list = join((array)$list, ' ');
+		$command = "rm -r{$force} {$list} 2>&1";
+		if($options['verbose']){
+			echo $command;
+		}
+		@exec($command, $output);
+		return count($output) == 0;
+	}
+	
+	public static function rm_rf($list, $options=array()){
+		$options = array('force' => true) + $options;
+		return self::rm_r($list, $options);
 	}
 	
 }
