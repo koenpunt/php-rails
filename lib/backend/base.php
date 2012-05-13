@@ -4,7 +4,7 @@ namespace I18n\Backend;
 
 use \I18n\I18n;
 use \I18n\InvalidLocale;
-use \I18n\MissingTranslationData;
+use \I18n\MissingTranslation;
 use \I18n\MissingInterpolationArgument;
 use \I18n\ReservedInterpolationKey;
 use \I18n\UnknownFileType;
@@ -14,7 +14,9 @@ require_once('SymfonyComponents/YAML/sfYaml.php');
 
 class Base
 {
-	private static $RESERVED_KEYS = array('scope' => null, 'default' => null, 'separator' => null, 'resolve' => null);
+	static $RESERVED_KEYS = array('scope', 'default', 'separator', 'resolve', 'object', 'fallback', 'format', 'cascade', 'throw', 'raise', 'rescue_format');
+	#RESERVED_KEYS_PATTERN = /%\{(#{RESERVED_KEYS.join("|")})\}/
+	
 	private $initialized = false;
 	private $translations = null;
 
@@ -32,44 +34,33 @@ class Base
 
 	public function translate($locale, $key, $options = array())
 	{
-		if ($locale === null) {
+		if (is_null($locale)){
 			throw new InvalidLocale($locale);
 		}
+		
+		$entry = $key ? self::lookup($locale, $key, $options['scope'], $options) : null;
 
-		if (is_array($key)) {
-			foreach ($key as $k) {
-				$to_translate[] = $this->translate($locale, $k, $options);
-			}
-			return $to_translate;
-		}
+		if( empty($options)){
+			$entry = self::resolve($locale, $key, $entry, $options);
+		}else{
+			list($count, $default) = array($options['count'], $options['default']);
+			$values = array_diff_key($options, array_flip(self::$RESERVED_KEYS));
 
-		if (empty($options)) {
-			$entry = $this->resolve($locale, $key, $this->lookup($locale, $key), $options);
-			if ($entry === null) {
-				throw new MissingTranslationData($locale, $key, $options);
-			}
-		} else {
-			$count = isset($options['count']) ? $options['count'] : null;
-			$scope = isset($options['scope']) ? $options['scope'] : null;
-			$default = isset($options['default']) ? $options['default'] : null;
-			$values = array_diff_key($options, self::$RESERVED_KEYS);
-
-			$entry = $this->lookup($locale, $key, $scope, $options);
-			if ($entry === null) {
+			if(is_null($entry)){
 				$entry = $default ? $this->_default($locale, $key, $default, $options) : $this->resolve($locale, $key, $entry, $options);
 			}
-			if ($entry === null) {
-				throw new MissingTranslationData($locale, $key, $options);
-			}
-
-			if ($count) {
-				$entry = $this->pluralize($locale, $entry, $count);
-			}
-			if ($values) {
-				$entry = $this->interpolate($locale, $entry, $values);
-			}
 		}
+		if(is_null($entry)){
+			throw new MissingTranslation($locale, $key, $options);
+		}
+		#entry = entry.dup if entry.is_a?(String)
 
+		if($count){
+			$entry = self::pluralize($locale, $entry, $count);
+		}
+		if ($values){
+			$entry = self::interpolate($locale, $entry, $values);
+		}
 		return $entry;
 	}
 
@@ -103,7 +94,7 @@ class Base
 		$this->initialized = true;
 	}
 
-	private function translations()
+	public function translations()
 	{
 		if ($this->translations === null) {
 			$this->translations = array();
@@ -111,29 +102,29 @@ class Base
 		return $this->translations;
 	}
 
-	private function lookup($locale, $key, $scope = array(), $options = array())
-	{
-		if ($key === null) {
-			return;
-		}
+	# Looks up a translation from the translations hash. Returns nil if
+	# eiher key is nil, or locale, scope or key do not exist as a key in the
+	# nested translations hash. Splits keys or scopes containing dots
+	# into multiple keys, i.e. <tt>currency.format</tt> is regarded the same as
+	# <tt>%w(currency format)</tt>.
+	protected function lookup($locale, $key, $scope = array(), $options = array()){
 		if (!$this->initialized) {
 			$this->init_translations();
 		}
-		$separator = isset($options['separator']) ? $options['separator'] : null;
-		$keys = I18n::normalize_keys($locale, $key, $scope, $separator);
-		$result = $this->translations();
-		while ($result !== null && !empty($keys)) {
-			$key = new Symbol(array_shift($keys));
-			if (!array_key_exists($key->get_value(), $result)) {
+		$keys = I18n::normalize_keys($locale, $key, $scope, $options['separator']);
+		$_this = $this;
+		$data = array_reduce($keys, function($result, $_key) use ($_this, $locale, $options){
+			$key = new Symbol($_key);
+			if( !(\is_hash($result) && array_key_exists($_key, $result) ) ){
 				return null;
-			}
-			$result = $result[$key->get_value()];
+			} 
+			$result = $result[$_key];
 			if ($result instanceof Symbol) {
 				$result = $this->resolve($locale, $key, $result, $options);
 			}
-		}
-
-		return $result;
+			return $result;
+		}, $this->translations());
+		return $data;
 	}
 
 	private function _default($locale, $object, $subject, $options = array())
@@ -166,57 +157,39 @@ class Base
 			} else {
 				return $subject;
 			}
-		} catch (MissingTranslationData $exception) {
+		} catch (MissingTranslation $exception) {
 			return null;
 		}
 	}
-
-	private function pluralize($locale, $entry, $count)
-	{
-		// if ($count === 0) {
-		// 	$key = 'zero';
-		// }
-		// $key = isset($key) ? $key : ($count === 1 ? 'one' : 'other');
-		// if ($entry) {
-		// 	throw new InvalidPluralizationData($entry, $count);
-		// }
-		return $entry;
+	
+	# Picks a translation from an array according to English pluralization
+	# rules. It will pick the first translation if count is not equal to 1
+	# and the second translation if it is equal to 1. Other backends can
+	# implement more flexible or complex pluralization rules.
+	private function pluralize($locale, $entry, $count){
+		if( !(is_hash($entry) && $count)){
+			return $entry;
+		}
+		
+		if( $count == 0 && array_key_exists('zero', $entry)){
+			 $key = 'zero';
+		}
+		$key = $key ?: ( $count == 1 ? 'one' : 'other' );
+		if(!array_key_exists($key, $entry)){
+			throw new InvalidPluralizationData($entry, $count);
+		}
+		return $entry[$key];
 	}
-
-	private function interpolate($locale, $string, $values = array())
-	{
-		if (!is_string($string) || empty($values)) {
-			return $string;
+	
+	# Interpolates values into a given string.
+	#
+	#   interpolate "file %{file} opened by %%{user}", :file => 'test.txt', :user => 'Mr. X'
+	#   # => "file test.txt opened by %{user}"
+	protected function interpolate($locale, $string, $values = array()){
+		if( is_string($string) && !empty($values)){
+			return I18n::interpolate($string, $values);
 		}
-
-		preg_match('/{{(.*?)}}/', $string, $results);
-		array_shift($results);
-
-		foreach ($results as $key) {
-			if (array_key_exists($key, self::$RESERVED_KEYS)) {
-				throw new ReservedInterpolationKey($key, $string);
-			}
-		}
-
-		// if value is an array, we cannot consider it a usable value
-		foreach ($values as $key => $value) {
-			if (is_array($value)) {
-				unset($values[$key]);
-			}
-		}
-
-		$difference = array_diff($results, array_keys($values));
-		if (!empty($difference)) {
-			throw new MissingInterpolationArgument($values, $string);
-		}
-
-		$keys = $vals = array();
-		foreach ($values as $key => $value) {
-			$keys[] = '{{' . $key . '}}';
-			$vals[] = $value;
-		}
-
-		return str_replace($keys, $vals, $string);
+		return $string;
 	}
 
 	private function preserve_encoding($string)

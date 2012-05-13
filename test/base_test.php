@@ -100,7 +100,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \I18n\MissingTranslationData
+	 * @expectedException \I18n\MissingTranslation
 	 */
 	public function test_translate_invalid_locale()
 	{
@@ -116,7 +116,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \I18n\MissingTranslationData
+	 * @expectedException \I18n\MissingTranslation
 	 */
 	public function test_translate_null_key()
 	{
@@ -124,7 +124,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \I18n\MissingTranslationData
+	 * @expectedException \I18n\MissingTranslation
 	 */
 	public function test_translate_null_key_with_options()
 	{
@@ -167,7 +167,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \I18n\MissingTranslationData
+	 * @expectedException \I18n\MissingTranslation
 	 */
 	public function test_translate_with_default_messages_none_found()
 	{
@@ -175,7 +175,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \I18n\MissingTranslationData
+	 * @expectedException \I18n\MissingTranslation
 	 */
 	public function test_translate_with_default_message_and_incorrect_scope()
 	{

@@ -15,7 +15,7 @@ class InvalidLocale extends InvalidArgumentException
 	}
 }
 
-class MissingTranslationData extends InvalidArgumentException
+class MissingTranslation extends InvalidArgumentException
 {
 	private $key;
 	private $locale;

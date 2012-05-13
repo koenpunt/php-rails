@@ -155,7 +155,7 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * @expectedException \I18n\MissingTranslationData
+	 * @expectedException \I18n\MissingTranslation
 	 */
 	public function test_translate_exception_with_throw()
 	{
