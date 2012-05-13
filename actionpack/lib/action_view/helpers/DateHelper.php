@@ -72,149 +72,105 @@ class DateHelper{
 	#   distance_of_time_in_words(to_time, from_time, true)     # => about 6 years
 	#   distance_of_time_in_words(Time.now, Time.now)           # => less than a minute
 	#
-	/*
-    def distance_of_time_in_words(from_time, to_time = 0, include_seconds_or_options = {}, options = {})
-      if include_seconds_or_options.is_a?(Hash)
-        options = include_seconds_or_options
-      else
-        ActiveSupport::Deprecation.warn "distance_of_time_in_words and time_ago_in_words now accept :include_seconds " +
-                                        "as a part of options hash, not a boolean argument", caller
-        options[:include_seconds] ||= !!include_seconds_or_options
-      end
-
-      from_time = from_time.to_time if from_time.respond_to?(:to_time)
-      to_time = to_time.to_time if to_time.respond_to?(:to_time)
-      from_time, to_time = to_time, from_time if from_time > to_time
-      distance_in_minutes = ((to_time - from_time)/60.0).round
-      distance_in_seconds = (to_time - from_time).round
-
-      I18n.with_options :locale => options[:locale], :scope => :'datetime.distance_in_words' do |locale|
-        case distance_in_minutes
-          when 0..1
-            return distance_in_minutes == 0 ?
-                   locale.t(:less_than_x_minutes, :count => 1) :
-                   locale.t(:x_minutes, :count => distance_in_minutes) unless options[:include_seconds]
-
-            case distance_in_seconds
-              when 0..4   then locale.t :less_than_x_seconds, :count => 5
-              when 5..9   then locale.t :less_than_x_seconds, :count => 10
-              when 10..19 then locale.t :less_than_x_seconds, :count => 20
-              when 20..39 then locale.t :half_a_minute
-              when 40..59 then locale.t :less_than_x_minutes, :count => 1
-              else             locale.t :x_minutes,           :count => 1
-            end
-
-          when 2...45           then locale.t :x_minutes,      :count => distance_in_minutes
-          when 45...90          then locale.t :about_x_hours,  :count => 1
-          # 90 mins up to 24 hours
-          when 90...1440        then locale.t :about_x_hours,  :count => (distance_in_minutes.to_f / 60.0).round
-          # 24 hours up to 42 hours
-          when 1440...2520      then locale.t :x_days,         :count => 1
-          # 42 hours up to 30 days
-          when 2520...43200     then locale.t :x_days,         :count => (distance_in_minutes.to_f / 1440.0).round
-          # 30 days up to 60 days
-          when 43200...86400    then locale.t :about_x_months, :count => (distance_in_minutes.to_f / 43200.0).round
-          # 60 days up to 365 days
-          when 86400...525600   then locale.t :x_months,       :count => (distance_in_minutes.to_f / 43200.0).round
-          else
-            if from_time.acts_like?(:time) && to_time.acts_like?(:time)
-              fyear = from_time.year
-              fyear += 1 if from_time.month >= 3
-              tyear = to_time.year
-              tyear -= 1 if to_time.month < 3
-              leap_years = (fyear > tyear) ? 0 : (fyear..tyear).count{|x| Date.leap?(x)}
-              minute_offset_for_leap_year = leap_years * 1440
-              # Discount the leap year days when calculating year distance.
-              # e.g. if there are 20 leap year days between 2 dates having the same day
-              # and month then the based on 365 days calculation
-              # the distance in years will come out to over 80 years when in written
-              # english it would read better as about 80 years.
-              minutes_with_offset = distance_in_minutes - minute_offset_for_leap_year
-            else
-              minutes_with_offset = distance_in_minutes
-            end
-            remainder                   = (minutes_with_offset % 525600)
-            distance_in_years           = (minutes_with_offset / 525600)
-            if remainder < 131400
-              locale.t(:about_x_years,  :count => distance_in_years)
-            elsif remainder < 394200
-              locale.t(:over_x_years,   :count => distance_in_years)
-            else
-              locale.t(:almost_x_years, :count => distance_in_years + 1)
-            end
-        end
-      end
-    end
-		
-	*/
-	public static function distance_of_time_in_words($from_time, $to_time = 0, $include_seconds = false){
-		/*
-			TODO Reimplement this method with source from above
-		*/
-		$to_time = is_null($to_time) ? time() : $to_time;
-	
-		$distance_in_minutes = floor(abs($to_time - $from_time) / 60);
-		$distance_in_seconds = floor(abs($to_time - $from_time));
-	
-		$string = '';
-		$parameters = array();
-	
-		if ($distance_in_minutes <= 1){
-			if (!$include_seconds){
-				$string = $distance_in_minutes == 0 ? 'less than a minute' : '1 minute';
-			}else{
-				if ($distance_in_seconds <= 5){
-					$string = 'less than 5 seconds';
-				}else if ($distance_in_seconds >= 6 && $distance_in_seconds <= 10){
-					$string = 'less than 10 seconds';
-				}else if ($distance_in_seconds >= 11 && $distance_in_seconds <= 20){
-				  $string = 'less than 20 seconds';
-				}else if ($distance_in_seconds >= 21 && $distance_in_seconds <= 40){
-				  $string = 'half a minute';
-				}else if ($distance_in_seconds >= 41 && $distance_in_seconds <= 59){
-					$string = 'less than a minute';
-				}else{
-					$string = '1 minute';
-				}
-			}
-		}else if ($distance_in_minutes >= 2 && $distance_in_minutes <= 44){
-			$string = '%minutes% minutes';
-			$parameters['%minutes%'] = $distance_in_minutes;
-		}else if ($distance_in_minutes >= 45 && $distance_in_minutes <= 89){
-			$string = 'about 1 hour';
-		}else if ($distance_in_minutes >= 90 && $distance_in_minutes <= 1439){
-			$string = 'about %hours% hours';
-			$parameters['%hours%'] = round($distance_in_minutes / 60);
-		}else if ($distance_in_minutes >= 1440 && $distance_in_minutes <= 2879){
-			$string = '1 day';
-		}else if ($distance_in_minutes >= 2880 && $distance_in_minutes <= 43199){
-			$string = '%days% days';
-			$parameters['%days%'] = round($distance_in_minutes / 1440);
-		}else if ($distance_in_minutes >= 43200 && $distance_in_minutes <= 86399){
-			$string = 'about 1 month';
-		}else if ($distance_in_minutes >= 86400 && $distance_in_minutes <= 525959){
-			$string = '%months% months';
-			$parameters['%months%'] = round($distance_in_minutes / 43200);
-		}else if ($distance_in_minutes >= 525960 && $distance_in_minutes <= 1051919){
-			$string = 'about 1 year';
+	public static function distance_of_time_in_words($from_time, $to_time = 0, $include_seconds_or_options = array(), $options = array()){
+		if(is_hash($include_seconds_or_options)){
+			$options = $include_seconds_or_options;
 		}else{
-			$string = 'over %years% years';
-			$parameters['%years%'] = floor($distance_in_minutes / 525960);
+			trigger_error("distance_of_time_in_words and time_ago_in_words now accept :include_seconds " .
+							"as a part of options hash, not a boolean argument", E_USER_DEPRECATED);
+			#ActiveSupport::Deprecation.warn "distance_of_time_in_words and time_ago_in_words now accept :include_seconds " +
+			#				"as a part of options hash, not a boolean argument", caller
+			$options['include_seconds'] = $options['include_seconds'] ?: !!$include_seconds_or_options;
 		}
-	
-		return strtr($string, $parameters);
+
+		if(method_exists($from_time, 'to_time')){
+			$from_time = $from_time->to_time();
+		}
+		if(method_exists($to_time, 'to_time')){
+			$to_time = $to_time->to_time();
+		}
+		if($from_time > $to_time){
+			list($from_time, $to_time) = array($to_time, $from_time);
+		}
+		$distance_in_minutes = round(($to_time - $from_time)/60.0);
+		$distance_in_seconds = round($to_time - $from_time);
+		return \I18n\I18n::with_options(array('locale' => $options['locale'], 'scope' => 'datetime.distance_in_words'), function($locale) use ($from_time, $to_time, $options, $distance_in_minutes, $distance_in_seconds){
+			switch(true){
+				case (in_array($distance_in_minutes, range(0, 1)) && true):
+					if(!$options['include_seconds']){
+						return $distance_in_minutes == 0 ?
+							$locale->t('less_than_x_minutes', array('count' => 1)) :
+							$locale->t('x_minutes', array('count' => $distance_in_minutes));
+					}
+					switch(true){
+						case in_array($distance_in_seconds, range(0, 4)): 
+							return $locale->t('less_than_x_seconds', array('count' => 5));
+						case in_array($distance_in_seconds, range(5, 9)): 
+							return $locale->t('less_than_x_seconds', array('count' => 10));
+						case in_array($distance_in_seconds, range(10, 19)): 
+							return $locale->t('less_than_x_seconds', array('count' => 20));
+						case in_array($distance_in_seconds, range(20, 39)): 
+							return $locale->t('half_a_minute');
+						case in_array($distance_in_seconds, range(40, 59)): 
+							return $locale->t('less_than_x_minutes', array('count' => 1));
+						default: 
+							return $locale->t('x_minutes', array('count' => 1));
+					}
+				case in_array($distance_in_minutes, range(2, 44)):
+					return $locale->t('x_minutes', array('count' => $distance_in_minutes));
+				case in_array($distance_in_minutes, range(45, 89)):
+					return $locale->t('about_x_hours',  array('count' => 1));
+				# 90 mins up to 24 hours
+				case in_array($distance_in_minutes, range(90, 1439)):
+					return $locale->t('about_x_hours',  array('count' => round(floatval($distance_in_minutes) / 60.0)));
+				# 24 hours up to 42 hours
+				case in_array($distance_in_minutes, range(1440, 2519)):
+					return $locale->t('x_days',         array('count' => 1));
+				# 42 hours up to 30 days
+				case in_array($distance_in_minutes, range(2520, 43199)):
+					return $locale->t('x_days',         array('count' => round(floatval($distance_in_minutes) / 1440.0)));
+				# 30 days up to 60 days
+				case in_array($distance_in_minutes, range(43200, 86399)):
+					return $locale->t('about_x_months', array('count' => round(floatval($distance_in_minutes) / 43200.0)));
+				# 60 days up to 365 days
+				case in_array($distance_in_minutes, range(86400, 525599)):
+					return $locale->t('x_months',       array('count' => round(floatval($distance_in_minutes) / 43200.0)));
+				default:
+					if(acts_like($from_time, 'time') && acts_like($to_time, 'time')){
+						$fyear = $from_time->year;
+						if($from_time->month >= 3){
+							$fyear += 1;
+						}
+						$tyear = $to_time->year;
+						if( $to_time->month < 3){
+							$tyear -= 1;
+						}
+					
+						$leap_years = ($fyear > $tyear) ? 0 : array_reduce(range($fyear, $tyear), function($value, $year){ return $v + (ActiveSupport\CoreExt\Date::leap__($x) ? 1 : 0);}, 0);
+						$minute_offset_for_leap_year = $leap_years * 1440;
+						# Discount the leap year days when calculating year distance.
+						# e.g. if there are 20 leap year days between 2 dates having the same day
+						# and month then the based on 365 days calculation
+						# the distance in years will come out to over 80 years when in written
+						# english it would read better as about 80 years.
+						$minutes_with_offset = $distance_in_minutes - $minute_offset_for_leap_year;
+					}else{
+						$minutes_with_offset = $distance_in_minutes;
+					}
+					$remainder                   = round($minutes_with_offset % 525600);
+					$distance_in_years           = round($minutes_with_offset / 525600);
+					if( $remainder < 131400 ){
+						return $locale->t('about_x_years',  array('count' => $distance_in_years));
+					}elseif( $remainder < 394200 ){
+						return $locale->t('over_x_years',   array('count' => $distance_in_years));
+					}else{
+						return $locale->t('almost_x_years', array('count' => $distance_in_years + 1));
+					}
+			}
+		});
+		
 	}
 	
-	
-	public static function precise_time_ago_in_words($tsmp){
-		$diffu = array(  'seconds'=>2, 'minutes' => 120, 'hours' => 7200, 'days' => 172800, 'months' => 5259487,  'years' =>  63113851 );
-		$diff = time() - strtotime($tsmp);
-		$dt = '0 seconds ago';
-		foreach($diffu as $u => $n){ if($diff>$n) {$dt = floor($diff/(.5*$n)).' '.$u.' ago';} }
-
-		return $dt;
-	}
-
 	# Like <tt>distance_of_time_in_words</tt>, but where <tt>to_time</tt> is fixed to <tt>Time.now</tt>.
 	#
 	# ==== Examples
@@ -227,7 +183,6 @@ class DateHelper{
 	#   time_ago_in_words(from_time)      # => 3 days
 	#
 	public static function time_ago_in_words($from_time, $include_seconds_or_options = array()){
-		#$from_time = strtotime($from);
 		return self::distance_of_time_in_words($from_time, time(), $include_seconds_or_options);
 	}
 	
