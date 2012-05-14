@@ -21,6 +21,15 @@ function delete(array &$data, $key){
 	
 }
 
+function assert_valid_keys(array $data, $valid_keys){
+	$valid_keys = array_flatten($valid_keys);
+	foreach($data as $k => $v){
+		if(!in_array($k, $valid_keys)){
+			throw new InvalidArgumentError("Unknown key: {$k}");
+		}
+	}
+}
+
 /** 
  * Flattens an array, or returns FALSE on fail. 
  */ 
@@ -74,12 +83,69 @@ function is_hash(&$array){
 	return empty($array) || @is_string($keys[0]) ? true : false;
 }
 
+function acts_like__($object, $type){
+	$class_name = str_replace(' ', '', ucwords(str_replace('_', ' ', $type)));
+	if(class_exists($class_name)){
+		try{
+			$object = new $class_name($object);
+			return true;
+		}catch(Exception $e){
+		}
+	}
+	return false;
+}
 /**
- * Not implemented yet
+ * Move to date-utils.php or something alike
  *
- * @return void
  * @author Koen Punt
  */
-function acts_like(){
 
+function between($value, $start, $end){
+	return $value >= $start && $value <= $end;
 }
+
+function seconds($seconds){
+	return $seconds;
+}
+
+function minutes($minutes){
+	return (int)$minutes * 60;
+}
+
+function hour(){
+	return hours(1);
+}
+
+function hours($hours){
+	return (int)$hours * 3600;
+}
+
+function day(){
+	return days(1);
+}
+
+function days($days){
+	return (int)$days * 86400;
+}
+
+function month(){
+	return months(1);
+}
+
+function months($months){
+	return (int)$months * 2592000;
+}
+
+function year(){
+	return years(1);
+}
+
+function years($years){
+	return (int)$years * 31557600;
+}
+
+function ago($time){
+	return time() - $time;
+}
+
+

@@ -189,7 +189,7 @@ class TagHelper
 	}
 	
 	private static function data_tag_option($key, $value, $escape){
-		$key = 'data-' . ActiveSupport\Inflector::dasherize($key);
+		$key = 'data-' . \ActiveSupport\Inflector::dasherize($key);
 		if(!is_string($v) && !is_object($value)){
 			$value = json_encode($value);
 		}

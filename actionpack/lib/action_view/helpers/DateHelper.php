@@ -7,13 +7,21 @@
  * @author Koen Punt
  */
 
+namespace ActionView\Helpers;
+
 #require 'date'
 #require 'action_view/helpers/tag_helper'
 #require 'active_support/core_ext/date/conversions'
 #require 'active_support/core_ext/hash/slice'
 #require 'active_support/core_ext/object/with_options'
 
-namespace ActionView\Helpers;
+require_once 'active_support/core_ext/Date.php';
+require_once 'active_support/core_ext/Time.php';
+
+use \ActiveSupport\CoreExt\Date;
+use \ActiveSupport\CoreExt\Time;
+
+
 # = Action View Date Helpers
 #
 # The Date Helper primarily creates select/option tags for different kinds of dates and times or date and time
@@ -72,7 +80,7 @@ class DateHelper{
 	#   distance_of_time_in_words(to_time, from_time, true)     # => about 6 years
 	#   distance_of_time_in_words(Time.now, Time.now)           # => less than a minute
 	#
-	public static function distance_of_time_in_words($from_time, $to_time = 0, $include_seconds_or_options = array(), $options = array()){
+	public static function distance_of_time_in_words($from, $to = null, $include_seconds_or_options = array(), $options = array()){
 		if(is_hash($include_seconds_or_options)){
 			$options = $include_seconds_or_options;
 		}else{
@@ -82,71 +90,71 @@ class DateHelper{
 			#				"as a part of options hash, not a boolean argument", caller
 			$options['include_seconds'] = $options['include_seconds'] ?: !!$include_seconds_or_options;
 		}
-
-		if(method_exists($from_time, 'to_time')){
-			$from_time = $from_time->to_time();
+		
+		if(method_exists($from, 'to_time')){
+			$from_time = $from->to_time();
 		}
-		if(method_exists($to_time, 'to_time')){
-			$to_time = $to_time->to_time();
+		if(method_exists($to, 'to_time')){
+			$to_time = $to->to_time();
 		}
 		if($from_time > $to_time){
 			list($from_time, $to_time) = array($to_time, $from_time);
 		}
 		$distance_in_minutes = round(($to_time - $from_time)/60.0);
 		$distance_in_seconds = round($to_time - $from_time);
-		return \I18n\I18n::with_options(array('locale' => $options['locale'], 'scope' => 'datetime.distance_in_words'), function($locale) use ($from_time, $to_time, $options, $distance_in_minutes, $distance_in_seconds){
+		
+		return \I18n\I18n::with_options(array('locale' => $options['locale'], 'scope' => 'datetime.distance_in_words'), function($locale) use ($to, $from, $from_time, $to_time, $options, $distance_in_minutes, $distance_in_seconds){
 			switch(true){
-				case (in_array($distance_in_minutes, range(0, 1)) && true):
+				case \between($distance_in_minutes, 0, 1):
 					if(!$options['include_seconds']){
 						return $distance_in_minutes == 0 ?
 							$locale->t('less_than_x_minutes', array('count' => 1)) :
 							$locale->t('x_minutes', array('count' => $distance_in_minutes));
 					}
 					switch(true){
-						case in_array($distance_in_seconds, range(0, 4)): 
+						case \between($distance_in_seconds, 0, 4): 
 							return $locale->t('less_than_x_seconds', array('count' => 5));
-						case in_array($distance_in_seconds, range(5, 9)): 
+						case \between($distance_in_seconds, 5, 9): 
 							return $locale->t('less_than_x_seconds', array('count' => 10));
-						case in_array($distance_in_seconds, range(10, 19)): 
+						case \between($distance_in_seconds, 10, 19): 
 							return $locale->t('less_than_x_seconds', array('count' => 20));
-						case in_array($distance_in_seconds, range(20, 39)): 
+						case \between($distance_in_seconds, 20, 39): 
 							return $locale->t('half_a_minute');
-						case in_array($distance_in_seconds, range(40, 59)): 
+						case \between($distance_in_seconds, 40, 59): 
 							return $locale->t('less_than_x_minutes', array('count' => 1));
 						default: 
 							return $locale->t('x_minutes', array('count' => 1));
 					}
-				case in_array($distance_in_minutes, range(2, 44)):
+				case \between($distance_in_minutes, 2, 44):
 					return $locale->t('x_minutes', array('count' => $distance_in_minutes));
-				case in_array($distance_in_minutes, range(45, 89)):
+				case \between($distance_in_minutes, 45, 89):
 					return $locale->t('about_x_hours',  array('count' => 1));
 				# 90 mins up to 24 hours
-				case in_array($distance_in_minutes, range(90, 1439)):
+				case \between($distance_in_minutes, 90, 1439):
 					return $locale->t('about_x_hours',  array('count' => round(floatval($distance_in_minutes) / 60.0)));
 				# 24 hours up to 42 hours
-				case in_array($distance_in_minutes, range(1440, 2519)):
+				case \between($distance_in_minutes, 1440, 2519):
 					return $locale->t('x_days',         array('count' => 1));
 				# 42 hours up to 30 days
-				case in_array($distance_in_minutes, range(2520, 43199)):
+				case \between($distance_in_minutes, 2520, 43199):
 					return $locale->t('x_days',         array('count' => round(floatval($distance_in_minutes) / 1440.0)));
 				# 30 days up to 60 days
-				case in_array($distance_in_minutes, range(43200, 86399)):
+				case \between($distance_in_minutes, 43200, 86399):
 					return $locale->t('about_x_months', array('count' => round(floatval($distance_in_minutes) / 43200.0)));
 				# 60 days up to 365 days
-				case in_array($distance_in_minutes, range(86400, 525599)):
+				case \between($distance_in_minutes, 86400, 525599):
 					return $locale->t('x_months',       array('count' => round(floatval($distance_in_minutes) / 43200.0)));
 				default:
-					if(acts_like($from_time, 'time') && acts_like($to_time, 'time')){
-						$fyear = $from_time->year;
-						if($from_time->month >= 3){
+					#if(acts_like__("@$from_time", 'time') && acts_like__("@$from_time", 'time')){
+						$fyear = $from->year();
+						if($from->month() >= 3){
 							$fyear += 1;
 						}
-						$tyear = $to_time->year;
-						if( $to_time->month < 3){
+						$tyear = $to->year();
+						if( $to->month() < 3){
 							$tyear -= 1;
 						}
-					
-						$leap_years = ($fyear > $tyear) ? 0 : array_reduce(range($fyear, $tyear), function($value, $year){ return $v + (ActiveSupport\CoreExt\Date::leap__($x) ? 1 : 0);}, 0);
+						$leap_years = ($fyear > $tyear) ? 0 : array_reduce(range($fyear, $tyear), function($value, $year){ return $v + (Date::leap__($x) ? 1 : 0);}, 0);
 						$minute_offset_for_leap_year = $leap_years * 1440;
 						# Discount the leap year days when calculating year distance.
 						# e.g. if there are 20 leap year days between 2 dates having the same day
@@ -154,11 +162,12 @@ class DateHelper{
 						# the distance in years will come out to over 80 years when in written
 						# english it would read better as about 80 years.
 						$minutes_with_offset = $distance_in_minutes - $minute_offset_for_leap_year;
-					}else{
-						$minutes_with_offset = $distance_in_minutes;
-					}
-					$remainder                   = round($minutes_with_offset % 525600);
-					$distance_in_years           = round($minutes_with_offset / 525600);
+					#}else{
+					#	$minutes_with_offset = $distance_in_minutes;
+					#}
+					$remainder                   = $minutes_with_offset % 525600;
+					$distance_in_years           = intval($minutes_with_offset / 525600);
+					
 					if( $remainder < 131400 ){
 						return $locale->t('about_x_years',  array('count' => $distance_in_years));
 					}elseif( $remainder < 394200 ){
@@ -183,7 +192,7 @@ class DateHelper{
 	#   time_ago_in_words(from_time)      # => 3 days
 	#
 	public static function time_ago_in_words($from_time, $include_seconds_or_options = array()){
-		return self::distance_of_time_in_words($from_time, time(), $include_seconds_or_options);
+		return self::distance_of_time_in_words($from_time, Time::now(), $include_seconds_or_options);
 	}
 	
 	# Alias of 'time_ago_in_words'
@@ -403,7 +412,7 @@ class DateHelper{
 	#   select_datetime(my_date_time, :prompt => true) # generic prompts for all
 	#
 	public static function select_datetime($datetime = null, $options = array(), $html_options = array()){
-		$datetime = $datetime ?: time();
+		$datetime = $datetime ?: Time::now();
 		$datetime_select = new DateTimeSelector($datetime, $options, $html_options);
 		return $datetime_select->select_datetime();
 	}
@@ -446,7 +455,7 @@ class DateHelper{
 	#   select_date(my_date, :prompt => true) # generic prompts for all
 	#
 	public static function select_date($date = null, $options = array(), $html_options = array()){
-		$date = $date ?: time();
+		$date = $date ?: Time::now();
 		$date_select = new DateTimeSelector($date, $options, $html_options);
 		return $date_select->select_date();
 	}
@@ -487,7 +496,7 @@ class DateHelper{
 	#   select_time(my_time, :prompt => true) # generic prompts for all
 	#
 	public static function select_time($datetime = null, $options = array(), $html_options = array()){
-		$datetime = $datetime ?: time();
+		$datetime = $datetime ?: Time::now();
 		$datetime_select = new DateTimeSelector($datetime, $options, $html_options);
 		return $datetime_select->select_time();
 	}

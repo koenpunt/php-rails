@@ -1,6 +1,6 @@
 <?php 
 
-class REnumerator implements Countable{
+class REnumerator implements \Countable{
 
 	protected 
 		$_enumerator = null;
