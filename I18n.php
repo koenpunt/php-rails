@@ -2,6 +2,9 @@
 
 namespace I18n;
 
+require_once 'active_support/core_ext/Object.php';
+
+
 if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300) {
 	die('PHP I18n requires PHP 5.3 or higher');
 }

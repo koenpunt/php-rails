@@ -113,7 +113,7 @@ class Base
 		}
 		$keys = I18n::normalize_keys($locale, $key, $scope, $options['separator']);
 		$_this = $this;
-		$data = array_reduce($keys, function($result, $_key) use ($_this, $locale, $options){
+		return array_reduce($keys, function($result, $_key) use ($_this, $locale, $options){
 			$key = new Symbol($_key);
 			if( !(\is_hash($result) && array_key_exists($_key, $result) ) ){
 				return null;
@@ -124,7 +124,6 @@ class Base
 			}
 			return $result;
 		}, $this->translations());
-		return $data;
 	}
 
 	private function _default($locale, $object, $subject, $options = array())

@@ -23,7 +23,6 @@ class InterpolationCompiler{
 		if (!is_string($string) || empty($values)) {
 			return $string;
 		}
-		var_dump($values);
 		preg_match('/%{(.*?)}/', $string, $results);
 		array_shift($results);
 
