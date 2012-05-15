@@ -3,6 +3,8 @@
 require_once(dirname(__FILE__) . '/../I18n.php');
 
 use I18n\I18n;
+use I18n\Date;
+use I18n\Time;
 use I18n\Backend\Base;
 
 class Base_Test  extends PHPUnit_Framework_TestCase
@@ -49,22 +51,21 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 		$this->assertEquals('Hello', $this->base->translate('en', 'hello'));
 	}
 
-	public function test_translate_array()
-	{
-		$expected = array('Hello', 'Hello world');
-		$this->assertEquals($expected, $this->base->translate('en', array('hello', 'hello_to.world')));
-	}
-
 	public function test_translate_with_pluralize()
 	{
 		$actual = $this->base->translate('en', 'too_long', array('scope' => 'activerecord.errors.messages', 'default' => '' , 'count' => 5));
 		$expected = 'is too long (maximum is 5 characters)';
 		$this->assertEquals($expected, $actual);
+		
+		$actual = $this->base->translate('en', 'too_long', array('scope' => 'activerecord.errors.messages', 'default' => '' , 'count' => 1));
+		$expected = 'is too long (maximum is 1 character)';
+		
+		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_translate_with_interpolation()
 	{
-		$actual = $this->base->translate('en', 'string_to_interpolate', array('scope' => '', 'default' => '', 'object' => 'banana', 'adjective' => 'yellow'));
+		$actual = $this->base->translate('en', 'string_to_interpolate', array('scope' => '', 'default' => '', 'item' => 'banana', 'adjective' => 'yellow'));
 		$expected = 'this banana is quite yellow';
 		$this->assertEquals($expected, $actual);
 	}
@@ -74,7 +75,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	 */
 	public function test_translate_with_interpolation_with_array_values()
 	{
-		$actual = $this->base->translate('en', 'string_to_interpolate', array('object' => array('banana', 'carrot')));
+		$actual = $this->base->translate('en', 'string_to_interpolate', array('item' => array('banana', 'carrot')));
 		$expected = 'this banana is quite yellow';
 		$this->assertEquals($expected, $actual);
 	}
@@ -148,21 +149,21 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	public function test_translate_with_default_message_as_symbol()
 	{
 		$expected = 'this is a custom message';
-		$actual = $this->base->translate('en', 'inclusion', array('default' => _s('custom_message')));
+		$actual = $this->base->translate('en', 'inclusion', array('default' => to_sym('custom_message')));
 		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_translate_with_default_message_as_symbol_without_resolving()
 	{
-		$expected = _s('this is a custom message');
-		$actual = $this->base->translate('en', 'inclusion', array('default' => _s('this is a custom message'), 'resolve' => false));
+		$expected = to_sym('this is a custom message');
+		$actual = $this->base->translate('en', 'inclusion', array('default' => to_sym('this is a custom message'), 'resolve' => false));
 		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_translate_with_default_messages()
 	{
 		$expected = 'this is a custom message';
-		$actual = $this->base->translate('en', 'inclusion', array('default' => array(_s('another_custom_message'), _s('custom_message'))));
+		$actual = $this->base->translate('en', 'inclusion', array('default' => array(to_sym('another_custom_message'), to_sym('custom_message'))));
 		$this->assertEquals($expected, $actual);
 	}
 
@@ -171,7 +172,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	 */
 	public function test_translate_with_default_messages_none_found()
 	{
-		$this->base->translate('en', 'inclusion', array('default' => array(_s('another_custom_message'), _s('custom_message_not_working'))));
+		$this->base->translate('en', 'inclusion', array('default' => array(to_sym('another_custom_message'), to_sym('custom_message_not_working'))));
 	}
 
 	/**
@@ -179,12 +180,16 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	 */
 	public function test_translate_with_default_message_and_incorrect_scope()
 	{
-		$this->base->translate('en', 'inclusion', array('default' => _s('custom_message'), 'scope' => array('activerecord', 'errors', 'message')));
+		$this->base->translate('en', 'inclusion', array('default' => to_sym('custom_message'), 'scope' => array('activerecord', 'errors', 'message')));
 	}
-
+	
 	public function test_localize()
 	{
-
+		$object = Time::utc(2004, 6, 6, 21, 45, 0);
+		$format = '%A, %B %e, %H:%M';
+		$expected = 'Sunday, June  6, 21:45';
+		$actual = $this->base->localize('en', $object, $format);
+		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_is_initialized()

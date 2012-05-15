@@ -4,6 +4,7 @@ namespace I18n\Backend;
 
 use \I18n\I18n;
 use \I18n\InvalidLocale;
+use \I18n\InvalidPluralizationData;
 use \I18n\MissingTranslation;
 use \I18n\MissingInterpolationArgument;
 use \I18n\ReservedInterpolationKey;
@@ -18,7 +19,7 @@ class Base
 	#RESERVED_KEYS_PATTERN = /%\{(#{RESERVED_KEYS.join("|")})\}/
 	
 	private $initialized = false;
-	private $translations = null;
+	private $translations = array();
 
 	public function load_translations(array $filenames)
 	{
@@ -37,13 +38,12 @@ class Base
 		if (is_null($locale)){
 			throw new InvalidLocale($locale);
 		}
-		
-		$entry = $key ? self::lookup($locale, $key, $options['scope'], $options) : null;
+		$entry = $key ? self::lookup($locale, $key, get($options, 'scope'), $options) : null;
 
 		if( empty($options)){
 			$entry = self::resolve($locale, $key, $entry, $options);
 		}else{
-			list($count, $default) = array($options['count'], $options['default']);
+			list($count, $default) = array(get($options, 'count'), get($options, 'default'));
 			$values = array_diff_key($options, array_flip(self::$RESERVED_KEYS));
 
 			if(is_null($entry)){
@@ -55,18 +55,57 @@ class Base
 		}
 		#entry = entry.dup if entry.is_a?(String)
 
-		if($count){
+		if(isset($count)){
 			$entry = self::pluralize($locale, $entry, $count);
 		}
-		if ($values){
+		if (isset($values)){
 			$entry = self::interpolate($locale, $entry, $values);
 		}
 		return $entry;
 	}
 
-	public function localize($locale, $object, $format = 'DEFAULT', $options = array())
-	{
+	# Acts the same as +strftime+, but uses a localized version of the
+	# format string. Takes a key from the date/time formats translations as
+	# a format argument (<em>e.g.</em>, <tt>:short</tt> in <tt>:'date.formats'</tt>).
+	public function localize($locale, $object, $format = null, $options = array()){
+		if( !method_exists($object, 'strftime') ){
+			throw new InvalidArgumentError("Object must be a Date, DateTime or Time object. {get_class($object)} given.");
+		}
+		if(is_null($format)){
+			$format = to_sym('default');
+		}
+		
+		if($format instanceof Symbol){
+			$key  = $format;
+			$type = method_exists($object, 'sec') ? 'time' : 'date';
+			$options = array_merge( $options, array('raise' => true, 'object' => $object, 'locale' => $locale));
+			$format  = I18n::t("{$type}.formats.{$key}", $options);
+		}
 
+		# format = resolve(locale, object, format, options)
+		$format = preg_replace_callback('/%[aAbBp]/', function($match) use ($object, $locale, $format){
+			switch($match[0]){
+				case '%a': 
+					$f = I18n::t("date.abbr_day_names",                  array('locale' => $locale, 'format' => $format));
+					return $f[$object->wday()];
+				case '%A': 
+					$f = I18n::t("date.day_names",                       array('locale' => $locale, 'format' => $format));
+					return $f[$object->wday()];
+				case '%b': 
+					$f = I18n::t("date.abbr_month_names",                array('locale' => $locale, 'format' => $format));
+					return $f[$object->mon()];
+				case '%B': 
+					$f = I18n::t("date.month_names",                     array('locale' => $locale, 'format' => $format));
+					return $f[$object->mon()];
+				case '%p': 
+					if(method_exists('hour', $object)){
+						$meridian = $object->hour() < 12 ? 'am' : 'pm';
+						return I18n::t("time.{$meridian}", array('locale' => $locale, 'format' => $format));
+					}
+					break;
+			}
+		}, $format);
+		return $object->strftime($format);
 	}
 
 	public function is_initialized()
@@ -79,27 +118,19 @@ class Base
 		if (!$this->initialized) {
 			$this->init_translations();
 		}
-		return array_keys($this->translations());
+		return array_keys($this->translations);
 	}
 
 	public function reload()
 	{
 		$this->initialized = false;
-		$this->translations = null;
+		$this->translations = array();
 	}
 
 	private function init_translations()
 	{
-		self::load_translations(\I18n\array_flatten(I18n::get_load_path()));
+		self::load_translations(array_flatten(I18n::get_load_path()));
 		$this->initialized = true;
-	}
-
-	public function translations()
-	{
-		if ($this->translations === null) {
-			$this->translations = array();
-		}
-		return $this->translations;
 	}
 
 	# Looks up a translation from the translations hash. Returns nil if
@@ -108,22 +139,33 @@ class Base
 	# into multiple keys, i.e. <tt>currency.format</tt> is regarded the same as
 	# <tt>%w(currency format)</tt>.
 	protected function lookup($locale, $key, $scope = array(), $options = array()){
+		/*
+        init_translations unless initialized?
+        keys = I18n.normalize_keys(locale, key, scope, options[:separator])
+
+        keys.inject(translations) do |result, _key|
+          _key = _key.to_sym
+          return nil unless result.is_a?(Hash) && result.has_key?(_key)
+          result = result[_key]
+          result = resolve(locale, _key, result, options.merge(:scope => nil)) if result.is_a?(Symbol)
+          result
+        end
+		*/
 		if (!$this->initialized) {
 			$this->init_translations();
 		}
-		$keys = I18n::normalize_keys($locale, $key, $scope, $options['separator']);
-		$_this = $this;
-		return array_reduce($keys, function($result, $_key) use ($_this, $locale, $options){
-			$key = new Symbol($_key);
-			if( !(\is_hash($result) && array_key_exists($_key, $result) ) ){
+		$keys = I18n::normalize_keys($locale, $key, $scope, get($options, 'separator'));
+		return array_reduce($keys, function($result, $_key) use ($locale, $options){
+			$_key = to_sym($_key);
+			if( !(is_hash($result) && array_key_exists((string)$_key, $result) ) ){
 				return null;
 			} 
-			$result = $result[$_key];
+			$result = $result[(string)$_key];
 			if ($result instanceof Symbol) {
-				$result = $this->resolve($locale, $key, $result, $options);
+				$result = $this->resolve($locale, $_key, $result, $options);
 			}
 			return $result;
-		}, $this->translations());
+		}, $this->translations);
 	}
 
 	private function _default($locale, $object, $subject, $options = array())
@@ -173,7 +215,7 @@ class Base
 		if( $count == 0 && array_key_exists('zero', $entry)){
 			 $key = 'zero';
 		}
-		$key = $key ?: ( $count == 1 ? 'one' : 'other' );
+		$key = isset($key) ? $key : ( $count == 1 ? 'one' : 'other' );
 		if(!array_key_exists($key, $entry)){
 			throw new InvalidPluralizationData($entry, $count);
 		}

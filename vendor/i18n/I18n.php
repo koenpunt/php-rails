@@ -2,22 +2,23 @@
 
 namespace I18n;
 
-require_once 'active_support/core_ext/Object.php';
-
-
 if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300) {
 	die('PHP I18n requires PHP 5.3 or higher');
 }
 
 define('APP', dirname(__FILE__));
 
+require_once 'lib/option_merger.php';
 require_once 'lib/exceptions.php';
 require_once 'lib/backend.php';
 require_once 'lib/helpers.php';
 require_once 'lib/symbol.php';
+require_once 'lib/date_time.php';
+require_once 'lib/date.php';
+require_once 'lib/time.php';
 require_once 'lib/utils.php';
 
-class I18n extends \ActiveSupport\CoreExt\Object
+class I18n
 {
 	private static $backend = null;
 	private static $load_path = null;
@@ -26,6 +27,7 @@ class I18n extends \ActiveSupport\CoreExt\Object
 	private static $exception_handler = null;
 	private static $available_locales = array();
 	private static $current_locale = null;
+	private static $normalized_key_cache = array();
 
 	public static function get_backend()
 	{
@@ -88,7 +90,7 @@ class I18n extends \ActiveSupport\CoreExt\Object
 
 	public static function get_exception_handler()
 	{
-		return function($exception, $locale, $key, $options){
+		return self::$exception_handler ?: function($exception, $locale, $key, $options){
 			throw $exception;
 		};
 	}
@@ -215,7 +217,7 @@ class I18n extends \ActiveSupport\CoreExt\Object
 	# values.
 	public static function translate(){
 		$args     = func_get_args();
-		$options  = \is_hash(end($args)) ? array_pop($args) : array();
+		$options  = is_hash(end($args)) ? array_pop($args) : array();
 		$key      = array_shift($args);
 		$backend  = self::get_backend();
 		$locale   = delete($options, 'locale') ?: self::get_locale();
@@ -227,39 +229,25 @@ class I18n extends \ActiveSupport\CoreExt\Object
 		
 		try {
 			if(is_array($key)){
-				$backend = self::get_backend();
-				return array_map(function($k) use ($backend){ 
+				return array_map(function($k) use ($backend, $locale, $options){ 
 					return $backend->translate($locale, $k, $options);
 				}, $key);
 			}else{
-				return self::get_backend()->translate($locale, $key, $options);
+				return $backend->translate($locale, $key, $options);
 			}
-			
-			
-		} catch (\InvalidArgumentException $result) {
-			if($result instanceof MissingTranslation){
-				self::handle_exception($handling, $result, $locale, $key, $options);
-			}else{
-				throw $result;
-			}
+		} catch (MissingTranslation $result) {
+			self::handle_exception($handling, $result, $locale, $key, $options);
 		}
-	
 	}
 	
 	public static function t(){
-		return call_user_func_array(array(get_called_class(), 'translate_exception'), func_get_args());
-	}
-
-	public static function translate_exception($key, $options = array())
-	{
-		$options['raise'] = true;
-		return self::translate($key, $options);
+		return call_user_func_array(array(__CLASS__, 'translate'), func_get_args());
 	}
 
 	# Localizes certain objects, such as dates and numbers to local formatting.
 	public static function localize($object, $options = array()){
 		$locale = delete($options, 'locale') ?: self::get_locale();
-		$format = delete($options, 'format') ?: 'default';
+		$format = delete($options, 'format') ?: to_sym('default');
 		return self::get_backend()->localize($locale, $object, $format, $options);
 	}
 	
@@ -271,29 +259,39 @@ class I18n extends \ActiveSupport\CoreExt\Object
 		return Backend\InterpolationCompiler::interpolate($string, $values);
 	}
 	
-	public static function normalize_keys($locale, $key, $scope, $separator = null)
-	{
-		if ($locale) {
-			$keys[] = explode(self::$default_separator, $locale);
-		}
-		if ($scope) {
-			if (is_array($scope)) {
-				$keys[] = $scope;
-			} else {
-				$keys[] = explode(self::$default_separator, $scope);
-			}
-		}
-		if ($key) {
-			if ($key instanceof Symbol) {
-				$key = $key->get_value();
-			}
-
-			$keys[] = explode(self::$default_separator, $key);
-		}
-		$keys = array_flatten($keys);
-		array_map('_s', $keys);
+	# Merges the given locale, key and scope into a single array of keys.
+	# Splits keys that contain dots into multiple keys. Makes sure all
+	# keys are Symbols.
+	public static function normalize_keys($locale, $key, $scope, $separator = null){
+		$separator = $separator ?: self::$default_separator;
+	
+		$keys = array();
+		$keys = array_merge($keys, self::normalize_key($locale, $separator));
+		$keys = array_merge($keys, self::normalize_key($scope, $separator));
+		$keys = array_merge($keys, self::normalize_key($key, $separator));
 		return $keys;
 	}
+
+
+	# An elegant way to factor duplication out of options passed to a series of
+	# method calls. Each method called in the block, with the block variable as
+	# the receiver, will have its options merged with the default +options+ hash
+	# provided. Each method called on the block variable must take an options
+	# hash as its final argument.
+	#
+	#
+	#   I18n::with_options(array('locale' => $user->locale, 'scope' => "newsletter"), function($i18n) use ($user){
+	#     $subject = $i18n->t('subject');
+	#     $body    = $i18n->t('body', array('user_name' => $user->name));
+	#   });
+	#
+	# <tt>with_options</tt> can also be nested since the call is forwarded to its receiver.
+	# Each nesting level will merge inherited defaults in addition to their own.
+	#
+	public static function with_options($options, \Closure $yield){
+		return $yield(new OptionMerger(get_called_class(), $options));
+	}
+
 	
 	# Any exceptions thrown in translate will be sent to the @@exception_handler
 	# which can be a Symbol, a Proc or any other Object unless they're forced to
@@ -318,7 +316,7 @@ class I18n extends \ActiveSupport\CoreExt\Object
 			case 'throw':
 				throw $exception;
 			default:
-				$handler = $options['exception_handler'] ?: self::get_exception_handler();
+				$handler = get($options, 'exception_handler') ?: self::get_exception_handler();
 				switch(true){
 					case $handler instanceof Symbol:
 						#send(handler, exception, locale, key, options);
@@ -329,25 +327,35 @@ class I18n extends \ActiveSupport\CoreExt\Object
 	}
 
 	private static function normalize_key($key, $separator){
-		if(self::$normalized_key_cache[$separator][$key] ){
-			return self::$normalized_key_cache[$separator][$key];
-		}else{
+		#if(self::normalized_key_cache($separator, $key) === false){
 			switch(true){
 				case is_array($key):
-					return \array_flatten(array_map(function($k) use ($separator){
-						self::normalize_key($k, $separator);
-					}));
+					$keys = array_flatten(array_map(function($k) use ($separator){
+						return self::normalize_key($k, $separator);
+					}, $key));
+				break;
 				default:
-					$keys = explode($separator, (string)$key);
-					delete($keys, '');
-					#keys.map! { |k| k.to_sym }
-					return $keys;
+					$keys = explode($separator, $key);
+					$keys = array_filter($keys); # keys.delete('')
+					$keys = array_map('to_sym', $keys);
 			}
-		}
+			return $keys;
+		#}
+		#return self::normalized_key_cache($separator, $key);
 	}
 
-	private static function normalized_key_cache(){
-		return self::$normalized_key_cache ?: array();
+	private static function normalized_key_cache($separator, $key, $value = null){
+		if(is_null($value)){
+			if(array_key_exists($separator, self::$normalized_key_cache) && array_key_exists((string)$key, self::$normalized_key_cache[$separator])){
+				return self::$normalized_key_cache[$separator][(string)$key];
+			}
+			return false;
+		}
+		
+		if(!array_key_exists($separator, self::$normalized_key_cache)){
+			self::$normalized_key_cache[$separator] = array();
+		}
+		self::$normalized_key_cache[$separator][(string)$key] = $value;
 	}
 	
 	# DEPRECATED. Use I18n.normalize_keys instead.

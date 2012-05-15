@@ -2,8 +2,8 @@ en:
   hello: Hello
   hello_to:
     world: Hello world
-  string_to_interpolate: "this {{object}} is quite {{adjective}}"
-  string_to_interpolate_with_reserved_key: "this {{scope}} is incorrect"
+  string_to_interpolate: "this %{item} is quite %{adjective}"
+  string_to_interpolate_with_reserved_key: "this %{scope} is incorrect"
   custom_message: this is a custom message
 
   activerecord:
@@ -16,19 +16,63 @@ en:
         accepted: "must be accepted"
         empty: "can't be empty"
         blank: "can't be blank"
-        too_long: "is too long (maximum is {{count}} characters)"
-        too_short: "is too short (minimum is {{count}} characters)"
-        wrong_length: "is the wrong length (should be {{count}} characters)"
+        too_long: 
+          one: "is too long (maximum is %{count} character)"
+          other: "is too long (maximum is %{count} characters)"
+        too_short: 
+          one: "is too short (minimum is %{count} characte)"
+          other: "is too short (minimum is %{count} characters)"
+        wrong_length: 
+          one: "is the wrong length (should be %{count} character)"
+          other: "is the wrong length (should be %{count} characters)"
         taken: "has already been taken"
         not_a_number: "is not a number"
         not_a_date: "is not a valid date"
-        greater_than: "must be greater than {{count}}"
-        greater_than_or_equal_to: "must be greater than or equal to {{count}}"
-        equal_to: "must be equal to {{count}}"
-        less_than: "must be less than {{count}}"
-        less_than_or_equal_to: "must be less than or equal to {{count}}"
+        greater_than: "must be greater than %{count}"
+        greater_than_or_equal_to: "must be greater than or equal to %{count}"
+        equal_to: "must be equal to %{count}"
+        less_than: "must be less than %{count}"
+        less_than_or_equal_to: "must be less than or equal to %{count}"
         odd: "must be odd"
         even: "must be even"
         greater_than_start_date: "must be greater than start date"
         not_same_project: "doesn't belong to the same project"
         circular_dependency: "This relation would create a circular dependency"
+  newsletter:
+    subject: 'Greetings'
+    body: 'Hi %{user_name}'
+  date:
+    formats:
+      # Use the strftime parameters for formats.
+      # When no format has been given, it uses default.
+      # You can provide other formats here if you like!
+      default: "%Y-%m-%d"
+      short: "%b %d"
+      long: "%B %d, %Y"
+
+    day_names: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
+    abbr_day_names: [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
+
+    # Don't forget the nil at the beginning; there's no such thing as a 0th month
+    month_names: [~, January, February, March, April, May, June, July, August, September, October, November, December]
+    abbr_month_names: [~, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+    # Used in date_select and datetime_select.
+    order:
+      - :year
+      - :month
+      - :day
+
+  time:
+    formats:
+      default: "%a, %d %b %Y %H:%M:%S %z"
+      short: "%d %b %H:%M"
+      long: "%B %d, %Y %H:%M"
+    am: "am"
+    pm: "pm"
+
+# Used in array.to_sentence.
+  support:
+    array:
+      words_connector: ", "
+      two_words_connector: " and "
+      last_word_connector: ", and "

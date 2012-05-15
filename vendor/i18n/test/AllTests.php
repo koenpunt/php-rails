@@ -1,5 +1,5 @@
 <?php
-require_once 'PHPUnit/Framework.php';
+#require_once 'PHPUnit/Framework.php';
 
 foreach (glob('*_test.php') as $file)
 {

@@ -1,8 +1,12 @@
 # PHP I18n #
 
-by Tom Rochette  
+by Tom Rochette
 <roctom@gmail.com>  
 <http://www.jolteon.net/projects/php-i18n>
+
+Optimizalization, actualization, localization and pluralization by Koen Punt
+<koen@koen.pt>
+<http://www.koen.pt>
 
 ## Introduction ##
 A brief summarization of what I18n is:
@@ -36,15 +40,12 @@ pear install symfony/YAML
 
 ## Features ##
 
-- Internationalization similar to I18n found in Ruby on Rails I18n.
+- Internationalization and localization similar to I18n found in Ruby on Rails I18n.
 - PHP can be used within the .yml/.php locales files.
 
-## Work in Progress ##
-
-- Localize support
-- Pluralize
-
 ## Usage ##
+
+### Translations ###
 Usage is similar to how you would use I18n in Rails.
 
     I18n::translate('hello'); // Hello
@@ -52,29 +53,36 @@ Usage is similar to how you would use I18n in Rails.
     I18n::translate('hello_to', array('name' => 'Tom')); // Hello Tom
     I18n::translate('hello_to', array('locale' => 'fr', 'name' => 'Tom')); // Bonjour Tom
 
-You can easily create an helper t() with something similar to
-
-    function t($key, $options = array())
-    {
-    	return I18n::translate($key, $options);
-    }
-
-which can be later used as
-
-    t('hello', array('locale' => 'fr', 'name' => 'Tom')); // Bonjour Tom
+You can also use the shorthand `I18n::t('hello');`
 
 In order to differentiate symbols from strings, we have decided to use
-_s to specify it's a symbol.
+to_sym (like the object.to_sym in Rails) to specify it as a symbol.
 
 To use a symbol (which will be resolved), you simply do
 
-    I18n::translate('hello', array('default' => _s('hi'));	// if hello doesn't exist, the translation of hi is returned
+    I18n::translate('hello', array('default' => to_sym('hi'));	// if hello doesn't exist, the translation of hi is returned
 
-If you do not specifically use the _s() function, you'll be returning the string you passed
+If you do not specifically use the to_sym() function, you'll be returning the string you passed
 
     I18n::translate('hello', array('default' => 'Hello');	// if hello doesn't exist, Hello is returned
 
 Using symbols is only necessary when specifying default messages. If you specify an array of defaults messages to default to, you'd do something like
 
-    $defaults = array(_s('model.A'), _s('model.B'), 'Model A');
+    $defaults = array(to_sym('model.A'), to_sym('model.B'), 'Model A');
     I18n::translate('hello', array('default' => $defaults);	// if hello doesn't exist, try to translate model.A, then model.B and if nothing is found, return string 'Model A'
+    
+### Localizations ###
+
+Usage is similar to translate, except that the first parameter has to be an instance of `I18n\Date`, `I18n\Time` or `I18n\DateTime`
+
+    I18n::localize(Time::utc(2004, 6, 6, 21, 45, 0)); // Sun, 06 Jun 2004 21:45:00 +0200
+    I18n::localize(Time::utc(2004, 6, 6, 21, 45, 0), array('format' => '%R')); // 21:45
+    I18n::localize(new Date('2004/06/06')); // 2004-06-06 
+    I18n::localize(new Date('2004/06/06'), array('format' => '%Y')); // 2004
+
+You can also use the shorthand `I18n::l(Time::utc());`
+
+
+
+
+
