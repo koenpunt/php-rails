@@ -1,6 +1,6 @@
 <?php
 /**
- * FormTagHelper
+ * DateHelper
  * 
  * Rails source: https://github.com/rails/rails/blob/master/actionpack/lib/action_view/helpers/date_helper.rb
  * @package PHP Rails
