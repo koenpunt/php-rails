@@ -208,6 +208,27 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 		$actual = I18n::normalize_keys('en', to_sym('invalid'), 'activerecord.errors.messages');
 		$this->assertEquals($expected, $actual);
 	}
+	
+	public function test_with_options()
+	{
+		$user = new stdClass();
+		$user->locale = 'en';
+		$user->name = 'Koen';
+		
+		
+		$expected_subject = 'Greetings';
+		$expected_body = 'Hi Koen';
+		$subject = $body = null;
+		
+		I18n::with_options(array('locale' => $user->locale, 'scope' => 'newsletter'), function($i18n) use ($user, &$subject, &$body){
+			$subject = $i18n->t('subject');
+			$body    = $i18n->t('body', array('user_name' => $user->name));
+		});
+		
+		$this->assertEquals($expected_subject, $subject);
+		$this->assertEquals($expected_body, $body);
+		
+	}
 }
 
 ?>

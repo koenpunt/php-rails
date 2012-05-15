@@ -22,7 +22,7 @@ class OptionMerger{ #:nodoc:
 			*/
 			#$arguments << lambda { |*args| @options.deep_merge(proc.call(*args)) }
 		}else{
-			array_push($arguments, (is_hash($arguments_last) ? array_merge_recursive_distinct($this->options, array_pop($arguments)) : $this->options));
+			array_push($arguments, (is_hash($arguments_last) ? array_merge_recursive($this->options, array_pop($arguments)) : $this->options));
 		}
 
 		return call_user_func_array(array($this->context, $method), $arguments); //, &$block)

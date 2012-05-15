@@ -32,3 +32,6 @@ en:
         greater_than_start_date: "must be greater than start date"
         not_same_project: "doesn't belong to the same project"
         circular_dependency: "This relation would create a circular dependency"
+  newsletter:
+    subject: 'Greetings'
+    body: 'Hi %{user_name}'

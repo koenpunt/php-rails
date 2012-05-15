@@ -282,38 +282,17 @@ class I18n
 	# provided. Each method called on the block variable must take an options
 	# hash as its final argument.
 	#
-	# Without <tt>with_options></tt>, this code contains duplication:
 	#
-	#   class Account < ActiveRecord::Base
-	#     has_many :customers, :dependent => :destroy
-	#     has_many :products,  :dependent => :destroy
-	#     has_many :invoices,  :dependent => :destroy
-	#     has_many :expenses,  :dependent => :destroy
-	#   end
-	#
-	# Using <tt>with_options</tt>, we can remove the duplication:
-	#
-	#   class Account < ActiveRecord::Base
-	#     with_options :dependent => :destroy do |assoc|
-	#       assoc.has_many :customers
-	#       assoc.has_many :products
-	#       assoc.has_many :invoices
-	#       assoc.has_many :expenses
-	#     end
-	#   end
-	#
-	# It can also be used with an explicit receiver:
-	#
-	#   I18n.with_options :locale => user.locale, :scope => "newsletter" do |i18n|
-	#     subject i18n.t :subject
-	#     body    i18n.t :body, :user_name => user.name
-	#   end
+	#   I18n::with_options(array('locale' => $user->locale, 'scope' => "newsletter"), function($i18n) use ($user){
+	#     $subject = $i18n->t('subject');
+	#     $body    = $i18n->t('body', array('user_name' => $user->name));
+	#   });
 	#
 	# <tt>with_options</tt> can also be nested since the call is forwarded to its receiver.
 	# Each nesting level will merge inherited defaults in addition to their own.
 	#
 	public static function with_options($options, \Closure $yield){
-		return $yield(new \ActiveSupport\OptionMerger(get_called_class(), $options));
+		return $yield(new OptionMerger(get_called_class(), $options));
 	}
 
 	
