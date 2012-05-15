@@ -2,6 +2,7 @@
 
 namespace I18n\Backend;
 
+use \I18n\Helpers;
 use \I18n\I18n;
 use \I18n\InvalidLocale;
 use \I18n\InvalidPluralizationData;
@@ -38,12 +39,12 @@ class Base
 		if (is_null($locale)){
 			throw new InvalidLocale($locale);
 		}
-		$entry = $key ? self::lookup($locale, $key, get($options, 'scope'), $options) : null;
+		$entry = $key ? self::lookup($locale, $key, Helpers\get($options, 'scope'), $options) : null;
 
 		if( empty($options)){
 			$entry = self::resolve($locale, $key, $entry, $options);
 		}else{
-			list($count, $default) = array(get($options, 'count'), get($options, 'default'));
+			list($count, $default) = array(Helpers\get($options, 'count'), Helpers\get($options, 'default'));
 			$values = array_diff_key($options, array_flip(self::$RESERVED_KEYS));
 
 			if(is_null($entry)){
@@ -72,7 +73,7 @@ class Base
 			throw new InvalidArgumentError("Object must be a Date, DateTime or Time object. {get_class($object)} given.");
 		}
 		if(is_null($format)){
-			$format = to_sym('default');
+			$format = Helpers\to_sym('default');
 		}
 		
 		if($format instanceof Symbol){
@@ -129,7 +130,7 @@ class Base
 
 	private function init_translations()
 	{
-		self::load_translations(array_flatten(I18n::get_load_path()));
+		self::load_translations(Helpers\array_flatten(I18n::get_load_path()));
 		$this->initialized = true;
 	}
 
@@ -144,7 +145,7 @@ class Base
         keys = I18n.normalize_keys(locale, key, scope, options[:separator])
 
         keys.inject(translations) do |result, _key|
-          _key = _key.to_sym
+          _key = _key.Helpers\to_sym
           return nil unless result.is_a?(Hash) && result.has_key?(_key)
           result = result[_key]
           result = resolve(locale, _key, result, options.merge(:scope => nil)) if result.is_a?(Symbol)
@@ -154,10 +155,10 @@ class Base
 		if (!$this->initialized) {
 			$this->init_translations();
 		}
-		$keys = I18n::normalize_keys($locale, $key, $scope, get($options, 'separator'));
+		$keys = I18n::normalize_keys($locale, $key, $scope, Helpers\get($options, 'separator'));
 		return array_reduce($keys, function($result, $_key) use ($locale, $options){
-			$_key = to_sym($_key);
-			if( !(is_hash($result) && array_key_exists((string)$_key, $result) ) ){
+			$_key = Helpers\to_sym($_key);
+			if( !(Helpers\is_hash($result) && array_key_exists((string)$_key, $result) ) ){
 				return null;
 			} 
 			$result = $result[(string)$_key];
@@ -208,7 +209,7 @@ class Base
 	# and the second translation if it is equal to 1. Other backends can
 	# implement more flexible or complex pluralization rules.
 	private function pluralize($locale, $entry, $count){
-		if( !(is_hash($entry) && $count)){
+		if( !(Helpers\is_hash($entry) && $count)){
 			return $entry;
 		}
 		

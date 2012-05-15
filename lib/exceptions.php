@@ -42,7 +42,7 @@ class InvalidPluralizationData extends InvalidArgumentException
 	public function __construct($entry, $count)
 	{
 		list($this->entry, $this->count) = array($entry, $count);
-		$entry = var_dump_to_string($entry);
+		$entry = print_r($entry, true);
 		parent::__construct("translation data $entry can not be used with count => $count");
 	}
 }
@@ -55,8 +55,8 @@ class MissingInterpolationArgument extends InvalidArgumentException
 	public function __construct($values, $string)
 	{
 		list($this->values, $this->string) = array($values, $string);
-		$string = var_dump_to_string($string);
-		$values = var_dump_to_string($values);
+		$string = print_r($string, true);
+		$values = print_r($values, true);
 		parent::__construct("missing interpolation argument in $string ($values given)");
 	}
 }
@@ -69,8 +69,8 @@ class ReservedInterpolationKey extends InvalidArgumentException
 	public function __construct($key, $string)
 	{
 		list($this->key, $this->string) = array($key, $string);
-		$key = var_dump_to_string($key);
-		$string = var_dump_to_string($string);
+		$key = print_r($key, true);
+		$string = print_r($string, true);
 		parent::__construct("reserved key $key used in $string");
 	}
 }

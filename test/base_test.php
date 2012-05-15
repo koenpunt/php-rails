@@ -2,6 +2,7 @@
 
 require_once(dirname(__FILE__) . '/../I18n.php');
 
+use I18n\Helpers;
 use I18n\I18n;
 use I18n\Date;
 use I18n\Time;
@@ -149,21 +150,21 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	public function test_translate_with_default_message_as_symbol()
 	{
 		$expected = 'this is a custom message';
-		$actual = $this->base->translate('en', 'inclusion', array('default' => to_sym('custom_message')));
+		$actual = $this->base->translate('en', 'inclusion', array('default' => Helpers\to_sym('custom_message')));
 		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_translate_with_default_message_as_symbol_without_resolving()
 	{
-		$expected = to_sym('this is a custom message');
-		$actual = $this->base->translate('en', 'inclusion', array('default' => to_sym('this is a custom message'), 'resolve' => false));
+		$expected = Helpers\to_sym('this is a custom message');
+		$actual = $this->base->translate('en', 'inclusion', array('default' => Helpers\to_sym('this is a custom message'), 'resolve' => false));
 		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_translate_with_default_messages()
 	{
 		$expected = 'this is a custom message';
-		$actual = $this->base->translate('en', 'inclusion', array('default' => array(to_sym('another_custom_message'), to_sym('custom_message'))));
+		$actual = $this->base->translate('en', 'inclusion', array('default' => array(Helpers\to_sym('another_custom_message'), Helpers\to_sym('custom_message'))));
 		$this->assertEquals($expected, $actual);
 	}
 
@@ -172,7 +173,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	 */
 	public function test_translate_with_default_messages_none_found()
 	{
-		$this->base->translate('en', 'inclusion', array('default' => array(to_sym('another_custom_message'), to_sym('custom_message_not_working'))));
+		$this->base->translate('en', 'inclusion', array('default' => array(Helpers\to_sym('another_custom_message'), Helpers\to_sym('custom_message_not_working'))));
 	}
 
 	/**
@@ -180,7 +181,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	 */
 	public function test_translate_with_default_message_and_incorrect_scope()
 	{
-		$this->base->translate('en', 'inclusion', array('default' => to_sym('custom_message'), 'scope' => array('activerecord', 'errors', 'message')));
+		$this->base->translate('en', 'inclusion', array('default' => Helpers\to_sym('custom_message'), 'scope' => array('activerecord', 'errors', 'message')));
 	}
 	
 	public function test_localize()

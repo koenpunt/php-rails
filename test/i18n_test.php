@@ -2,6 +2,7 @@
 
 require_once(dirname(__FILE__) . '/../I18n.php');
 
+use I18n\Helpers;
 use I18n\I18n;
 use I18n\Date;
 use I18n\Time;
@@ -215,7 +216,7 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	public function test_normalize_keys_with_key_symbol()
 	{
 		$expected = array('en', 'activerecord', 'errors', 'messages', 'invalid');
-		$actual = I18n::normalize_keys('en', to_sym('invalid'), 'activerecord.errors.messages');
+		$actual = I18n::normalize_keys('en', Helpers\to_sym('invalid'), 'activerecord.errors.messages');
 		$this->assertEquals($expected, $actual);
 	}
 	

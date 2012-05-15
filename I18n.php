@@ -16,7 +16,6 @@ require_once 'lib/symbol.php';
 require_once 'lib/date_time.php';
 require_once 'lib/date.php';
 require_once 'lib/time.php';
-require_once 'lib/utils.php';
 
 class I18n
 {
@@ -217,11 +216,11 @@ class I18n
 	# values.
 	public static function translate(){
 		$args     = func_get_args();
-		$options  = is_hash(end($args)) ? array_pop($args) : array();
+		$options  = Helpers\is_hash(end($args)) ? array_pop($args) : array();
 		$key      = array_shift($args);
 		$backend  = self::get_backend();
-		$locale   = delete($options, 'locale') ?: self::get_locale();
-		$handling = delete($options, 'throw') ? 'throw' : ( delete($options, 'raise') ? 'raise' : '' ); # TODO deprecate :raise
+		$locale   = Helpers\delete($options, 'locale') ?: self::get_locale();
+		$handling = Helpers\delete($options, 'throw') ? 'throw' : ( Helpers\delete($options, 'raise') ? 'raise' : '' ); # TODO deprecate :raise
 		
 		if(is_string($key) && empty($key)){
 			throw new \InvalidArgumentException();
@@ -246,8 +245,8 @@ class I18n
 
 	# Localizes certain objects, such as dates and numbers to local formatting.
 	public static function localize($object, $options = array()){
-		$locale = delete($options, 'locale') ?: self::get_locale();
-		$format = delete($options, 'format') ?: to_sym('default');
+		$locale = Helpers\delete($options, 'locale') ?: self::get_locale();
+		$format = Helpers\delete($options, 'format') ?: Helpers\to_sym('default');
 		return self::get_backend()->localize($locale, $object, $format, $options);
 	}
 	
@@ -316,7 +315,7 @@ class I18n
 			case 'throw':
 				throw $exception;
 			default:
-				$handler = get($options, 'exception_handler') ?: self::get_exception_handler();
+				$handler = Helpers\get($options, 'exception_handler') ?: self::get_exception_handler();
 				switch(true){
 					case $handler instanceof Symbol:
 						#send(handler, exception, locale, key, options);
@@ -330,14 +329,14 @@ class I18n
 		#if(self::normalized_key_cache($separator, $key) === false){
 			switch(true){
 				case is_array($key):
-					$keys = array_flatten(array_map(function($k) use ($separator){
+					$keys = Helpers\array_flatten(array_map(function($k) use ($separator){
 						return self::normalize_key($k, $separator);
 					}, $key));
 				break;
 				default:
 					$keys = explode($separator, $key);
 					$keys = array_filter($keys); # keys.delete('')
-					$keys = array_map('to_sym', $keys);
+					$keys = array_map('\I18n\Helpers\to_sym', $keys);
 			}
 			return $keys;
 		#}
