@@ -125,6 +125,13 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	{
 		$this->assertEquals('Hello', I18n::translate('hello'));
 	}
+	
+	public function test_translate_array()
+	{
+		$expected = array('Hello', 'Hello world');
+		$this->assertEquals($expected, I18n::translate(array('hello', 'hello_to.world'), array('locale' => 'en')));
+	}
+	
 
 	public function test_translate_with_locale_option()
 	{
@@ -133,6 +140,9 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
+	/**
+	 * @expectedException \I18n\MissingTranslation
+	 */
 	public function test_translate_null_key()
 	{
 		$expected = null;
@@ -143,7 +153,12 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	public function test_translate_exception_with_exception_handler()
 	{
 		$expected = 'translation missing: xx, hello';
-		$actual = I18n::translate('hello', array('locale' => 'xx'));
+		$actual = '';
+		I18n::set_exception_handler(function($exception) use (&$actual){
+			$actual = $exception->getMessage();
+		});
+		
+		$_actual = I18n::translate('hello', array('locale' => 'xx'));
 		$this->assertEquals($expected, $actual);
 	}
 
@@ -159,6 +174,12 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	 */
 	public function test_translate_exception_with_throw()
 	{
+		/**
+		 * Clear exception handler
+		 *
+		 * @author Koen Punt
+		 */
+		I18n::set_exception_handler(null);
 		$actual = I18n::translate_exception('hello', array('locale' => 'xx'));
 	}
 
@@ -184,7 +205,7 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	public function test_normalize_keys_with_key_symbol()
 	{
 		$expected = array('en', 'activerecord', 'errors', 'messages', 'invalid');
-		$actual = I18n::normalize_keys('en', _s('invalid'), 'activerecord.errors.messages');
+		$actual = I18n::normalize_keys('en', to_sym('invalid'), 'activerecord.errors.messages');
 		$this->assertEquals($expected, $actual);
 	}
 }

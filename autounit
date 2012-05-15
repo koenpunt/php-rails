@@ -5,7 +5,7 @@
 
 watch('test/(.*)_test\.php') do |md|
   time_header
-  system("phpunit --coverage-html report #{md[0]}")
+  system("phpunit --colors --coverage-html report #{md[0]}")
   footer
 end
 
@@ -13,7 +13,7 @@ watch('lib/(.*)\.php') do |md|
 puts md
   time_header
   md[1].downcase!
-  system("phpunit --coverage-html report test/#{md[1]}_test.php")
+  system("phpunit --colors --coverage-html report test/#{md[1]}_test.php")
   footer
 end
 
@@ -21,7 +21,7 @@ watch('lib/(.*)/(.*)\.php') do |md|
 puts md
   time_header
   md[2].downcase!
-  system("phpunit --coverage-html report test/#{md[2]}_test.php")
+  system("phpunit --colors --coverage-html report test/#{md[2]}_test.php")
   footer
 end
 
