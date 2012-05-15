@@ -244,12 +244,6 @@ class I18n
 		return call_user_func_array(array(__CLASS__, 'translate'), func_get_args());
 	}
 
-	public static function translate_exception($key, $options = array())
-	{
-		$options['raise'] = true;
-		return self::translate($key, $options);
-	}
-
 	# Localizes certain objects, such as dates and numbers to local formatting.
 	public static function localize($object, $options = array()){
 		$locale = delete($options, 'locale') ?: self::get_locale();

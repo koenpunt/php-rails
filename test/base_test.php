@@ -188,7 +188,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 		$object = Time::utc(2004, 6, 6, 21, 45, 0);
 		$format = '%A, %B %e, %H:%M';
 		$expected = 'Sunday, June  6, 21:45';
-		$actual = $this->base->localize('en', $object, $format); //, $options = array());
+		$actual = $this->base->localize('en', $object, $format);
 		$this->assertEquals($expected, $actual);
 	}
 
