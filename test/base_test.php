@@ -3,6 +3,8 @@
 require_once(dirname(__FILE__) . '/../I18n.php');
 
 use I18n\I18n;
+use I18n\Date;
+use I18n\Time;
 use I18n\Backend\Base;
 
 class Base_Test  extends PHPUnit_Framework_TestCase
@@ -180,10 +182,14 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	{
 		$this->base->translate('en', 'inclusion', array('default' => to_sym('custom_message'), 'scope' => array('activerecord', 'errors', 'message')));
 	}
-
+	
 	public function test_localize()
 	{
-
+		$object = Time::utc(2004, 6, 6, 21, 45, 0);
+		$format = '%A, %B %e, %H:%M';
+		$expected = 'Sunday, June  6, 21:45';
+		$actual = $this->base->localize('en', $object, $format); //, $options = array());
+		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_is_initialized()

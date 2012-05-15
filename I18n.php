@@ -13,6 +13,9 @@ require_once 'lib/exceptions.php';
 require_once 'lib/backend.php';
 require_once 'lib/helpers.php';
 require_once 'lib/symbol.php';
+require_once 'lib/date_time.php';
+require_once 'lib/date.php';
+require_once 'lib/time.php';
 require_once 'lib/utils.php';
 
 class I18n
@@ -238,7 +241,7 @@ class I18n
 	}
 	
 	public static function t(){
-		return call_user_func_array(array(get_called_class(), 'translate_exception'), func_get_args());
+		return call_user_func_array(array(__CLASS__, 'translate'), func_get_args());
 	}
 
 	public static function translate_exception($key, $options = array())
@@ -250,7 +253,7 @@ class I18n
 	# Localizes certain objects, such as dates and numbers to local formatting.
 	public static function localize($object, $options = array()){
 		$locale = delete($options, 'locale') ?: self::get_locale();
-		$format = delete($options, 'format') ?: 'default';
+		$format = delete($options, 'format') ?: to_sym('default');
 		return self::get_backend()->localize($locale, $object, $format, $options);
 	}
 	

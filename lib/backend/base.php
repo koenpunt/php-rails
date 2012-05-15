@@ -64,9 +64,48 @@ class Base
 		return $entry;
 	}
 
-	public function localize($locale, $object, $format = 'DEFAULT', $options = array())
-	{
+	# Acts the same as +strftime+, but uses a localized version of the
+	# format string. Takes a key from the date/time formats translations as
+	# a format argument (<em>e.g.</em>, <tt>:short</tt> in <tt>:'date.formats'</tt>).
+	public function localize($locale, $object, $format = null, $options = array()){
+		if( !method_exists($object, 'strftime') ){
+			throw new InvalidArgumentError("Object must be a Date, DateTime or Time object. {get_class($object)} given.");
+		}
+		if(is_null($format)){
+			$format = to_sym('default');
+		}
+		
+		if($format instanceof Symbol){
+			$key  = $format;
+			$type = method_exists($object, 'sec') ? 'time' : 'date';
+			$options = array_merge( $options, array('raise' => true, 'object' => $object, 'locale' => $locale));
+			$format  = I18n::t("{$type}.formats.{$key}", $options);
+		}
 
+		# format = resolve(locale, object, format, options)
+		$format = preg_replace_callback('/%[aAbBp]/', function($match) use ($object, $locale, $format){
+			switch($match[0]){
+				case '%a': 
+					$f = I18n::t("date.abbr_day_names",                  array('locale' => $locale, 'format' => $format));
+					return $f[$object->wday()];
+				case '%A': 
+					$f = I18n::t("date.day_names",                       array('locale' => $locale, 'format' => $format));
+					return $f[$object->wday()];
+				case '%b': 
+					$f = I18n::t("date.abbr_month_names",                array('locale' => $locale, 'format' => $format));
+					return $f[$object->mon()];
+				case '%B': 
+					$f = I18n::t("date.month_names",                     array('locale' => $locale, 'format' => $format));
+					return $f[$object->mon()];
+				case '%p': 
+					if(method_exists('hour', $object)){
+						$meridian = $object->hour() < 12 ? 'am' : 'pm';
+						return I18n::t("time.{$meridian}", array('locale' => $locale, 'format' => $format));
+					}
+					break;
+			}
+		}, $format);
+		return $object->strftime($format);
 	}
 
 	public function is_initialized()

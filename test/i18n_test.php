@@ -183,10 +183,17 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 		$actual = I18n::translate_exception('hello', array('locale' => 'xx'));
 	}
 
+	public function test_localization_value_array(){
+		$expected = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
+		$actual = I18n::t("date.abbr_day_names",                  array('locale' => 'en', 'format' => '%d'));
+		$this->assertEquals($expected, $actual);
+	}
+
 	// public function test_localize()
 	// {
 	//
 	// }
+	
 
 	public function test_normalize_keys()
 	{
