@@ -95,7 +95,7 @@ class InterpolationCompiler{
 
         def handle_interpolation_token(interpolation, matchdata)
           escaped, pattern, key = matchdata.values_at(1, 2, 3)
-          escaped ? pattern : compile_interpolation_token(key.to_sym)
+          escaped ? pattern : compile_interpolation_token(key.Helpers\to_sym)
         end
 
         def compile_interpolation_token(key)
@@ -133,7 +133,7 @@ class InterpolationCompiler{
 
         def escape_key_sym(key)
           # rely on Ruby to do all the hard work :)
-          key.to_sym.inspect
+          key.Helpers\to_sym.inspect
         end
       end
 

@@ -1,5 +1,7 @@
 <?php
 
+namespace I18n\Helpers;
+
 use I18n\I18n;
 use I18n\Symbol;
 
