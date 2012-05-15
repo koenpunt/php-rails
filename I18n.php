@@ -262,42 +262,18 @@ class I18n
 		return Backend\InterpolationCompiler::interpolate($string, $values);
 	}
 	
-	public static function normalize_keys($locale, $key, $scope, $separator = null)
-	{
-		if ($locale) {
-			$keys[] = explode(self::$default_separator, $locale);
-		}
-		if ($scope) {
-			if (is_array($scope)) {
-				$keys[] = $scope;
-			} else {
-				$keys[] = explode(self::$default_separator, $scope);
-			}
-		}
-		if ($key) {
-			if ($key instanceof Symbol) {
-				$key = $key->get_value();
-			}
-		#var_dump($key);
-			$keys[] = explode(self::$default_separator, $key);
-		}
-		$keys = array_flatten($keys);
-		array_map('to_sym', $keys);
-		return $keys;
-	}
-	
 	# Merges the given locale, key and scope into a single array of keys.
 	# Splits keys that contain dots into multiple keys. Makes sure all
 	# keys are Symbols.
-	#public static function normalize_keys($locale, $key, $scope, $separator = null){
-	#	$separator = $separator ?: self::$default_separator;
-    #
-	#	$keys = array();
-	#	$keys = array_merge($keys, self::normalize_key($locale, $separator));
-	#	$keys = array_merge($keys, self::normalize_key($scope, $separator));
-	#	$keys = array_merge($keys, self::normalize_key($key, $separator));
-	#	return $keys;
-	#}
+	public static function normalize_keys($locale, $key, $scope, $separator = null){
+		$separator = $separator ?: self::$default_separator;
+	
+		$keys = array();
+		$keys = array_merge($keys, self::normalize_key($locale, $separator));
+		$keys = array_merge($keys, self::normalize_key($scope, $separator));
+		$keys = array_merge($keys, self::normalize_key($key, $separator));
+		return $keys;
+	}
 
 
 	# An elegant way to factor duplication out of options passed to a series of
@@ -375,33 +351,21 @@ class I18n
 	}
 
 	private static function normalize_key($key, $separator){
-		/*
-        normalized_key_cache[separator][key] ||=
-          case key
-          when Array
-            key.map { |k| normalize_key(k, separator) }.flatten
-          else
-            keys = key.to_s.split(separator)
-            keys.delete('')
-            keys.map! { |k| k.to_sym }
-            keys
-          end
-			
-		*/
-		if(self::normalized_key_cache($separator, $key) === false){
+		#if(self::normalized_key_cache($separator, $key) === false){
 			switch(true){
 				case is_array($key):
 					$keys = array_flatten(array_map(function($k) use ($separator){
 						return self::normalize_key($k, $separator);
 					}, $key));
+				break;
 				default:
-					$keys = explode($separator, (string)$key);
+					$keys = explode($separator, $key);
 					$keys = array_filter($keys); # keys.delete('')
 					$keys = array_map('to_sym', $keys);
 			}
-			self::normalized_key_cache($separator, $key, $keys);
-		}
-		return self::normalized_key_cache($separator, $key);
+			return $keys;
+		#}
+		#return self::normalized_key_cache($separator, $key);
 	}
 
 	private static function normalized_key_cache($separator, $key, $value = null){
