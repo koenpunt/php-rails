@@ -80,7 +80,7 @@ Usage is similar to translate, except that the first parameter has to be an inst
     I18n::localize(new Date('2004/06/06')); // 2004-06-06 
     I18n::localize(new Date('2004/06/06'), array('format' => '%Y')); // 2004
 
-You can also use the shorthand `I18n::l(Time::utc());
+You can also use the shorthand `I18n::l(Time::utc());`
 
 
 
