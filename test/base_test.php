@@ -54,6 +54,11 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 		$actual = $this->base->translate('en', 'too_long', array('scope' => 'activerecord.errors.messages', 'default' => '' , 'count' => 5));
 		$expected = 'is too long (maximum is 5 characters)';
 		$this->assertEquals($expected, $actual);
+		
+		$actual = $this->base->translate('en', 'too_long', array('scope' => 'activerecord.errors.messages', 'default' => '' , 'count' => 1));
+		$expected = 'is too long (maximum is 1 character)';
+		
+		$this->assertEquals($expected, $actual);
 	}
 
 	public function test_translate_with_interpolation()
