@@ -176,7 +176,7 @@ class Object{
 	public function to_query($key){
 		$key = CGI::escape($key->to_param());
 		$value = CGI::escape($this->to_param()->to_s());
-		return "{$key}=#{$value}";
+		return "{$key}={$value}";
 	}
 	
 	# with_options.rb

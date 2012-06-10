@@ -5,6 +5,13 @@ require_once 'active_support/core_ext/DateTime.php';
 
 class Date extends DateTime{
 	
+	public function __construct(){
+		if(func_num_args() == 3){
+			return parent::__construct(implode('/', func_get_args()));
+		}
+		return call_user_func_array('parent::__construct', func_get_args());
+	}
+
 	public static function leap__($year){
 		return ((($year % 4) == 0) && ((($year % 100) != 0) || (($year %400) == 0)));
 	}

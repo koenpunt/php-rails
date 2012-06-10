@@ -10,16 +10,22 @@
 namespace ActionView\Helpers;
 
 #require 'date'
-#require 'action_view/helpers/tag_helper'
+
 #require 'active_support/core_ext/date/conversions'
 #require 'active_support/core_ext/hash/slice'
 #require 'active_support/core_ext/object/with_options'
 
+require_once 'action_view/helpers/TagHelper.php';
 require_once 'active_support/core_ext/Date.php';
 require_once 'active_support/core_ext/Time.php';
+require_once 'active_support/core_ext/TimeSpan.php';
 
+
+use \I18n\I18n;
+use \ActiveSupport\CoreExt\DateTime;
 use \ActiveSupport\CoreExt\Date;
 use \ActiveSupport\CoreExt\Time;
+use \ActiveSupport\CoreExt\TimeSpan;
 
 
 # = Action View Date Helpers
@@ -80,7 +86,7 @@ class DateHelper{
 	#   distance_of_time_in_words(to_time, from_time, true)     # => about 6 years
 	#   distance_of_time_in_words(Time.now, Time.now)           # => less than a minute
 	#
-	public static function distance_of_time_in_words($from, $to = null, $include_seconds_or_options = array(), $options = array()){
+	public static function distance_of_time_in_words($from, $to = 0, $include_seconds_or_options = array(), $options = array()){
 		if(is_hash($include_seconds_or_options)){
 			$options = $include_seconds_or_options;
 		}else{
@@ -91,12 +97,9 @@ class DateHelper{
 			$options['include_seconds'] = $options['include_seconds'] ?: !!$include_seconds_or_options;
 		}
 		
-		if(method_exists($from, 'to_time')){
-			$from_time = $from->to_time();
-		}
-		if(method_exists($to, 'to_time')){
-			$to_time = $to->to_time();
-		}
+		$from_time = method_exists($from, 'to_time') ? $from->to_time() : $from; 
+		$to_time = method_exists($to, 'to_time') ? $to->to_time() : $to;
+		
 		if($from_time > $to_time){
 			list($from_time, $to_time) = array($to_time, $from_time);
 		}
@@ -145,7 +148,7 @@ class DateHelper{
 				case \between($distance_in_minutes, 86400, 525599):
 					return $locale->t('x_months',       array('count' => round(floatval($distance_in_minutes) / 43200.0)));
 				default:
-					#if(acts_like__("@$from_time", 'time') && acts_like__("@$from_time", 'time')){
+					if($from instanceof DateTime && $to instanceof DateTime){
 						$fyear = $from->year();
 						if($from->month() >= 3){
 							$fyear += 1;
@@ -162,9 +165,9 @@ class DateHelper{
 						# the distance in years will come out to over 80 years when in written
 						# english it would read better as about 80 years.
 						$minutes_with_offset = $distance_in_minutes - $minute_offset_for_leap_year;
-					#}else{
-					#	$minutes_with_offset = $distance_in_minutes;
-					#}
+					}else{
+						$minutes_with_offset = $distance_in_minutes;
+					}
 					$remainder                   = $minutes_with_offset % 525600;
 					$distance_in_years           = intval($minutes_with_offset / 525600);
 					
@@ -860,7 +863,7 @@ class DateTimeSelector{ #:nodoc:
 		if( $this->options['use_hidden'] || $this->options['discard_hour']){
 			return $this->build_hidden('hour', $this->hour());
 		}else{
-			return $this->build_options_and_select('hour', $this->hour(), array('end' => 23, 'ampm' => $this->options['ampm']));
+			return $this->build_options_and_select('hour', $this->hour(), array('end' => 23, 'ampm' => get($this->options, 'ampm')));
 		}
 	}
 
@@ -868,7 +871,7 @@ class DateTimeSelector{ #:nodoc:
 		if($this->options['use_hidden'] || $this->options['discard_day']){
 			return $this->build_hidden('day', $this->day() ?: 1);
 		}else{
-			return $this->build_options_and_select('day', $this->day(), array('start' => 1, 'end' => 31, 'leading_zeros' => false, 'use_two_digit_numbers' => $this->options['use_two_digit_numbers']));
+			return $this->build_options_and_select('day', $this->day(), array('start' => 1, 'end' => 31, 'leading_zeros' => false, 'use_two_digit_numbers' => get($this->options, 'use_two_digit_numbers')));
 		}
 	}
 
@@ -897,7 +900,7 @@ class DateTimeSelector{ #:nodoc:
 		}
 
 		if( $this->options['use_hidden'] || $this->options['discard_year'] ){
-			$this->build_hidden('year', $val);
+			return $this->build_hidden('year', $val);
 		}else{
 			$options                      = array();
 			$options['start']             = $this->options['start_year'] ?: $middle_year - 5;
@@ -910,7 +913,7 @@ class DateTimeSelector{ #:nodoc:
 				throw new ArgumentError("There're too many years options to be built. Are you sure you haven't mistyped something? You can provide the :max_years_allowed parameter");
 			}
 
-			$this->build_options_and_select('year', $val, $options);
+			return $this->build_options_and_select('year', $val, $options);
 		}
 	}
 
@@ -1053,22 +1056,20 @@ class DateTimeSelector{ #:nodoc:
 		$step          = delete($options, 'step') ?: 1;
 		$options = array_merge(array('leading_zeros' => true, 'ampm' => false, 'use_two_digit_numbers' => false), $options);
 		$leading_zeros = delete($options, 'leading_zeros');
-		
 		$select_options = array();
-		/*
-			FIXME Convert Integer.step() to PHP
-		*/
-		/*
-		start.step(stop, step) do |i|
-		  value = leading_zeros ? sprintf("%02d", i) : i
-		  tag_options = { :value => value }
-		  tag_options[:selected] = "selected" if selected == i
-		  text = options[:use_two_digit_numbers] ? sprintf("%02d", i) : value
-		  text = options[:ampm] ? AMPM_TRANSLATION[i] : text
-		  select_options << content_tag(:option, text, tag_options)
-		end
-		(select_options.join("\n") + "\n").html_safe
-		*/
+		for($i = $start; $i <= $stop ; $i = $i + $step){
+			$value = $leading_zeros ? sprintf("%02d", $i) : $i;
+			$tag_options = array('value' => $value);
+			
+			if( $selected == $i){
+				$tag_options['selected'] = "selected";
+			}
+			$text = $options['use_two_digit_numbers'] ? sprintf("%02d", $i) : $value;
+			$text = $options['ampm'] ? self::$AMPM_TRANSLATION[$i] : $text;
+			array_push($select_options, TagHelper::content_tag('option', $text, $tag_options));
+		}
+		
+		return html_safe(implode("\n", $select_options));
 	}
 
 	# Builds select tag from date type and html select options.
@@ -1093,8 +1094,8 @@ class DateTimeSelector{ #:nodoc:
 			$select_html .= $this->prompt_option_tag($type, $this->options['prompt']) . "\n";
 		}
 		$select_html .= $select_options_as_html;
-
-		return Taghelper::content_tag('select', $select_html /*.html_safe */, $select_options) . "\n"; # .html_safe
+		
+		return html_safe(Taghelper::content_tag('select', html_safe($select_html . "\n"), $select_options) . "\n");
 	}
 
 	# Builds a prompt option tag with supplied options or from default options.
@@ -1111,7 +1112,7 @@ class DateTimeSelector{ #:nodoc:
 			  $prompt = $options;
 			  break;
 			default:
-			  $prompt = I18n::translate(":datetime.prompts.{$type}", array('locale' => $this->options['locale']));
+			  $prompt = I18n::translate("datetime.prompts.{$type}", array('locale' => $this->options['locale']));
 		}
 		
 		return $prompt ? Taghelper::content_tag('option', $prompt, array('value' => '')) : '';
@@ -1128,20 +1129,20 @@ class DateTimeSelector{ #:nodoc:
 			'value' => $value
 		), $this->html_options);
 		unset($html_options['disabled']);
-		return Taghelper::tag('input', $html_options) . "\n"; #.html_safe
+		return html_safe(Taghelper::tag('input', $html_options) . "\n");
 	}
 
 	# Returns the name attribute for the input tag.
 	#  => post[written_on(1i)]
 	private function input_name_from_type($type){
-		$prefix = $this->options['prefix'] ?: ActionView\Helpers\DateTimeSelector::$DEFAULT_PREFIX;
+		$prefix = $this->options['prefix'] ?: DateTimeSelector::$DEFAULT_PREFIX;
 		if(array_key_exists('index', $this->options)){
 			$prefix .= "[{$this->options['index']}]";
 		}
 
 		$field_name = $this->options['field_name'] ?: $type;
 		if($this->options['include_position']){
-			$position = ActionView\Helpers\DateTimeSelector::$POSITION[$type];
+			$position = DateTimeSelector::$POSITION[$type];
 			$field_name .= "({$position}i)";
 		}
 
@@ -1176,7 +1177,7 @@ class DateTimeSelector{ #:nodoc:
 			$separator = $type != $first_visible ? $this->separator($type) : ''; # don't add before first visible field
 			$select = $separator . call_user_func(array($this, "select_{$type}")) . $select;
 		}
-		return $select; # .html_safe
+		return html_safe($select);
 	}
 
 	# Returns the separator for a given datetime component.

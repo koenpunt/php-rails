@@ -13,7 +13,7 @@ class Time extends DateTime{
 	}
 	
 	public static function mktime($year, $month, $day, $hour, $minute, $second){
-		return new Time('@' . mktime($hour, $minute, $second, $month, $day, $year));
+		return new Time(date('r', mktime($hour, $minute, $second, $month, $day, $year)));
 	}
 
 	public function in_time_zone($timezone){

@@ -30,7 +30,7 @@ class Time extends DateTime{
 	
 	public function in_time_zone($timezone){
 		$timezone = $timezone instanceof \DateTimeZone ? $timezone : new \DateTimeZone($timezone);
-		return $this->setTimezone($timezone);
+		return $this->dup()->setTimezone($timezone);
 	}
 	
 }

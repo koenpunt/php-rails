@@ -1,4 +1,7 @@
 <?php
+require_once 'active_support/core_ext/SafeHtml.php';
+
+use ActiveSupport\CoreExt\SafeHtml;
 
 # args.extract_options!
 function extract_options(&$arguments){
@@ -21,6 +24,22 @@ function delete(array &$data, $key){
 	
 }
 
+function get(array &$data, $key){
+	if(array_key_exists($key, $data)){
+		return $data[$key];
+	}
+	return false;
+}
+
+function html_safe($content){
+	return new SafeHtml($content);
+}
+# html_safe?
+function html_safe__($value){
+	return $value instanceof SafeHtml;
+}
+
+
 function assert_valid_keys(array $data, $valid_keys){
 	$valid_keys = array_flatten($valid_keys);
 	foreach($data as $k => $v){
@@ -30,24 +49,31 @@ function assert_valid_keys(array $data, $valid_keys){
 	}
 }
 
-/** 
- * Flattens an array, or returns FALSE on fail. 
- */ 
-function array_flatten($array) { 
-	if (!is_array($array)) {
-		return false;
-	} 
-	$result = array();
-	foreach ($array as $key => $value) {
-		if (is_array($value)) {
-			$result = array_merge($result, array_flatten($value));
-		} else {
-			$result[$key] = $value;
-		} 
-	} 
-	return $result; 
-} 
+function array_flatten(array $array){
+	$i = 0;
+	$n = count($array);
 
+	while ($i < $n) {
+		if (is_array($array[$i])) {
+			array_splice($array,$i,1,$array[$i]);
+		} else {
+			++$i;
+		}
+		$n = count($array);
+	}
+	return $array;
+}
+
+/**
+ * Merges any number of arrays / parameters recursively, replacing 
+ * entries with string keys with values from latter arrays. 
+ * If the entry or the next value to be assigned is an array, then it 
+ * automagically treats both arguments as an array.
+ * Numeric entries are appended, not replaced, but only if they are 
+ * unique
+ *
+ * calling: result = array_merge_recursive_distinct(a1, a2, ... aN)
+ */
 function array_merge_recursive_distinct() {
 	$arrays = func_get_args();
 	$base = array_shift($arrays);
@@ -60,8 +86,8 @@ function array_merge_recursive_distinct() {
 				continue;
 			}
 			if(is_array($value) or is_array($base[$key])) {
-				$base[$key] = AppHelper::array_merge_recursive_distinct($base[$key], $append[$key]);
-			}else if(is_numeric($key)) {
+				$base[$key] = array_merge_recursive_distinct($base[$key], $append[$key]);
+			} else if(is_numeric($key)) {
 				if(!in_array($value, $base)) $base[] = $value;
 			} else {
 				$base[$key] = $value;

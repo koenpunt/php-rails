@@ -11,8 +11,6 @@
 #require 'active_support/core_ext/string/output_safety'
 #require 'set'
 
-
-
 namespace ActionView\Helpers;
 #module ActionView
 	# = Action View Form Tag Helpers
@@ -20,8 +18,8 @@ namespace ActionView\Helpers;
 		# Provides methods to generate HTML tags programmatically when you can't use
 		# a Builder. By default, they output XHTML compliant tags.
 
-class TagHelper 
-	extends \ActiveSupport\Concern{
+class TagHelper {
+	#extends \ActiveSupport\Concern{
 	
 	# include CaptureHelper
 	
@@ -73,7 +71,7 @@ class TagHelper
 	public static function tag($name, $options = null, $open = false, $escape = true){
 		$tag_options = $options ? self::tag_options($options, $escape) : "";
 		$open = $open ? ">" : " />";
-		return "<{$name} {$tag_options} {$open}"; # .html_safe
+		return html_safe("<{$name} {$tag_options} {$open}");
 	}
 
 	# Returns an HTML block tag of type +name+ surrounding the +content+. Add
@@ -99,15 +97,15 @@ class TagHelper
 	#     Hello world!
 	#   <% end -%>
 	#    # => <div class="strong">Hello world!</div>
-	public static function content_tag($name, $content_or_options_with_block = null, $options = null, $escape = true){ //, &$block){
-		#if(block_given()){
-		#	if(is_array($content_or_options_with_block)){
-		#		$options = $content_or_options_with_block;
-		#	}
-		#	return self::content_tag_string($name, capture(&block), $options, $escape);
-		#}else{
+	public static function content_tag($name, $content_or_options_with_block = null, $options = null, $escape = true, $block = null){
+		if($block){
+			if(is_hash($content_or_options_with_block)){
+				$options = $content_or_options_with_block;
+			}
+			return self::content_tag_string($name, call_user_func($block), $options, $escape);
+		}else{
 			return self::content_tag_string($name, $content_or_options_with_block, $options, $escape);
-		#}
+		}
 	}
 
 	# Returns a CDATA section with the given +content+. CDATA sections
@@ -126,7 +124,7 @@ class TagHelper
 	#   # => <![CDATA[hello]]]]><![CDATA[>world]]>
 	public static function cdata_section($content){
 		$splitted = str_replace(']]>', ']]]]><![CDATA[>', $content);
-		return "<![CDATA[{$splitted}]]>"; #.html_safe
+		return html_safe("<![CDATA[{$splitted}]]>");
 	}
 
 	# Returns an escaped version of +html+ without affecting existing escaped entities.
@@ -159,10 +157,10 @@ class TagHelper
 	}
 
 	private static function content_tag_string($name, $content, $options, $escape = true){
-		$tag_options = $options ? self::tag_options($options, $escape) : "";
-		$content = $escape ? htmlspecialchars($content) : $content;
+		$tag_options = is_hash($options) ? self::tag_options($options, $escape) : "";
+		$content = html_safe__($content) ? $content : ( $escape ? htmlspecialchars($content) : $content);
 		$pre_content_string = isset(self::$PRE_CONTENT_STRINGS['name']) ? self::$PRE_CONTENT_STRINGS['name'] : '';
-		return "<{$name} {$tag_options}>{$pre_content_string}{$content}</{$name}>"; #.html_safe
+		return html_safe("<{$name} {$tag_options}>{$pre_content_string}{$content}</{$name}>");
 	}
 	
 	private static function tag_options($options, $escape = true){
@@ -197,15 +195,13 @@ class TagHelper
 	}
 	
 	private static function boolean_tag_option($key){
-		return "#{$key}=\"#{$key}\"";
+		return "{$key}=\"{$key}\"";
 	}
 	
 	private static function tag_option($key, $value, $escape){
 		$value = is_array($value) ? implode(" ", $value) : $value;
-		if($escape){
-			$value = htmlspecialchars($value);
-		}
-		return "#{$key}=\"#{$value}\"";
+		$value = html_safe__($value) ? $value : ( $escape ? htmlspecialchars($value) : $value);
+		return "{$key}=\"{$value}\"";
 	}
 
 }
