@@ -11,3 +11,5 @@ set_include_path(
 	__DIR__ . DS . 'activesupport' . DS . 'lib' . PS .
 	__DIR__ . DS . 'actionpack' . DS . 'lib'
 );
+
+include 'utils.php';
