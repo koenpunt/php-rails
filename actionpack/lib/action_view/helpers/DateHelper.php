@@ -1069,7 +1069,7 @@ class DateTimeSelector{ #:nodoc:
 			array_push($select_options, TagHelper::content_tag('option', $text, $tag_options));
 		}
 		
-		return html_safe(implode("\n", $select_options));
+		return \html_safe(implode("\n", $select_options));
 	}
 
 	# Builds select tag from date type and html select options.
@@ -1095,7 +1095,7 @@ class DateTimeSelector{ #:nodoc:
 		}
 		$select_html .= $select_options_as_html;
 		
-		return html_safe(Taghelper::content_tag('select', html_safe($select_html . "\n"), $select_options) . "\n");
+		return \html_safe(Taghelper::content_tag('select', \html_safe($select_html . "\n"), $select_options) . "\n");
 	}
 
 	# Builds a prompt option tag with supplied options or from default options.
@@ -1129,7 +1129,7 @@ class DateTimeSelector{ #:nodoc:
 			'value' => $value
 		), $this->html_options);
 		unset($html_options['disabled']);
-		return html_safe(Taghelper::tag('input', $html_options) . "\n");
+		return \html_safe(Taghelper::tag('input', $html_options) . "\n");
 	}
 
 	# Returns the name attribute for the input tag.
@@ -1177,7 +1177,7 @@ class DateTimeSelector{ #:nodoc:
 			$separator = $type != $first_visible ? $this->separator($type) : ''; # don't add before first visible field
 			$select = $separator . call_user_func(array($this, "select_{$type}")) . $select;
 		}
-		return html_safe($select);
+		return \html_safe($select);
 	}
 
 	# Returns the separator for a given datetime component.

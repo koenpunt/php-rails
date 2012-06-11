@@ -108,15 +108,15 @@ class Inflector{
 	#   "author_id"       # => "Author"
 	public static function humanize($lower_case_and_underscored_word){
 		$result = $lower_case_and_underscored_word;
-		self::inflections()->humans->each(function($rule, $replacement) use ($result){
+		foreach(self::inflections()->humans as $rule => $replacement){
 			if(preg_replace($rule, $replacement, $result, 1))break; 
-		});
+		};
 		$result = preg_replace('/_id$/', "", $result);
 		$result = strtr('_', ' ', $result);
 		
-		return ucfirst(preg_replace_callback('/([a-z\d]*)/i', function($match){
-			return self::inflections()->acronyms[$match] ?: strtolower($match);
-		}));
+		return ucfirst(preg_replace_callback('/([a-z\d]*)/i', function($matches){
+			return self::inflections()->acronyms[$matches[0]] ?: strtolower($matches[0]);
+		}, $result));
 		
 		#return $result->gsub('/(_)?([a-z\d]*)/i', "#{$1 && ' '}#{inflections.acronyms[$2] || $2.downcase}" }.gsub(/^\w/) { $&.upcase }
 	}
