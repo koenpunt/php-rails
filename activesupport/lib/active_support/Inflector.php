@@ -400,9 +400,9 @@ class Inflector{
 	#   end
 	public static function inflections($block = false){
 		if($block){
-			return call_user_func($block, Inflections::instance());
+			return call_user_func($block, Inflector\Inflections::instance());
 		}else{
-			return Inflections::instance();
+			return Inflector\Inflections::instance();
 		}
 	}
 	
