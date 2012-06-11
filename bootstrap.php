@@ -12,4 +12,4 @@ set_include_path(
 	__DIR__ . DS . 'actionpack' . DS . 'lib'
 );
 
-include 'utils.php';
+include __DIR__ . DS . 'utils.php';
