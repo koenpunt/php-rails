@@ -468,7 +468,7 @@ class Inflections{
 		$this->humans = array();
 
 		$this->acronyms = array();
-		$this->acronym_regex = '/(?=a)b/';
+		$this->acronym_regex = '(?=a)b';
 	}
 
 	# Specifies a new acronym. An acronym must be specified as it will appear in a camelized string.  An underscore
@@ -519,8 +519,7 @@ class Inflections{
 	#   camelize 'mcdonald' #=> 'McDonald'
 	public function acronym($word){
 		$this->acronyms[$word->downcase()] = $word;
-		$acronym_values = implode('|', $this->acronyms);
-		$this->acronym_regex = "/{$acronym_values}/";
+		$this->acronym_regex = implode('|', $this->acronyms);
 	}
 
 	# Specifies a new pluralization rule and its replacement. The rule can either be a string or a regular expression.
