@@ -7,7 +7,7 @@ if(!defined('DS'))
 	define('DS', PATH_SEPARATOR);
 
 set_include_path(
-	get_include_path() . PS
-	__DIR__ . 'activesupport' . DS . 'lib' . PS
-	__DIR__ . 'actionpack' . DS . 'lib'
+	get_include_path() . PS . 
+	__DIR__ . DS . 'activesupport' . DS . 'lib' . PS .
+	__DIR__ . DS . 'actionpack' . DS . 'lib'
 );
