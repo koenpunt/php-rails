@@ -450,13 +450,13 @@ namespace ActiveSupport\Inflector;
 # already have been loaded.
 class Inflections{
 	
-	protected $_instance = null;
+	protected static $_instance = null;
 	
 	public static function instance(){
-		if(is_null($this->_instance)){
-			$this->_instance = new Inflections();
+		if(is_null(self::$_instance)){
+			self::$_instance = new Inflections();
 		}
-		return $this->_instance;
+		return self::$_instance;
 	}
 
 	#attr_reader :plurals, :singulars, :uncountables, :humans, :acronyms, :acronym_regex
