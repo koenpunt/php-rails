@@ -63,9 +63,7 @@ class Inflector{
 	public static function camelize($term, $uppercase_first_letter = true){
 		$string = (string)$term;
 		if( $uppercase_first_letter ){
-			$string = preg_replace_callback('/^[a-z\d]*/', function($matches){
-				return self::inflections()->acronyms[$matches[0]] ?: ucfirst($matches[0]); 
-			}, $string, 1);
+			$string = preg_replace_callback('/^[a-z\d]*/', function($matches){ return self::inflections()->acronyms[$matches[0]] ?: ucfirst($match); }, $string, 1);
 		}else{
 			$acronym_regex = self::inflections()->acronym_regex;
 			$string = preg_replace_callback("/^(?:{$acronym_regex}(?=\b|[A-Z_])|\w)/", function($matches) { return strtolower($matches[0]); }, $string);
@@ -95,8 +93,8 @@ class Inflector{
 		$word = preg_replace_callback("/(?:([A-Za-z\d])|^)({$acronym_regex})(?=\b|[^a-z])/", function($matches){ 
 			return "{$matches[1]}" . ($matches[1] ? '_' : '') . strtolower($matches[2]); 
 		}, $word);
-		$word = preg_replace('/([A-Z\d]+)([A-Z][a-z])/','\1_\2', $word);
-		$word = preg_replace('/([a-z\d])([A-Z])/','\1_\2', $word);
+		$word = preg_replace('/([A-Z\d]+)([A-Z][a-z])/','$1_$2', $word);
+		$word = preg_replace('/([a-z\d])([A-Z])/','$1_$2', $word);
 		$word = strtr($word, '-', '_');
 		$word = strtolower($word);
 		return $word;
@@ -567,9 +565,9 @@ class Inflections{
 		
 		
 		if(strtoupper(substr($singular, 0, 1)) == strtoupper(substr($plural, 0, 1))){
-			$this->plural("/({$singular_char}){$singular_word}$/i", '\1' . $plural_word);
-			$this->plural("/({$plural_char}){$plural_word}$/i", '\1' . $plural_word);
-			$this->singular("/({$plural_char}){$plural_word}$/i", '\1' . $singular_word);
+			$this->plural("/({$singular_char}){$singular_word}$/i", '$1' . $plural_word);
+			$this->plural("/({$plural_char}){$plural_word}$/i", '$1' . $plural_word);
+			$this->singular("/({$plural_char}){$plural_word}$/i", '$1' . $singular_word);
 		}else{
 			$this->plural("/{$singular_char_upcase}(?i){$singular_word}$/", $plural_char_upcase . $plural_word);
 			$this->plural("/{$singular_char_downcase}(?i){$singular_word}$/", $plural_char_downcase . $plural_word);
