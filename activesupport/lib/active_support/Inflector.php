@@ -66,11 +66,11 @@ class Inflector{
 			$string = preg_replace_callback('/^[a-z\d]*/', function($matches){ self::inflections()->acronyms[$matches[0]] ?: ucfirst($match); }, $string, 1);
 		}else{
 			$acronym_regex = self::inflections()->acronym_regex;
-			$string = preg_replace_callback("/^(?:{$acronym_regex}(?=\b|[A-Z_])|\w)/", function($matches) { return strtolower($matches[0]); });
+			$string = preg_replace_callback("/^(?:{$acronym_regex}(?=\b|[A-Z_])|\w)/", function($matches) { return strtolower($matches[0]); }, $string);
 		}
 		return preg_replace_callback('/(?:_|(\/))([a-z\d]*)/i', function($matches){ 
 			return str_replace('/', '::', "{$matches[1]}" . (self::inflections()->acronyms[$matches[2]] ?: ucfirst($matches[2])));
-		});
+		}, $string);
 	}
 	
 
