@@ -1,7 +1,7 @@
 <?php
-require_once 'active_support/core_ext/SafeHtml.php';
+require_once 'active_support/SafeBuffer.php';
 
-use ActiveSupport\CoreExt\SafeHtml;
+use ActiveSupport\SafeBuffer;
 
 # args.extract_options!
 function extract_options(&$arguments){
@@ -32,11 +32,15 @@ function get(array &$data, $key){
 }
 
 function html_safe($content){
-	return new SafeHtml($content);
+	return new SafeBuffer($content);
 }
 # html_safe?
 function html_safe__($value){
-	return $value instanceof SafeHtml;
+	return $value instanceof SafeBuffer;
+}
+
+function capture(Closure &$block){
+	return call_user_func($block);
 }
 
 
@@ -95,6 +99,13 @@ function array_merge_recursive_distinct() {
 		}
 	}
 	return $base;
+}
+
+function array_delete($value, &$array){
+	$key = array_search($value, $array);
+	if($key !== false){
+		unset($array[$key]);
+	}
 }
 
 

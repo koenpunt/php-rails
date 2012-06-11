@@ -23,8 +23,8 @@ namespace ActionView\Helpers;
 		# NOTE: The HTML options <tt>disabled</tt>, <tt>readonly</tt>, and <tt>multiple</tt> can all be treated as booleans. So specifying
 		# <tt>:disabled => true</tt> will give <tt>disabled="disabled"</tt>.
 
-class FormTagHelper
-	extends \ActiveSupport\Concern{
+class FormTagHelper{
+#	extends \ActiveSupport\Concern{
 		
 	#include UrlHelper
 	#include TextHelper
@@ -674,15 +674,12 @@ class FormTagHelper
 	private static function extra_tags_for_form($html_options){
 		$authenticity_token = $html_options['authenticity_token'];
 		$method = $html_options['method'];
-		/*
-			TODO Fix switch/case
-		*/
-		switch($method){
-			case '/^get$/i': # must be case-insensitive, but can't use downcase as might be nil
+		switch(1){
+			case preg_match('/^get$/i', $method): # must be case-insensitive, but can't use downcase as might be nil
 				$html_options["method"] = "get";
 				$method_tag = '';
 				break;
-			case '/^post$/i': //, "", nil
+			case preg_match('/^post$/i', $method): //, "", nil
 				$html_options["method"] = "post";
 				$method_tag = self::token_tag($authenticity_token);
 				break;
@@ -699,12 +696,12 @@ class FormTagHelper
 		return TagHelper::tag('form', $html_options, true) . $extra_tags;
 	}
 
-	private static function form_tag_in_block($html_options){ //, &$block){
-		$content = capture(&$block);
-		$output = ''; //ActiveSupport::SafeBuffer.new
-		$output .= self::form_tag_html($html_options);
-		$output .= $content;
-		$output .= "</form>";
+	private static function form_tag_in_block($html_options, &$block = null){
+		$content = capture($block);
+		$output = new ActiveSupport\SafeBuffer();
+		$output->append( self::form_tag_html($html_options) );
+		$output->append( $content );
+		return $output->append( "</form>" );
 	}
 
 	private static function token_tag($token){
