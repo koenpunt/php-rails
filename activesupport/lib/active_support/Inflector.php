@@ -63,7 +63,7 @@ class Inflector{
 	public static function camelize($term, $uppercase_first_letter = true){
 		$string = (string)$term;
 		if( $uppercase_first_letter ){
-			$string = preg_replace_callback('/^[a-z\d]*/', function($matches){ return self::inflections()->acronyms[$matches[0]] ?: ucfirst($match); }, $string, 1);
+			$string = preg_replace_callback('/^[a-z\d]*/', function($matches){ return self::inflections()->acronyms[$matches[0]] ?: ucfirst($matches[0]); }, $string, 1);
 		}else{
 			$acronym_regex = self::inflections()->acronym_regex;
 			$string = preg_replace_callback("/^(?:{$acronym_regex}(?=\b|[A-Z_])|\w)/", function($matches) { return strtolower($matches[0]); }, $string);
