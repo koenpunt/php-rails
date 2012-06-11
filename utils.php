@@ -1,4 +1,6 @@
 <?php
+
+namespace PHPRails;
 require_once 'active_support/SafeBuffer.php';
 
 use ActiveSupport\SafeBuffer;
@@ -7,7 +9,7 @@ use ActiveSupport\SafeBuffer;
 function extract_options(&$arguments){
 	$_arguments = $arguments;
 	$options = array_pop($_arguments);
-	if(is_hash($options)){
+	if(\PHPRails\is_hash($options)){
 		$arguments = $_arguments;
 		return $options;
 	}
@@ -45,7 +47,7 @@ function capture(Closure &$block){
 
 
 function assert_valid_keys(array $data, $valid_keys){
-	$valid_keys = array_flatten($valid_keys);
+	$valid_keys = \PHPRails\array_flatten($valid_keys);
 	foreach($data as $k => $v){
 		if(!in_array($k, $valid_keys)){
 			throw new InvalidArgumentError("Unknown key: {$k}");
@@ -90,7 +92,7 @@ function array_merge_recursive_distinct() {
 				continue;
 			}
 			if(is_array($value) or is_array($base[$key])) {
-				$base[$key] = array_merge_recursive_distinct($base[$key], $append[$key]);
+				$base[$key] = \PHPRails\array_merge_recursive_distinct($base[$key], $append[$key]);
 			} else if(is_numeric($key)) {
 				if(!in_array($value, $base)) $base[] = $value;
 			} else {
@@ -137,7 +139,7 @@ function acts_like__($object, $type){
  * @author Koen Punt
  */
 
-function between($value, $start, $end){
+function acts_like__array_merge_recursive_distinct($value, $start, $end){
 	return $value >= $start && $value <= $end;
 }
 
@@ -150,7 +152,7 @@ function minutes($minutes){
 }
 
 function hour(){
-	return hours(1);
+	return \PHPRails\hours(1);
 }
 
 function hours($hours){
@@ -158,7 +160,7 @@ function hours($hours){
 }
 
 function day(){
-	return days(1);
+	return \PHPRails\days(1);
 }
 
 function days($days){
@@ -166,7 +168,7 @@ function days($days){
 }
 
 function month(){
-	return months(1);
+	return \PHPRails\months(1);
 }
 
 function months($months){
@@ -174,7 +176,7 @@ function months($months){
 }
 
 function year(){
-	return years(1);
+	return \PHPRails\years(1);
 }
 
 function years($years){

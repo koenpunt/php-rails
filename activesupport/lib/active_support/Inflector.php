@@ -526,9 +526,9 @@ class Inflections{
 	# The replacement should always be a string that may include references to the matched data from the rule.
 	public function plural($rule, $replacement){
 		if(is_string($rule)){
-			array_delete($rule, $this->uncountables);
+			\PHPRails\array_delete($rule, $this->uncountables);
 		}
-		array_delete($replacement, $this->uncountables);
+		\PHPRails\array_delete($replacement, $this->uncountables);
 		array_unshift($this->plurals, array($rule, $replacement));
 	}
 
@@ -536,9 +536,9 @@ class Inflections{
 	# The replacement should always be a string that may include references to the matched data from the rule.
 	public function singular($rule, $replacement){
 		if(is_string($rule)){
-			array_delete($rule, $this->uncountables);
+			\PHPRails\array_delete($rule, $this->uncountables);
 		}
-		array_delete($replacement, $this->uncountables);
+		\PHPRails\array_delete($replacement, $this->uncountables);
 		array_unshift($this->singulars, array($rule, $replacement));
 	}
 
@@ -549,8 +549,8 @@ class Inflections{
 	#   irregular 'octopus', 'octopi'
 	#   irregular 'person', 'people'
 	public function irregular($singular, $plural){
-		array_delete($singular, $this->uncountables);
-		array_delete($plural, $this->uncountables);
+		\PHPRails\array_delete($singular, $this->uncountables);
+		\PHPRails\array_delete($plural, $this->uncountables);
 		
 		$singular_char = substr($singular, 0, 1);
 		$singular_char_upcase = strtoupper(substr($singular, 0, 1));
@@ -584,7 +584,7 @@ class Inflections{
 	#   uncountable "money", "information"
 	#   uncountable %w( money information rice )
 	public function uncountable($words){
-		$this->uncountables = array_flatten(array_push($this->uncountables, $words));
+		$this->uncountables = \PHPRails\array_flatten(array_push($this->uncountables, $words));
 		return $this->uncountables;
 	}
 

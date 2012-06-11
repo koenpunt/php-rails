@@ -87,7 +87,7 @@ class DateHelper{
 	#   distance_of_time_in_words(Time.now, Time.now)           # => less than a minute
 	#
 	public static function distance_of_time_in_words($from, $to = 0, $include_seconds_or_options = array(), $options = array()){
-		if(is_hash($include_seconds_or_options)){
+		if(\PHPRails\is_hash($include_seconds_or_options)){
 			$options = $include_seconds_or_options;
 		}else{
 			trigger_error("distance_of_time_in_words and time_ago_in_words now accept :include_seconds " .
@@ -108,44 +108,44 @@ class DateHelper{
 		
 		return \I18n\I18n::with_options(array('locale' => $options['locale'], 'scope' => 'datetime.distance_in_words'), function($locale) use ($to, $from, $from_time, $to_time, $options, $distance_in_minutes, $distance_in_seconds){
 			switch(true){
-				case \between($distance_in_minutes, 0, 1):
+				case \PHPRails\between($distance_in_minutes, 0, 1):
 					if(!$options['include_seconds']){
 						return $distance_in_minutes == 0 ?
 							$locale->t('less_than_x_minutes', array('count' => 1)) :
 							$locale->t('x_minutes', array('count' => $distance_in_minutes));
 					}
 					switch(true){
-						case \between($distance_in_seconds, 0, 4): 
+						case \PHPRails\between($distance_in_seconds, 0, 4): 
 							return $locale->t('less_than_x_seconds', array('count' => 5));
-						case \between($distance_in_seconds, 5, 9): 
+						case \PHPRails\between($distance_in_seconds, 5, 9): 
 							return $locale->t('less_than_x_seconds', array('count' => 10));
-						case \between($distance_in_seconds, 10, 19): 
+						case \PHPRails\between($distance_in_seconds, 10, 19): 
 							return $locale->t('less_than_x_seconds', array('count' => 20));
-						case \between($distance_in_seconds, 20, 39): 
+						case \PHPRails\between($distance_in_seconds, 20, 39): 
 							return $locale->t('half_a_minute');
-						case \between($distance_in_seconds, 40, 59): 
+						case \PHPRails\between($distance_in_seconds, 40, 59): 
 							return $locale->t('less_than_x_minutes', array('count' => 1));
 						default: 
 							return $locale->t('x_minutes', array('count' => 1));
 					}
-				case \between($distance_in_minutes, 2, 44):
+				case \PHPRails\between($distance_in_minutes, 2, 44):
 					return $locale->t('x_minutes', array('count' => $distance_in_minutes));
-				case \between($distance_in_minutes, 45, 89):
+				case \PHPRails\between($distance_in_minutes, 45, 89):
 					return $locale->t('about_x_hours',  array('count' => 1));
 				# 90 mins up to 24 hours
-				case \between($distance_in_minutes, 90, 1439):
+				case \PHPRails\between($distance_in_minutes, 90, 1439):
 					return $locale->t('about_x_hours',  array('count' => round(floatval($distance_in_minutes) / 60.0)));
 				# 24 hours up to 42 hours
-				case \between($distance_in_minutes, 1440, 2519):
+				case \PHPRails\between($distance_in_minutes, 1440, 2519):
 					return $locale->t('x_days',         array('count' => 1));
 				# 42 hours up to 30 days
-				case \between($distance_in_minutes, 2520, 43199):
+				case \PHPRails\between($distance_in_minutes, 2520, 43199):
 					return $locale->t('x_days',         array('count' => round(floatval($distance_in_minutes) / 1440.0)));
 				# 30 days up to 60 days
-				case \between($distance_in_minutes, 43200, 86399):
+				case \PHPRails\between($distance_in_minutes, 43200, 86399):
 					return $locale->t('about_x_months', array('count' => round(floatval($distance_in_minutes) / 43200.0)));
 				# 60 days up to 365 days
-				case \between($distance_in_minutes, 86400, 525599):
+				case \PHPRails\between($distance_in_minutes, 86400, 525599):
 					return $locale->t('x_months',       array('count' => round(floatval($distance_in_minutes) / 43200.0)));
 				default:
 					if($from instanceof DateTime && $to instanceof DateTime){
@@ -715,8 +715,8 @@ class DateHelper{
 	#
 	public static function time_tag($date_or_time/*, *args */){ //, &block)
 		$args = func_get_args();
-		$options = extract_options($args);
-		$format = delete($options, 'format') ?: 'long';
+		$options = \PHPRails\extract_options($args);
+		$format = \PHPRails\delete($options, 'format') ?: 'long';
 		$content  = func_get_arg(0) ?: I18n::l($date_or_time, array('format' => $format));
 		$datetime = $date_or_time;
 		/*
@@ -863,7 +863,7 @@ class DateTimeSelector{ #:nodoc:
 		if( $this->options['use_hidden'] || $this->options['discard_hour']){
 			return $this->build_hidden('hour', $this->hour());
 		}else{
-			return $this->build_options_and_select('hour', $this->hour(), array('end' => 23, 'ampm' => get($this->options, 'ampm')));
+			return $this->build_options_and_select('hour', $this->hour(), array('end' => 23, 'ampm' => \PHPRails\get($this->options, 'ampm')));
 		}
 	}
 
@@ -871,7 +871,7 @@ class DateTimeSelector{ #:nodoc:
 		if($this->options['use_hidden'] || $this->options['discard_day']){
 			return $this->build_hidden('day', $this->day() ?: 1);
 		}else{
-			return $this->build_options_and_select('day', $this->day(), array('start' => 1, 'end' => 31, 'leading_zeros' => false, 'use_two_digit_numbers' => get($this->options, 'use_two_digit_numbers')));
+			return $this->build_options_and_select('day', $this->day(), array('start' => 1, 'end' => 31, 'leading_zeros' => false, 'use_two_digit_numbers' => \PHPRails\get($this->options, 'use_two_digit_numbers')));
 		}
 	}
 
@@ -1051,11 +1051,11 @@ class DateTimeSelector{ #:nodoc:
 	#      <option value="3">3</option>
 	#      <option value="5">5</option>..."
 	private function build_options($selected, $options = array()){
-		$start         = delete($options, 'start') ?: 0;
-		$stop          = delete($options, 'end') ?: 59;
-		$step          = delete($options, 'step') ?: 1;
+		$start         = \PHPRails\delete($options, 'start') ?: 0;
+		$stop          = \PHPRails\delete($options, 'end') ?: 59;
+		$step          = \PHPRails\delete($options, 'step') ?: 1;
 		$options = array_merge(array('leading_zeros' => true, 'ampm' => false, 'use_two_digit_numbers' => false), $options);
-		$leading_zeros = delete($options, 'leading_zeros');
+		$leading_zeros = \PHPRails\delete($options, 'leading_zeros');
 		$select_options = array();
 		for($i = $start; $i <= $stop ; $i = $i + $step){
 			$value = $leading_zeros ? sprintf("%02d", $i) : $i;
@@ -1069,7 +1069,7 @@ class DateTimeSelector{ #:nodoc:
 			array_push($select_options, TagHelper::content_tag('option', $text, $tag_options));
 		}
 		
-		return \html_safe(implode("\n", $select_options));
+		return \PHPRails\html_safe(implode("\n", $select_options));
 	}
 
 	# Builds select tag from date type and html select options.
@@ -1095,7 +1095,7 @@ class DateTimeSelector{ #:nodoc:
 		}
 		$select_html .= $select_options_as_html;
 		
-		return \html_safe(Taghelper::content_tag('select', \html_safe($select_html . "\n"), $select_options) . "\n");
+		return \PHPRails\html_safe(Taghelper::content_tag('select', \PHPRails\html_safe($select_html . "\n"), $select_options) . "\n");
 	}
 
 	# Builds a prompt option tag with supplied options or from default options.
@@ -1103,7 +1103,7 @@ class DateTimeSelector{ #:nodoc:
 	#  => "<option value="">Select month</option>"
 	private function prompt_option_tag($type, $options){
 		switch($options){
-			case is_hash($options):
+			case \PHPRails\is_hash($options):
 				$default_options = array('year' => false, 'month' => false, 'day' => false, 'hour' => false, 'minute' => false, 'second' => false);
 				$default_options = array_merge($default_options, $options);
 				$prompt = $default_options[$type];
@@ -1129,7 +1129,7 @@ class DateTimeSelector{ #:nodoc:
 			'value' => $value
 		), $this->html_options);
 		unset($html_options['disabled']);
-		return \html_safe(Taghelper::tag('input', $html_options) . "\n");
+		return \PHPRails\html_safe(Taghelper::tag('input', $html_options) . "\n");
 	}
 
 	# Returns the name attribute for the input tag.
@@ -1177,7 +1177,7 @@ class DateTimeSelector{ #:nodoc:
 			$separator = $type != $first_visible ? $this->separator($type) : ''; # don't add before first visible field
 			$select = $separator . call_user_func(array($this, "select_{$type}")) . $select;
 		}
-		return \html_safe($select);
+		return \PHPRails\html_safe($select);
 	}
 
 	# Returns the separator for a given datetime component.

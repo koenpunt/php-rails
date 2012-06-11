@@ -71,7 +71,7 @@ class TagHelper {
 	public static function tag($name, $options = null, $open = false, $escape = true){
 		$tag_options = $options ? self::tag_options($options, $escape) : "";
 		$open = $open ? ">" : " />";
-		return \html_safe("<{$name} {$tag_options} {$open}");
+		return \PHPRails\html_safe("<{$name} {$tag_options} {$open}");
 	}
 
 	# Returns an HTML block tag of type +name+ surrounding the +content+. Add
@@ -99,7 +99,7 @@ class TagHelper {
 	#    # => <div class="strong">Hello world!</div>
 	public static function content_tag($name, $content_or_options_with_block = null, $options = null, $escape = true, $block = null){
 		if($block){
-			if(is_hash($content_or_options_with_block)){
+			if(\PHPRails\is_hash($content_or_options_with_block)){
 				$options = $content_or_options_with_block;
 			}
 			return self::content_tag_string($name, call_user_func($block), $options, $escape);
@@ -124,7 +124,7 @@ class TagHelper {
 	#   # => <![CDATA[hello]]]]><![CDATA[>world]]>
 	public static function cdata_section($content){
 		$splitted = str_replace(']]>', ']]]]><![CDATA[>', $content);
-		return \html_safe("<![CDATA[{$splitted}]]>");
+		return \PHPRails\html_safe("<![CDATA[{$splitted}]]>");
 	}
 
 	# Returns an escaped version of +html+ without affecting existing escaped entities.
@@ -157,10 +157,10 @@ class TagHelper {
 	}
 
 	private static function content_tag_string($name, $content, $options, $escape = true){
-		$tag_options = is_hash($options) ? self::tag_options($options, $escape) : "";
-		$content = \html_safe__($content) ? $content : ( $escape ? htmlspecialchars($content) : $content);
+		$tag_options = \PHPRails\is_hash($options) ? self::tag_options($options, $escape) : "";
+		$content = \PHPRails\html_safe__($content) ? $content : ( $escape ? htmlspecialchars($content) : $content);
 		$pre_content_string = isset(self::$PRE_CONTENT_STRINGS['name']) ? self::$PRE_CONTENT_STRINGS['name'] : '';
-		return \html_safe("<{$name} {$tag_options}>{$pre_content_string}{$content}</{$name}>");
+		return \PHPRails\html_safe("<{$name} {$tag_options}>{$pre_content_string}{$content}</{$name}>");
 	}
 	
 	private static function tag_options($options, $escape = true){
@@ -200,7 +200,7 @@ class TagHelper {
 	
 	private static function tag_option($key, $value, $escape){
 		$value = is_array($value) ? implode(" ", $value) : $value;
-		$value = \html_safe__($value) ? $value : ( $escape ? htmlspecialchars($value) : $value);
+		$value = \PHPRails\html_safe__($value) ? $value : ( $escape ? htmlspecialchars($value) : $value);
 		return "{$key}=\"{$value}\"";
 	}
 

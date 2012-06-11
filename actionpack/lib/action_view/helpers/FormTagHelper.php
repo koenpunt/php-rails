@@ -199,7 +199,7 @@ class FormTagHelper{
 	#   label_tag 'name', nil, :class => 'small_label'
 	#   # => <label for="name" class="small_label">Name</label>
 	public static function label_tag($name = null, $content_or_options = null, $options = null){ //, &$block){
-		//if(block_given_() && is_hash($content_or_options)){
+		//if(block_given_() && \PHPRails\is_hash($content_or_options)){
 		//	$options = $content_or_options = $content_or_options;
 		//}else{
 			$options = $options ?: array();
@@ -496,7 +496,7 @@ class FormTagHelper{
 	#                type="submit">Checkout</button>
 	#
 	public static function button_tag($content_or_options = null, $options = null){ //, &$block){
-		#if( block_given_() && is_hash($content_or_options)){
+		#if( block_given_() && \PHPRails\is_hash($content_or_options)){
 		#	$options = $content_or_options;
 		#}
 		$options = $options ?: array();
@@ -697,7 +697,7 @@ class FormTagHelper{
 	}
 
 	private static function form_tag_in_block($html_options, &$block = null){
-		$content = capture($block);
+		$content = \PHPRails\capture($block);
 		$output = new ActiveSupport\SafeBuffer();
 		$output->append( self::form_tag_html($html_options) );
 		$output->append( $content );

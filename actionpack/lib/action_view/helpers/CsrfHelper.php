@@ -62,7 +62,7 @@ class CsrfHelper{
 	public static function protect_from_forgery($options = array()){
 		self::$request_forgery_protection_token = self::$request_forgery_protection_token ?: 'authenticity_token';
 		if(array_key_exists('with', $options)){
-			self::$request_forgery_protection_method = delete($options, 'with');
+			self::$request_forgery_protection_method = \PHPRails\delete($options, 'with');
 		}
 		#$this->callback->register('before_save', function(Model $model) { $model->set_timestamps(); }, array('prepend' => true));
 		#prepend_before_filter :verify_authenticity_token, options
