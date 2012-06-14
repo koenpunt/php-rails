@@ -7,7 +7,7 @@
 #
 #require 'active_support/inflections'
 #require 'active_support/core_ext/string/inflections'
-
+// http://api.rubyonrails.org/classes/ActiveSupport/Inflector.html
 
 namespace ActiveSupport;
 # The Inflector transforms words from singular to plural, class names to table names, modularized class names to ones without,
