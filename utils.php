@@ -139,7 +139,7 @@ function acts_like__($object, $type){
  * @author Koen Punt
  */
 
-function acts_like__array_merge_recursive_distinct($value, $start, $end){
+function between($value, $start, $end){
 	return $value >= $start && $value <= $end;
 }
 
