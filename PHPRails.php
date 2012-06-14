@@ -37,6 +37,5 @@ function phprails_autoload($className){
 		$file = "{$path}{$className}.php";
 		if(stream_resolve_include_path($file))
 			require_once $file;
-		}
 	}
 }
