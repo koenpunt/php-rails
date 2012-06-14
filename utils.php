@@ -1,8 +1,6 @@
 <?php
 
 namespace PHPRails;
-require_once 'active_support/SafeBuffer.php';
-
 use ActiveSupport\SafeBuffer;
 
 # args.extract_options!
