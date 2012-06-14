@@ -5,10 +5,8 @@ use ActiveSupport\SafeBuffer;
 
 # args.extract_options!
 function extract_options(&$arguments){
-	$_arguments = $arguments;
-	$options = array_pop($_arguments);
-	if(\PHPRails\is_hash($options)){
-		$arguments = $_arguments;
+	if(\PHPRails\is_hash(end($arguments))){
+		$options = array_pop($arguments);
 		return $options;
 	}
 	return false;
@@ -21,7 +19,19 @@ function delete(array &$data, $key){
 		return $value;
 	}
 	return false;
-	
+}
+
+function fetch(array $data, $key, $alternative=false){
+	if(array_key_exists($key, $data)){
+		return $data[$key];
+	}
+	if($alternative === false){
+		throw new KeyErrorException(); 
+	}
+	if(is_callable($alternative)){
+		return call_user_func($alternative, $key);
+	}
+	return $alternative;
 }
 
 function get(array &$data, $key){

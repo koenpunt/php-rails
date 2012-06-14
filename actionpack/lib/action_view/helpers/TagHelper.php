@@ -97,10 +97,11 @@ class TagHelper {
 	#     Hello world!
 	#   <% end -%>
 	#    # => <div class="strong">Hello world!</div>
-	public static function content_tag($name, $content_or_options_with_block = null, $options = null, $escape = true, $block = null){
+	public static function content_tag($name, $content_or_options_with_block = null, $options = null, $escape = true){
 		if($block){
 			if(\PHPRails\is_hash($content_or_options_with_block)){
 				$options = $content_or_options_with_block;
+				$block = $options;
 			}
 			return self::content_tag_string($name, call_user_func($block), $options, $escape);
 		}else{
