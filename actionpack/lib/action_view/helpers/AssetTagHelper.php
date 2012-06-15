@@ -5,9 +5,9 @@
 #require 'action_view/helpers/asset_tag_helpers/javascript_tag_helpers'
 #require 'action_view/helpers/asset_tag_helpers/stylesheet_tag_helpers'
 #require 'action_view/helpers/asset_tag_helpers/asset_paths'
-#require 'action_view/helpers/tag_helper'
 
 namespace ActionView\Helpers;
+
 #module ActionView
   # = Action View Asset Tag Helpers
   #module Helpers #:nodoc:
@@ -203,6 +203,10 @@ class AssetTagHelper{
 	#include StylesheetTagHelpers
 		
 	static $asset_paths = null;
+	
+	static $javascript_include = null;
+	
+	static $stylesheet_include = null;
 		
 	# Returns a link tag that browsers and news readers can use to auto-detect
 	# an RSS or Atom feed. The +type+ can either be <tt>:rss</tt> (default) or
@@ -513,10 +517,275 @@ class AssetTagHelper{
 	public static function audio_tag($sources){
 		return self::multiple_sources_tag('audio', $sources);
 	}
+	
+	#module JavascriptTagHelpers
+	#extend ActiveSupport::Concern
+	
+	#module ClassMethods
+	# Register one or more javascript files to be included when <tt>symbol</tt>
+	# is passed to <tt>javascript_include_tag</tt>. This method is typically intended
+	# to be called from plugin initialization to register javascript files
+	# that the plugin installed in <tt>public/javascripts</tt>.
+	#
+	#   ActionView::Helpers::AssetTagHelper.register_javascript_expansion :monkey => ["head", "body", "tail"]
+	#
+	#   javascript_include_tag :monkey # =>
+	#     <script src="/javascripts/head.js"></script>
+	#     <script src="/javascripts/body.js"></script>
+	#     <script src="/javascripts/tail.js"></script>
+	public static function register_javascript_expansion($expansions){
+		$js_expansions = JavascriptIncludeTag::$expansions;
+		foreach($$expansions as $key => $values){
+			$js_expansions[$key] = array_unique(array_merge($js_expansions[$key] ?: array(), (array)$values));
+		}
+	}
+
+	# Computes the path to a javascript asset in the public javascripts directory.
+	# If the +source+ filename has no extension, .js will be appended (except for explicit URIs)
+	# Full paths from the document root will be passed through.
+	# Used internally by javascript_include_tag to build the script path.
+	#
+	# ==== Examples
+	#   javascript_path "xmlhr"                              # => /javascripts/xmlhr.js
+	#   javascript_path "dir/xmlhr.js"                       # => /javascripts/dir/xmlhr.js
+	#   javascript_path "/dir/xmlhr"                         # => /dir/xmlhr.js
+	#   javascript_path "http://www.example.com/js/xmlhr"    # => http://www.example.com/js/xmlhr
+	#   javascript_path "http://www.example.com/js/xmlhr.js" # => http://www.example.com/js/xmlhr.js
+	public static function javascript_path($source){
+		return self::asset_paths()->compute_public_path($source, 'javascript_path', array('ext' => 'js'));
+	}
+	# aliased to avoid conflicts with an javascript_path named route
+	public static function path_to_javascript($source){
+		return self::javascript_path($source);
+	}
+
+	# Computes the full URL to a javascript asset in the public javascripts directory.
+	# This will use +javascript_path+ internally, so most of their behaviors will be the same.
+	public static function javascript_url($source){
+		return (string)\RURI::join(self::current_host(), self::path_to_javascript($source));
+	}
+	# aliased to avoid conflicts with a javascript_url named route
+	public static function url_to_javascript($source){
+		return self::javascript_url($source);
+	}
+
+	# Returns an HTML script tag for each of the +sources+ provided.
+	#
+	# Sources may be paths to JavaScript files. Relative paths are assumed to be relative
+	# to <tt>public/javascripts</tt>, full paths are assumed to be relative to the document
+	# root. Relative paths are idiomatic, use absolute paths only when needed.
+	#
+	# When passing paths, the ".js" extension is optional.
+	#
+	# If the application is not using the asset pipeline, to include the default JavaScript
+	# expansion pass <tt>:defaults</tt> as source. By default, <tt>:defaults</tt> loads jQuery,
+	# and that can be overridden in <tt>config/application.rb</tt>:
+	#
+	#   config.action_view.javascript_expansions[:defaults] = %w(foo.js bar.js)
+	#
+	# When using <tt>:defaults</tt>, if an <tt>application.js</tt> file exists in
+	# <tt>public/javascripts</tt> it will be included as well at the end.
+	#
+	# You can modify the HTML attributes of the script tag by passing a hash as the
+	# last argument.
+	#
+	# ==== Examples
+	#   javascript_include_tag "xmlhr"
+	#   # => <script src="/javascripts/xmlhr.js?1284139606"></script>
+	#
+	#   javascript_include_tag "xmlhr.js"
+	#   # => <script src="/javascripts/xmlhr.js?1284139606"></script>
+	#
+	#   javascript_include_tag "common.javascript", "/elsewhere/cools"
+	#   # => <script src="/javascripts/common.javascript?1284139606"></script>
+	#   #    <script src="/elsewhere/cools.js?1423139606"></script>
+	#
+	#   javascript_include_tag "http://www.example.com/xmlhr"
+	#   # => <script src="http://www.example.com/xmlhr"></script>
+	#
+	#   javascript_include_tag "http://www.example.com/xmlhr.js"
+	#   # => <script src="http://www.example.com/xmlhr.js"></script>
+	#
+	#   javascript_include_tag :defaults
+	#   # => <script src="/javascripts/jquery.js?1284139606"></script>
+	#   #    <script src="/javascripts/rails.js?1284139606"></script>
+	#   #    <script src="/javascripts/application.js?1284139606"></script>
+	#
+	# You can also include all JavaScripts in the +javascripts+ directory using <tt>:all</tt> as the source:
+	#
+	#   javascript_include_tag :all
+	#   # => <script src="/javascripts/jquery.js?1284139606"></script>
+	#   #    <script src="/javascripts/rails.js?1284139606"></script>
+	#   #    <script src="/javascripts/application.js?1284139606"></script>
+	#   #    <script src="/javascripts/shop.js?1284139606"></script>
+	#   #    <script src="/javascripts/checkout.js?1284139606"></script>
+	#
+	# Note that your defaults of choice will be included first, so they will be available to all subsequently
+	# included files.
+	#
+	# If you want Rails to search in all the subdirectories under <tt>public/javascripts</tt>, you should
+	# explicitly set <tt>:recursive</tt>:
+	#
+	#   javascript_include_tag :all, :recursive => true
+	#
+	# == Caching multiple JavaScripts into one
+	#
+	# You can also cache multiple JavaScripts into one file, which requires less HTTP connections to download
+	# and can better be compressed by gzip (leading to faster transfers). Caching will only happen if
+	# <tt>config.perform_caching</tt> is set to true (which is the case by default for the Rails
+	# production environment, but not for the development environment).
+	#
+	# ==== Examples
+	#
+	#   # assuming config.perform_caching is false
+	#   javascript_include_tag :all, :cache => true
+	#   # => <script src="/javascripts/jquery.js?1284139606"></script>
+	#   #    <script src="/javascripts/rails.js?1284139606"></script>
+	#   #    <script src="/javascripts/application.js?1284139606"></script>
+	#   #    <script src="/javascripts/shop.js?1284139606"></script>
+	#   #    <script src="/javascripts/checkout.js?1284139606"></script>
+	#
+	#   # assuming config.perform_caching is true
+	#   javascript_include_tag :all, :cache => true
+	#   # => <script src="/javascripts/all.js?1344139789"></script>
+	#
+	#   # assuming config.perform_caching is false
+	#   javascript_include_tag "jquery", "cart", "checkout", :cache => "shop"
+	#   # => <script src="/javascripts/jquery.js?1284139606"></script>
+	#   #    <script src="/javascripts/cart.js?1289139157"></script>
+	#   #    <script src="/javascripts/checkout.js?1299139816"></script>
+	#
+	#   # assuming config.perform_caching is true
+	#   javascript_include_tag "jquery", "cart", "checkout", :cache => "shop"
+	#   # => <script src="/javascripts/shop.js?1299139816"></script>
+	#
+	# The <tt>:recursive</tt> option is also available for caching:
+	#
+	#   javascript_include_tag :all, :cache => true, :recursive => true
+	public static function javascript_include_tag(/* $sources */){
+		$sources = func_get_args();
+		self::$javascript_include = self::$javascript_include ?: new AssetTagHelper\JavascriptIncludeTag($this->config, $this->asset_paths());
+		return call_user_func_array(array(self::$javascript_include, 'include_tag'), $sources);
+	}
+
+	#module StylesheetTagHelpers
+	#extend ActiveSupport::Concern
+
+	#module ClassMethods
+	# Register one or more stylesheet files to be included when <tt>symbol</tt>
+	# is passed to <tt>stylesheet_link_tag</tt>. This method is typically intended
+	# to be called from plugin initialization to register stylesheet files
+	# that the plugin installed in <tt>public/stylesheets</tt>.
+	#
+	#   ActionView::Helpers::AssetTagHelper.register_stylesheet_expansion :monkey => ["head", "body", "tail"]
+	#
+	#   stylesheet_link_tag :monkey # =>
+	#     <link href="/stylesheets/head.css"  media="screen" rel="stylesheet" type="text/css" />
+	#     <link href="/stylesheets/body.css"  media="screen" rel="stylesheet" type="text/css" />
+	#     <link href="/stylesheets/tail.css"  media="screen" rel="stylesheet" type="text/css" />
+	public static function register_stylesheet_expansion($expansions){
+		$style_expansions = StylesheetIncludeTag::$expansions;
+		foreach($$expansions as $key => $values){
+			$style_expansions[$key] = array_unique(array_merge($style_expansions[$key] ?: array(), (array)$values));
+		}
+	}
+
+	# Computes the path to a stylesheet asset in the public stylesheets directory.
+	# If the +source+ filename has no extension, <tt>.css</tt> will be appended (except for explicit URIs).
+	# Full paths from the document root will be passed through.
+	# Used internally by +stylesheet_link_tag+ to build the stylesheet path.
+	# 
+	# ==== Examples
+	#   stylesheet_path "style"                                  # => /stylesheets/style.css
+	#   stylesheet_path "dir/style.css"                          # => /stylesheets/dir/style.css
+	#   stylesheet_path "/dir/style.css"                         # => /dir/style.css
+	#   stylesheet_path "http://www.example.com/css/style"       # => http://www.example.com/css/style
+	#   stylesheet_path "http://www.example.com/css/style.css"   # => http://www.example.com/css/style.css
+	public static function stylesheet_path($source){
+		return $this->asset_paths()->compute_public_path($source, 'stylesheets', array('ext' => 'css', 'protocol' => 'request'));
+	}
+	# aliased to avoid conflicts with a stylesheet_path named route
+	public static function path_to_stylesheet($source){
+		return self::stylesheet_path($source);
+	}
+
+	# Returns a stylesheet link tag for the sources specified as arguments. If
+	# you don't specify an extension, <tt>.css</tt> will be appended automatically.
+	# You can modify the link attributes by passing a hash as the last argument.
+	#
+	# ==== Examples
+	#   stylesheet_link_tag "style" # =>
+	#     <link href="/stylesheets/style.css" media="screen" rel="stylesheet" type="text/css" />
+	#
+	#   stylesheet_link_tag "style.css" # =>
+	#     <link href="/stylesheets/style.css" media="screen" rel="stylesheet" type="text/css" />
+	#
+	#   stylesheet_link_tag "http://www.example.com/style.css" # =>
+	#     <link href="http://www.example.com/style.css" media="screen" rel="stylesheet" type="text/css" />
+	#
+	#   stylesheet_link_tag "style", :media => "all" # =>
+	#     <link href="/stylesheets/style.css" media="all" rel="stylesheet" type="text/css" />
+	#
+	#   stylesheet_link_tag "style", :media => "print" # =>
+	#     <link href="/stylesheets/style.css" media="print" rel="stylesheet" type="text/css" />
+	#
+	#   stylesheet_link_tag "random.styles", "/css/stylish" # =>
+	#     <link href="/stylesheets/random.styles" media="screen" rel="stylesheet" type="text/css" />
+	#     <link href="/css/stylish.css" media="screen" rel="stylesheet" type="text/css" />
+	#
+	# You can also include all styles in the stylesheets directory using <tt>:all</tt> as the source:
+	#
+	#   stylesheet_link_tag :all # =>
+	#     <link href="/stylesheets/style1.css"  media="screen" rel="stylesheet" type="text/css" />
+	#     <link href="/stylesheets/styleB.css"  media="screen" rel="stylesheet" type="text/css" />
+	#     <link href="/stylesheets/styleX2.css" media="screen" rel="stylesheet" type="text/css" />
+	#
+	# If you want Rails to search in all the subdirectories under stylesheets, you should explicitly set <tt>:recursive</tt>:
+	#
+	#   stylesheet_link_tag :all, :recursive => true
+	#
+	# == Caching multiple stylesheets into one
+	#
+	# You can also cache multiple stylesheets into one file, which requires less HTTP connections and can better be
+	# compressed by gzip (leading to faster transfers). Caching will only happen if config.perform_caching
+	# is set to true (which is the case by default for the Rails production environment, but not for the development
+	# environment). Examples:
+	#
+	# ==== Examples
+	#   stylesheet_link_tag :all, :cache => true # when config.perform_caching is false =>
+	#     <link href="/stylesheets/style1.css"  media="screen" rel="stylesheet" type="text/css" />
+	#     <link href="/stylesheets/styleB.css"  media="screen" rel="stylesheet" type="text/css" />
+	#     <link href="/stylesheets/styleX2.css" media="screen" rel="stylesheet" type="text/css" />
+	#
+	#   stylesheet_link_tag :all, :cache => true # when config.perform_caching is true =>
+	#     <link href="/stylesheets/all.css"  media="screen" rel="stylesheet" type="text/css" />
+	#
+	#   stylesheet_link_tag "shop", "cart", "checkout", :cache => "payment" # when config.perform_caching is false =>
+	#     <link href="/stylesheets/shop.css"  media="screen" rel="stylesheet" type="text/css" />
+	#     <link href="/stylesheets/cart.css"  media="screen" rel="stylesheet" type="text/css" />
+	#     <link href="/stylesheets/checkout.css" media="screen" rel="stylesheet" type="text/css" />
+	#
+	#   stylesheet_link_tag "shop", "cart", "checkout", :cache => "payment" # when config.perform_caching is true =>
+	#     <link href="/stylesheets/payment.css"  media="screen" rel="stylesheet" type="text/css" />
+	#
+	# The <tt>:recursive</tt> option is also available for caching:
+	#
+	#   stylesheet_link_tag :all, :cache => true, :recursive => true
+	#
+	# To force concatenation (even in development mode) set <tt>:concat</tt> to true. This is useful if
+	# you have too many stylesheets for IE to load.
+	#
+	#   stylesheet_link_tag :all, :concat => true
+	#
+	public static function stylesheet_link_tag(/* $sources */){
+		$sources = func_get_args();
+		self::$stylesheet_include = self::$stylesheet_include ?: new AssetTagHelper\StylesheetIncludeTag($this->config, $this->asset_paths());
+		return call_user_func_array(array(self::$stylesheet_include, 'include_tag'), $sources);
+	}
 
 	private static function asset_paths(){
 		if(is_null(self::$asset_paths)){
-			self::$asset_paths = new \AssetTagHelper\AssetPaths(config, controller);
+			self::$asset_paths = new AssetTagHelper\AssetPaths($this->config, $this->controller);
 		}
 		return self::$asset_paths;
 	}
@@ -532,11 +801,11 @@ class AssetTagHelper{
 		if( count($sources) > 1 ){
 			return TagHelper::content_tag($type, $options, function() use ($type, $sources){
 				return array_map(function($source){
-					return TagHelper::tag("source", array('src' => call_user_func("path_to_{$type}", $source)));
+					return TagHelper::tag("source", array('src' => call_user_func(array(__CLASS__, "path_to_{$type}"), $source)));
 				}, $sources);
 			});
 		}else{
-			$options['src'] = call_user_func("path_to_{$type}", reset($sources));
+			$options['src'] = call_user_func(array(__CLASS__, "path_to_{$type}"), reset($sources));
 			return TagHelper::content_tag($type, null, $options);
 		}
 	}
