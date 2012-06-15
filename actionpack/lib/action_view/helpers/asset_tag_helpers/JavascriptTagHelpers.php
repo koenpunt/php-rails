@@ -27,7 +27,7 @@ class JavascriptIncludeTag extends AssetIncludeTag{
 	private function expand_sources($sources, $recursive = false){
 		if(array_search('all', $sources)){
 			$all_asset_files = array_push( array_diff( $this->collect_asset_files($this->custom_dir(), ($recursive ? '**' : null), "*.{$this->extension()}"), array('application') ), 'application');
-			return array_unique(array_intersect($this->determine_source('defaults', $this->expansions), $all_asset_files) + $all_asset_files);
+			return array_unique(array_intersect($this->determine_source(\PHPRails\to_sym('defaults'), $this->expansions), $all_asset_files) + $all_asset_files);
 		}else{
 			$expanded_sources = array_reduce($sources, function($list, $source){
 				$determined_source = $this->determine_source($source, $this->expansions);
@@ -39,7 +39,7 @@ class JavascriptIncludeTag extends AssetIncludeTag{
 	}
 
 	private function add_application_js($expanded_sources, $sources){
-		if (array_search('defaults', $sources) && \RFile::exist(\RFile::join($custom_dir, "application.{$extension}"))){
+		if (array_search(\PHPRails\to_sym('defaults'), $sources) && \RFile::exist(\RFile::join($custom_dir, "application.{$extension}"))){
 			\PHPRails\delete($expanded_sources, 'application');
 			array_push($expanded_sources, "application");
 		}

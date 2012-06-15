@@ -4,13 +4,22 @@ namespace PHPRails;
 use ActiveSupport\SafeBuffer;
 
 # args.extract_options!
+	# Returns associative array of options or false 
 function extract_options(&$arguments){
-	if(\PHPRails\is_hash(end($arguments))){
-		$options = array_pop($arguments);
-		return $options;
+	if(\PHPRails\is_hash( end($arguments) )){
+		return array_pop($arguments);
 	}
 	return false;
 }
+
+# Extract block (callable) from arguments
+function block_given__(&$arguments){
+	if(is_callable(end($arguments))){
+		return array_pop($arguments);
+	}
+	return false;
+}
+
 
 function delete(array &$data, $key){
 	if(array_key_exists($key, $data)){
@@ -39,6 +48,10 @@ function get(array &$data, $key){
 		return $data[$key];
 	}
 	return false;
+}
+
+function to_sym($content){
+	return new RSymbol($content);
 }
 
 function html_safe($content){

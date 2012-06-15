@@ -1,15 +1,8 @@
 <?php
-require_once 'REnumerable.php';
-
-/*
-	TODO Raise custom errors
-*/
-
-class Dir extends RDir{
-	
-}
 
 class RDir{
+	
+	const TMP_DIR;
 	
 	protected 
 		$_dir = null,
@@ -20,6 +13,10 @@ class RDir{
 		if($dir = opendir($dirname)){
 			$this->_dir = $dir;
 		}
+	}
+	
+	public static function tmpdir(){
+		return sys_get_temp_dir();
 	}
 	
 	public static function chdir($string, $block=false){
@@ -80,20 +77,43 @@ class RDir{
 	var_dump('FLAG_4', !!($flags_or_block & Flag::FLAG_4));
 	*/
 	
-	public static function glob($pattern, $flags_or_block, $block=false){
-		/*
-			TODO Make recursive (using default patterns)
-		*/
-		$matches = glob($pattern, GLOB_BRACE);
-		$block = $block ? $block : ( is_callable($flags_or_block) ? $flags_or_block : false);
-		if($block){
+	public static function glob($pattern, $flags = null){
+		$pattern_recursion = explode('**', $pattern, 2);
+		
+		if(count($pattern_recursion) == 1){
+			return glob($pattern, $flags);
+		}
+		
+		if($pattern_recursion[1] == ''){
+			return glob($pattern_recursion[0] . '*', $flags);
+		}
+		
+		if(substr($pattern, -1, 1) == '/'){
+			$flags = $flags ? $flags | GLOB_ONLYDIR : GLOB_ONLYDIR;
+		}
+		$first_matches = glob($pattern_recursion[0], GLOB_ONLYDIR);
+		$matches = $pattern_recursion[1] == '/' ? $first_matches : array();
+		foreach($first_matches as $match){
+			$matches = array_merge($matches, self::glob_recursion($match . '*' . $pattern_recursion[1], $flags));
+		}
+		if($yield = \PHPRails\block_given__(func_get_args())){
 			foreach($matches as $match){
-				call_user_func($block, $match);
+				$yield( $match );
 			}
+			return null;
 		}else{
 			return $matches;
 		}
 	}
+	
+	private static function glob_recursion($pattern, $flags = null){
+		$files = glob($pattern, $flags);
+		foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir){
+		    $files = array_merge($files, self::glob_recursion($dir.'/'.basename($pattern), $flags));
+		}
+		return $files;
+	}
+		
 	
 	public static function home($username = null){
 		/*

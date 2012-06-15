@@ -1,8 +1,10 @@
 <?php 
+
+namespace Ruby;
+
 require_once 'REnumerator.php';
 require_once 'RHash.php';
 
-namespace Ruby;
 /**
  * http://ruby-doc.org/core-1.9.3/Enumerable.html
  *

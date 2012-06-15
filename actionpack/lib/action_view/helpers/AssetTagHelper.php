@@ -488,7 +488,7 @@ class AssetTagHelper{
 		$arguments = func_get_args();
 		$options   = \PHPRails\extract_options($sources);
 		
-		return multiple_sources_tag('video', $sources, function($options){
+		return multiple_sources_tag('video', $sources, function(&$options){
 			if( \PHPRails\get($options, 'poster') ){
 				$options['poster'] = self::path_to_image($options['poster']);
 			}
@@ -790,12 +790,12 @@ class AssetTagHelper{
 		return self::$asset_paths;
 	}
 
-	private static function multiple_sources_tag($type, $sources, $block = false){
+	private static function multiple_sources_tag($type, $sources /*, &$block */){
 		$options = \PHPRails\extract_options($sources);
 		$sources = \PHPRails\array_flatten($sources);
 
-		if( $block ){
-			yield( $options );
+		if( $yield = \PHPRails::block_given__(func_get_args()) ){
+			$yield( $options );
 		}
 
 		if( count($sources) > 1 ){
