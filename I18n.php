@@ -10,6 +10,7 @@ define('APP', dirname(__FILE__));
 
 require_once 'lib/option_merger.php';
 require_once 'lib/exceptions.php';
+require_once 'lib/config.php';
 require_once 'lib/backend.php';
 require_once 'lib/helpers.php';
 require_once 'lib/symbol.php';
@@ -19,6 +20,9 @@ require_once 'lib/time.php';
 
 class I18n
 {
+	private static $i18n_config;
+	
+	
 	private static $backend = null;
 	private static $load_path = null;
 	private static $default_locale = 'en';
@@ -28,96 +32,104 @@ class I18n
 	private static $current_locale = null;
 	private static $normalized_key_cache = array();
 
-	public static function get_backend()
-	{
-		if (self::$backend === null) {
-			self::$backend = new Backend\Base();
-		}
-		return self::$backend;
+	
+	public static function config($value = null){
+		#Thread.current[:i18n_config] ||= I18n::Config.new
+		self::$i18n_config = $value ?: self::$i18n_config ?: new \I18n\Config();
+		return self::$i18n_config;
 	}
 
-	public static function set_backend($backend)
-	{
-		self::$backend = $backend;
-	}
+	## Sets I18n configuration object.
+	#def config=(value)
+	#  Thread.current[:i18n_config] = value
+	#end
 
-	public static function get_default_locale()
-	{
-		return self::$default_locale;
-	}
+	# Tells the backend to reload translations. Used in situations like the
+	# Rails development environment. Backends can implement whatever strategy
+	# is useful.
+	public static function reload_(){
+		self::config()->backend->reload_();
+	}	
 
-	public static function set_default_locale($locale)
-	{
-		self::$default_locale = $locale;
-	}
-
-	public static function get_locale()
-	{
-		if (self::$current_locale === null) {
-			self::$current_locale = self::$default_locale;
-		}
-		return self::$current_locale;
-	}
-
-	public static function set_locale($locale)
-	{
-		self::$current_locale = $locale;
-	}
-
-	public static function get_available_locales()
-	{
-		if (empty(self::$available_locales)) {
-			self::$available_locales = self::$backend->available_locales();
-		}
-		return self::$available_locales;
-	}
-
-	public static function set_available_locales($locale)
-	{
-		self::$available_locales = $locale;
-	}
-
-	public static function get_default_separator()
-	{
-		return self::$default_separator;
-	}
-
-	public static function set_default_separator($separator)
-	{
-		self::$default_separator = $separator;
-	}
-
-	public static function get_exception_handler()
-	{
-		return self::$exception_handler ?: function($exception, $locale, $key, $options){
-			throw $exception;
-		};
-	}
-
-	public static function set_exception_handler($exception_handler)
-	{
-		self::$exception_handler = $exception_handler;
-	}
-
-	public static function get_load_path()
-	{
-		if (self::$load_path === null) {
-			self::$load_path = array();
-		}
-		return self::$load_path;
-	}
-
-	public static function set_load_path($load_path)
-	{
-		self::$load_path = $load_path;
-	}
+/*
 
 	public static function push_load_path($load_path)
 	{
 		if (count(self::$load_path) === 0 || !in_array($load_path, self::$load_path)) {
 			self::$load_path[] = $load_path;
 		}
+	}*/
+
+	public static function get_backend()
+	{
+		return self::config()->backend;
 	}
+
+	public static function set_backend($backend)
+	{
+		self::config()->backend = $backend;
+	}
+
+	public static function get_default_locale()
+	{
+		return self::config()->default_locale;
+	}
+
+	public static function set_default_locale($locale)
+	{
+		self::config()->default_locale = $locale;
+	}
+
+	public static function get_locale()
+	{
+		return self::config()->locale;
+	}
+
+	public static function set_locale($locale)
+	{
+		self::config()->locale = $locale;
+	}
+
+	public static function get_available_locales()
+	{
+		return self::config()->available_locales;
+	}
+
+	public static function set_available_locales($locales)
+	{
+		self::config()->available_locales = $locales;
+	}
+
+	public static function get_default_separator()
+	{
+		return self::config()->default_separator;
+	}
+
+	public static function set_default_separator($separator)
+	{
+		self::config()->default_separator = $separator;
+	}
+
+	public static function get_exception_handler()
+	{
+		return self::config()->exception_handler;
+	}
+
+	public static function set_exception_handler($exception_handler)
+	{
+		self::config()->exception_handler = $exception_handler;
+	}
+
+	public static function get_load_path()
+	{
+		return self::config()->load_path;
+	}
+
+	public static function set_load_path($load_path)
+	{
+		self::config()->load_path = $load_path;
+	}
+	
 	# Translates, pluralizes and interpolates a given key using a given locale,
 	# scope, and default, as well as interpolation values.
 	#

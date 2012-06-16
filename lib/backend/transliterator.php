@@ -1,5 +1,5 @@
 <?php
-# encoding: utf-8
+
 namespace I18n\Backend;
 
 class Transliterator{
@@ -27,6 +27,7 @@ class Transliterator{
 		}
 	}
 }
+
 # A transliterator which accepts a Proc as its transliteration rule.
 class ProcTransliterator{
 	

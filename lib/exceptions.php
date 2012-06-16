@@ -4,6 +4,10 @@ namespace I18n;
 
 use InvalidArgumentException;
 
+class NotImplementedError extends \Exception{
+	
+}
+
 class InvalidLocale extends InvalidArgumentException
 {
 	private $locale;
