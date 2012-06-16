@@ -311,8 +311,8 @@ class I18n
 		$options      = Helpers\extract_options($args);
 		$key          = array_shift($args);
 		$locale       = ( $options && Helpers\get($options, 'locale') ) ? Helpers\delete($options, 'locale') : self::config()->locale;
-		$handling     = $options ? ( delete($options, 'throw') ? 'throw' : ( delete($options, 'raise') ? 'raise' : false) ) : false;
-		$replacement  = ( $options && get($options, 'replacement') ) ? delete($options, 'replacement') : false;
+		$handling     = $options ? ( Helpers\delete($options, 'throw') ? 'throw' : ( Helpers\delete($options, 'raise') ? 'raise' : false) ) : false;
+		$replacement  = ( $options && Helpers\get($options, 'replacement') ) ? Helpers\delete($options, 'replacement') : false;
 		try{
 			return self::get_backend()->transliterate($locale, $key, $replacement);
 		}catch(\InvalidArgumentException $exception){
