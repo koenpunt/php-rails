@@ -2,11 +2,12 @@
 
 namespace ActionView\Helpers\AssetTagHelper;
 
-#require 'active_support/concern'
-#require 'active_support/core_ext/file'
-#require 'action_view/helpers/asset_tag_helpers/asset_include_tag'
+#\PHPRails::uses('active_support/concern');
+#\PHPRails::uses('active_support/core_ext/file');
+\PHPRails::uses('action_view/helpers/asset_tag_helpers/asset_include_tag');
 
 class StylesheetIncludeTag extends AssetIncludeTag{
+	
 	public function asset_name(){
 		return 'stylesheet';
 	}

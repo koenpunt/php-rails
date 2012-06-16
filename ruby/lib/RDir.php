@@ -2,8 +2,6 @@
 
 class RDir{
 	
-	const TMP_DIR;
-	
 	protected 
 		$_dir = null,
 		$_dirname = null;

@@ -1,12 +1,12 @@
 <?php
 
-#require 'active_support/core_ext/array/extract_options'
-#require 'active_support/core_ext/hash/keys'
-#require 'action_view/helpers/asset_tag_helpers/javascript_tag_helpers'
-#require 'action_view/helpers/asset_tag_helpers/stylesheet_tag_helpers'
-#require 'action_view/helpers/asset_tag_helpers/asset_paths'
-
 namespace ActionView\Helpers;
+
+#\PHPRails::uses('active_support/core_ext/array/extract_options');
+#\PHPRails::uses('active_support/core_ext/hash/keys');
+\PHPRails::uses('action_view/helpers/asset_tag_helpers/javascript_include_tag');
+\PHPRails::uses('action_view/helpers/asset_tag_helpers/stylesheet_include_tag');
+\PHPRails::uses('action_view/helpers/asset_tag_helpers/asset_paths');
 
 #module ActionView
   # = Action View Asset Tag Helpers

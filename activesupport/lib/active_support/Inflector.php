@@ -355,7 +355,7 @@ class Inflector{
 	#   transliterate("Jürgen")
 	#   # => "Juergen"
 	public static function transliterate($string, $replacement = "?"){
-		return I18n::transliterate(Multibyte\Unicode::normalize(
+		return \I18n\I18n::transliterate(Multibyte\Unicode::normalize(
 			Multibyte\Unicode::tidy_bytes($string), 'c'), # :c
 				array('replacement' => $replacement));
 	}
@@ -413,13 +413,13 @@ class Inflector{
 	#  apply_inflections("posts", inflections.singulars) # => "post"
 	private static function apply_inflections($word, $rules){
 		$result = $word;
-		
 		preg_match('/\b\w+\Z/', strtolower($result), $matches);
 		if( empty($word) || array_search($matches[0], self::inflections()->uncountables) ){
 			return $result;
 		}else{
-			foreach($rules as $rule => $replacement){
-				$replace = preg_replace($rule, $replacement, $result, -1, $count);
+			foreach($rules as $rule_replacement){
+				list($rule, $replacement) = $rule_replacement;
+				$result = preg_replace($rule, $replacement, $result, -1, $count);
 				if($count){
 					 break;
 				}
@@ -427,8 +427,6 @@ class Inflector{
 			return $result;
 		}
 	}
-	
-	
 }
 
 namespace ActiveSupport\Inflector;
@@ -583,8 +581,10 @@ class Inflections{
 	#   uncountable "money"
 	#   uncountable "money", "information"
 	#   uncountable %w( money information rice )
-	public function uncountable($words){
-		$this->uncountables = \PHPRails\array_flatten(array_push($this->uncountables, $words));
+	public function uncountable(/* *$words */){
+		$words = func_get_args();
+		array_push($this->uncountables, $words);
+		$this->uncountables = \PHPRails\array_flatten($this->uncountables);
 		return $this->uncountables;
 	}
 

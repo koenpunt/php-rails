@@ -1,6 +1,7 @@
 <?php
 
 namespace ActionView\Helpers;
+
 #module ActionView
   # = Action View CSRF Helper
   #module Helpers

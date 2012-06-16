@@ -1,5 +1,7 @@
 <?php
 
+#namespace Ruby;
+
 class RFile{
 	
 	const SEPARATOR = DIRECTORY_SEPARATOR;
