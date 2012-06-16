@@ -310,7 +310,7 @@ class I18n
 		$args = func_get_args();
 		$options      = Helpers\extract_options($args);
 		$key          = array_shift($args);
-		$locale       = ( $options && Helpers\get($options, 'locale') ) ? Helpers\delete($options, 'locale') : $this->config->locale;
+		$locale       = ( $options && Helpers\get($options, 'locale') ) ? Helpers\delete($options, 'locale') : self::config()->locale;
 		$handling     = $options ? ( delete($options, 'throw') ? 'throw' : ( delete($options, 'raise') ? 'raise' : false) ) : false;
 		$replacement  = ( $options && get($options, 'replacement') ) ? delete($options, 'replacement') : false;
 		try{
