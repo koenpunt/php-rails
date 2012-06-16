@@ -12,7 +12,7 @@ use \I18n\ReservedInterpolationKey;
 use \I18n\UnknownFileType;
 use \I18n\Symbol;
 
-require_once('SymfonyComponents/YAML/sfYaml.php');
+
 
 class Base
 {
@@ -269,7 +269,11 @@ class Base
 
 	private function load_yml($filename)
 	{
-		return \sfYaml::load($filename);
+		if(!function_exists('yaml_parse_file')){
+			require_once('SymfonyComponents/YAML/sfYaml.php');
+			return \sfYaml::load($filename);
+		}
+		return yaml_parse_file($filename);
 	}
 
 	private function merge_translations($locale, $data, $options = array())
