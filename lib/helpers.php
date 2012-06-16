@@ -38,6 +38,14 @@ function is_hash(&$array){
 	return empty($array) || @is_string($keys[0]) ? true : false;
 }
 
+function extract_options(&$arguments){
+	if(is_hash( end($arguments) )){
+		return array_pop($arguments);
+	}
+	return false;
+}
+
+
 function get(array &$data, $key){
 	if(array_key_exists($key, $data)){
 		return $data[$key];

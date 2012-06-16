@@ -14,8 +14,9 @@ use \I18n\Symbol;
 
 
 
-class Base
-{
+class Base extends Transliterator{
+	# include I18n::Backend::Transliterator
+	
 	static $RESERVED_KEYS = array('scope', 'default', 'separator', 'resolve', 'object', 'fallback', 'format', 'cascade', 'throw', 'raise', 'rescue_format');
 	#RESERVED_KEYS_PATTERN = /%\{(#{RESERVED_KEYS.join("|")})\}/
 	
@@ -287,6 +288,8 @@ class Base
 			$this->translations[$locale] = $data;
 		}
 	}
+	
+	
 }
 
 ?>

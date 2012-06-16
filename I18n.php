@@ -242,6 +242,71 @@ class I18n
 	public static function t(){
 		return call_user_func_array(array(__CLASS__, 'translate'), func_get_args());
 	}
+	
+	# Transliterates UTF-8 characters to ASCII. By default this method will
+	# transliterate only Latin strings to an ASCII approximation:
+	#
+	#    I18n.transliterate("Ærøskøbing")
+	#    # => "AEroskobing"
+	#
+	#    I18n.transliterate("日本語")
+	#    # => "???"
+	#
+	# It's also possible to add support for per-locale transliterations. I18n
+	# expects transliteration rules to be stored at
+	# <tt>i18n.transliterate.rule</tt>.
+	#
+	# Transliteration rules can either be a Hash or a Proc. Procs must accept a
+	# single string argument. Hash rules inherit the default transliteration
+	# rules, while Procs do not.
+	#
+	# *Examples*
+	#
+	# Setting a Hash in <locale>.yml:
+	#
+	#    i18n:
+	#      transliterate:
+	#        rule:
+	#          ü: "ue"
+	#          ö: "oe"
+	#
+	# Setting a Hash using Ruby:
+	#
+	#     store_translations(:de, :i18n => {
+	#       :transliterate => {
+	#         :rule => {
+	#           "ü" => "ue",
+	#           "ö" => "oe"
+	#         }
+	#       }
+	#     )
+	#
+	# Setting a Proc:
+	#
+	#     translit = lambda {|string| MyTransliterator.transliterate(string) }
+	#     store_translations(:xx, :i18n => {:transliterate => {:rule => translit})
+	#
+	# Transliterating strings:
+	#
+	#     I18n.locale = :en
+	#     I18n.transliterate("Jürgen") # => "Jurgen"
+	#     I18n.locale = :de
+	#     I18n.transliterate("Jürgen") # => "Juergen"
+	#     I18n.transliterate("Jürgen", :locale => :en) # => "Jurgen"
+	#     I18n.transliterate("Jürgen", :locale => :de) # => "Juergen"
+	public static function transliterate(/* *$args */){
+		$args = func_get_args();
+		$options      = Helpers\extract_options($args);
+		$key          = array_shift($args);
+		$locale       = ( $options && Helpers\get($options, 'locale') ) ? Helpers\delete($options, 'locale') : $this->config->locale;
+		$handling     = $options ? ( delete($options, 'throw') ? 'throw' : ( delete($options, 'raise') ? 'raise' : false) ) : false;
+		$replacement  = ( $options && get($options, 'replacement') ) ? delete($options, 'replacement') : false;
+		try{
+			return self::get_backend()->transliterate($locale, $key, $replacement);
+		}catch(\InvalidArgumentException $exception){
+			return self::handle_exception($handling, $exception, $locale, $key, $options ?: array());
+		}
+	}
 
 	# Localizes certain objects, such as dates and numbers to local formatting.
 	public static function localize($object, $options = array()){
