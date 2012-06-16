@@ -1,5 +1,9 @@
 <?php 
 
+
+
+namespace ActiveSupport;
+
 # in case active_support/inflector is required without the rest of active_support
 #require 'active_support/inflector/inflections'
 #require 'active_support/inflector/transliterate'
@@ -9,7 +13,8 @@
 #require 'active_support/core_ext/string/inflections'
 // http://api.rubyonrails.org/classes/ActiveSupport/Inflector.html
 
-namespace ActiveSupport;
+\PHPRails::uses('active_support/multibyte/unicode');
+
 # The Inflector transforms words from singular to plural, class names to table names, modularized class names to ones without,
 # and class names to foreign keys. The default inflections for pluralization, singularization, and uncountable words are kept
 # in inflections.rb.
@@ -355,9 +360,10 @@ class Inflector{
 	#   transliterate("Jürgen")
 	#   # => "Juergen"
 	public static function transliterate($string, $replacement = "?"){
-		return \I18n\I18n::transliterate(Multibyte\Unicode::normalize(
-			Multibyte\Unicode::tidy_bytes($string), 'c'), # :c
-				array('replacement' => $replacement));
+		return \I18n\I18n::transliterate(
+			\ActiveSupport\Multibyte\Unicode::normalize(\ActiveSupport\Multibyte\Unicode::tidy_bytes($string), 'c'),
+			array('replacement' => $replacement)
+		);
 	}
 
 	# Replaces special characters in a string so that it may be used as part of a 'pretty' URL.

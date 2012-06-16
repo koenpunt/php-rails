@@ -4,7 +4,7 @@ namespace PHPRails;
 use ActiveSupport\SafeBuffer;
 
 # args.extract_options!
-	# Returns associative array of options or false 
+# Returns associative array of options or false 
 function extract_options(&$arguments){
 	if(\PHPRails\is_hash( end($arguments) )){
 		return array_pop($arguments);

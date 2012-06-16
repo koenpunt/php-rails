@@ -22,6 +22,8 @@ if (!defined('PHP_RAILS_AUTOLOAD_DISABLE')){
 #PHPRails::uses('action_view/helpers/tag_helper');
 class PHPRails{
 	
+	static $current = array();
+	
 	static $_classMap = array();
 	
 	static $_map = array();
