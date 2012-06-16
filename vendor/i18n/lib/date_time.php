@@ -24,8 +24,12 @@ class DateTime extends \DateTime{
 		return (int)$this->format('Y');
 	}
 	
-	public function mon(){
+	public function month(){
 		return (int)$this->format('n');
+	}
+	
+	public function mon(){
+		return $this->month();
 	}
 	
 	public function day(){
