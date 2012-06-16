@@ -13,7 +13,7 @@ class Symbol
 	
 	public function __toString()
 	{
-		return $this->value;
+		return (string)$this->get_value();
 	}
 	
 	public function get_value()

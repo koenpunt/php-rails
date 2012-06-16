@@ -6,7 +6,6 @@ use I18n\Helpers;
 use I18n\I18n;
 use I18n\Date;
 use I18n\Time;
-use I18n\Backend\Base;
 
 class Base_Test  extends PHPUnit_Framework_TestCase
 {
@@ -15,18 +14,20 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		// $this->base = new Base();
-		// $this->base->load_translations(array(APP . '/test/test_data/locales/en.yml', APP . '/test/test_data/locales/fr.yml'));
-		I18n::set_backend(null);
-		I18n::push_load_path(array(APP . '/test/test_data/locales/en.yml'));
+		// $this->base->load_translations(APP . '/test/test_data/locales/en.yml', APP . '/test/test_data/locales/fr.yml');
+		#I18n::set_backend(null);
+		#I18n::push_load_path(array(APP . '/test/test_data/locales/en.yml'));
+		$load_path = I18n::config()->load_path;
+		array_push($load_path, array(APP . '/test/test_data/locales/en.yml'));
+		I18n::config()->load_path = $load_path;
 		$this->base = I18n::get_backend();
 	}
 
 	public function test_load_translations()
 	{
-		$this->base = null;
-		$this->base = new Base();
+		$this->base = new \I18n\Backend\Simple();
 		$this->assertEquals(array('en'), $this->base->available_locales());
-		$this->base->load_translations(array(APP . '/test/test_data/locales/fr.yml'));
+		$this->base->load_translations(APP . '/test/test_data/locales/fr.yml');
 		$this->assertEquals(array('en', 'fr'), $this->base->available_locales());
 	}
 
@@ -35,10 +36,9 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	 */
 	public function test_load_translations_invalid_extension()
 	{
-		$this->base = null;
-		$this->base = new Base();
+		$this->base = new \I18n\Backend\Simple();
 		$this->assertEquals(array('en'), $this->base->available_locales());
-		$this->base->load_translations(array(APP . '/test/test_data/locales/invalid.ext'));
+		$this->base->load_translations(APP . '/test/test_data/locales/invalid.ext');
 		$this->assertEquals(array('en'), $this->base->available_locales());
 	}
 
@@ -49,7 +49,9 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 
 	public function test_translate()
 	{
-		$this->assertEquals('Hello', $this->base->translate('en', 'hello'));
+		$expected = 'Hello';
+		$result = $this->base->translate('en', 'hello');
+		$this->assertEquals($expected, $result);
 	}
 
 	public function test_translate_with_pluralize()
@@ -209,7 +211,7 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	{
 		// $this->base->reload();
 		I18n::set_load_path(null);
-		$this->assertEquals(array(), $this->base->available_locales());
+		$this->assertEquals(array(I18n::get_default_locale()), $this->base->available_locales());
 	}
 
 	public function test_reload()
@@ -223,9 +225,9 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	public function test_load_php()
 	{
 		$this->base = null;
-		$this->base = new Base();
+		$this->base = new \I18n\Backend\Simple();
 		$this->assertEquals(array('en'), $this->base->available_locales());
-		$this->base->load_translations(array(APP . '/test/test_data/locales/en.php'));
+		$this->base->load_translations(APP . '/test/test_data/locales/en.php');
 		$this->assertEquals(array('en'), $this->base->available_locales());
 		$this->assertEquals('Hello 2', $this->base->translate('en', 'hello2'));
 	}
@@ -233,9 +235,9 @@ class Base_Test  extends PHPUnit_Framework_TestCase
 	public function test_merge_translations()
 	{
 		$this->base = null;
-		$this->base = new Base();
+		$this->base = new \I18n\Backend\Simple();
 		$this->assertEquals(array('en'), $this->base->available_locales());
-		$this->base->load_translations(array(APP . '/test/test_data/locales/en.yml', APP . '/test/test_data/locales/en.php'));
+		$this->base->load_translations(APP . '/test/test_data/locales/en.yml', APP . '/test/test_data/locales/en.php');
 		$this->assertEquals(array('en'), $this->base->available_locales());
 		$this->assertEquals('Hello 2', $this->base->translate('en', 'hello2'));
 	}

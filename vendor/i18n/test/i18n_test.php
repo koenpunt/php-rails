@@ -30,7 +30,7 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 
 	public function test_get_backend()
 	{
-		$this->assertEquals(new \I18n\Backend\Base(), I18n::get_backend());
+		$this->assertEquals(new \I18n\Backend\Simple(), I18n::get_backend());
 	}
 
 	public function test_set_backend()
@@ -58,7 +58,7 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	public function test_get_locale_with_null()
 	{
 		I18n::set_locale(null);
-		$this->assertEquals('en', I18n::get_locale());
+		$this->assertEquals(Helpers\to_sym('en'), I18n::config()->locale);
 	}
 
 	public function test_set_locale()
@@ -117,16 +117,6 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	{
 		I18n::set_load_path(null);
 		$expected = array();
-		$actual = I18n::get_load_path();
-		$this->assertEquals($expected, $actual);
-	}
-
-	public function test_push_load_path()
-	{
-		I18n::set_load_path(null);
-		$expected = 'test_load_path';
-		I18n::push_load_path($expected);
-		$expected = array($expected);
 		$actual = I18n::get_load_path();
 		$this->assertEquals($expected, $actual);
 	}

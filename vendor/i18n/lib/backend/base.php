@@ -4,6 +4,7 @@ namespace I18n\Backend;
 
 use \I18n\Helpers;
 use \I18n\I18n;
+use \I18n\NotImplementedError;
 use \I18n\InvalidLocale;
 use \I18n\InvalidPluralizationData;
 use \I18n\MissingTranslation;
@@ -12,38 +13,40 @@ use \I18n\ReservedInterpolationKey;
 use \I18n\UnknownFileType;
 use \I18n\Symbol;
 
-
-
 class Base extends Transliterator{
 	# include I18n::Backend::Transliterator
 	
 	static $RESERVED_KEYS = array('scope', 'default', 'separator', 'resolve', 'object', 'fallback', 'format', 'cascade', 'throw', 'raise', 'rescue_format');
 	#RESERVED_KEYS_PATTERN = /%\{(#{RESERVED_KEYS.join("|")})\}/
 	
-	private $initialized = false;
-	private $translations = array();
-
-	public function load_translations(array $filenames)
-	{
-		foreach ($filenames as $filename) {
+	protected $skip_syntax_deprecation = false;
+	
+	public function load_translations(/* *$filenames */){
+		$filenames = func_get_args();
+		if( empty($filenames) ){
+			$filenames = I18n::get_load_path();
+		}
+		$filenames = Helpers\array_flatten($filenames);
+		foreach($filenames as $filename){
 			$this->load_file($filename);
 		}
 	}
-
-	public function store_translations($locale, $data, $options = array())
-	{
-		$this->merge_translations($locale, $data, $options);
+	
+	# This method receives a locale, a data hash and options for storing translations.
+	# Should be implemented
+	public function store_translations($locale, $data, $options = array()){
+		throw new NotImplementedError();
 	}
-
+	
 	public function translate($locale, $key, $options = array())
 	{
 		if (is_null($locale)){
 			throw new InvalidLocale($locale);
 		}
-		$entry = $key ? self::lookup($locale, $key, Helpers\get($options, 'scope'), $options) : null;
+		$entry = $key ? $this->lookup($locale, $key, Helpers\get($options, 'scope'), $options) : null;
 
 		if( empty($options)){
-			$entry = self::resolve($locale, $key, $entry, $options);
+			$entry = $this->resolve($locale, $key, $entry, $options);
 		}else{
 			list($count, $default) = array(Helpers\get($options, 'count'), Helpers\get($options, 'default'));
 			$values = array_diff_key($options, array_flip(self::$RESERVED_KEYS));
@@ -58,10 +61,10 @@ class Base extends Transliterator{
 		#entry = entry.dup if entry.is_a?(String)
 
 		if(isset($count)){
-			$entry = self::pluralize($locale, $entry, $count);
+			$entry = $this->pluralize($locale, $entry, $count);
 		}
 		if (isset($values)){
-			$entry = self::interpolate($locale, $entry, $values);
+			$entry = $this->interpolate($locale, $entry, $values);
 		}
 		return $entry;
 	}
@@ -110,66 +113,27 @@ class Base extends Transliterator{
 		return $object->strftime($format);
 	}
 
-	public function is_initialized()
-	{
-		return $this->initialized;
+	# Returns an array of locales for which translations are available
+	# ignoring the reserved translation meta data key :i18n.
+	public function available_locales(){
+		throw new NotImplementedError();
 	}
 
-	public function available_locales()
-	{
-		if (!$this->initialized) {
-			$this->init_translations();
-		}
-		return array_keys($this->translations);
+
+	public function reload(){
+		$this->skip_syntax_deprecation = false;
 	}
 
-	public function reload()
-	{
-		$this->initialized = false;
-		$this->translations = array();
-	}
-
-	private function init_translations()
-	{
-		self::load_translations(Helpers\array_flatten(I18n::get_load_path()));
-		$this->initialized = true;
-	}
-
-	# Looks up a translation from the translations hash. Returns nil if
-	# eiher key is nil, or locale, scope or key do not exist as a key in the
-	# nested translations hash. Splits keys or scopes containing dots
-	# into multiple keys, i.e. <tt>currency.format</tt> is regarded the same as
-	# <tt>%w(currency format)</tt>.
+	# The method which actually looks up for the translation in the store.
 	protected function lookup($locale, $key, $scope = array(), $options = array()){
-		/*
-        init_translations unless initialized?
-        keys = I18n.normalize_keys(locale, key, scope, options[:separator])
-
-        keys.inject(translations) do |result, _key|
-          _key = _key.Helpers\to_sym
-          return nil unless result.is_a?(Hash) && result.has_key?(_key)
-          result = result[_key]
-          result = resolve(locale, _key, result, options.merge(:scope => nil)) if result.is_a?(Symbol)
-          result
-        end
-		*/
-		if (!$this->initialized) {
-			$this->init_translations();
-		}
-		$keys = I18n::normalize_keys($locale, $key, $scope, Helpers\get($options, 'separator'));
-		return array_reduce($keys, function($result, $_key) use ($locale, $options){
-			$_key = Helpers\to_sym($_key);
-			if( !(Helpers\is_hash($result) && array_key_exists((string)$_key, $result) ) ){
-				return null;
-			} 
-			$result = $result[(string)$_key];
-			if ($result instanceof Symbol) {
-				$result = $this->resolve($locale, $_key, $result, $options);
-			}
-			return $result;
-		}, $this->translations);
+		throw new NotImplementedError();
 	}
 
+
+	# Evaluates defaults.
+	# If given subject is an Array, it walks the array and returns the
+	# first translation that can be resolved. Otherwise it tries to resolve
+	# the translation directly.
 	private function _default($locale, $object, $subject, $options = array())
 	{
 		unset($options['default']);
@@ -234,62 +198,44 @@ class Base extends Transliterator{
 		}
 		return $string;
 	}
-
-	private function preserve_encoding($string)
-	{
-
-	}
-
-	public function interpolate_lambda($object, $string, $key)
-	{
-
-	}
-
-	private function load_file($filename)
-	{
-		$extension = end(explode('.', $filename));
-		$method_name = 'load_' . $extension;
+	
+	# Loads a single translations file by delegating to #load_php or
+	# #load_yml depending on the file extension and directly merges the
+	# data to the existing translations. Raises I18n::UnknownFileType
+	# for all other file extensions.
+	protected function load_file($filename){
+		$type = strtolower(end(explode('.', $filename)));
+		$method_name = "load_{$type}";
 		if (!method_exists($this, $method_name)) {
-			throw new UnknownFileType($extension, $filename);
+			throw new UnknownFileType($type, $filename);
 		}
-
 		$data = $this->$method_name($filename);
+		if(!Helpers\is_hash($data)){
+			throw new InvalidLocaleData($filename);
+		}
 		foreach ($data as $locale => $d) {
-			$this->merge_translations($locale, $d);
+			$this->store_translations($locale, $d ?: array() );
 		}
 	}
 
-	private function load_php($filename)
-	{
-		require($filename);
-		if (!isset($language)) {
-			return array();
-		}
-		return $language;
+	# Loads a plain PHP translations file. eval'ing the file must yield
+	# a Hash containing translation data with locales as toplevel keys.
+	protected function load_php($filename){
+		ob_start();
+		include $filename;
+		$out = ob_get_clean();
+		return eval('return ' . $out);
 	}
-
-	private function load_yml($filename)
-	{
+	
+	# Loads a YAML translations file. The data must have locales as
+	# toplevel keys.
+	protected function load_yml($filename){
 		if(!function_exists('yaml_parse_file')){
 			require_once('SymfonyComponents/YAML/sfYaml.php');
 			return \sfYaml::load($filename);
 		}
 		return yaml_parse_file($filename);
 	}
-
-	private function merge_translations($locale, $data, $options = array())
-	{
-		if (!is_array($data)) {
-			return;
-		}
-		if (isset($this->translations[$locale])) {
-			$this->translations[$locale] = array_merge_recursive($this->translations[$locale], $data);
-		} else {
-			$this->translations[$locale] = $data;
-		}
-	}
-	
-	
 }
 
 ?>
