@@ -91,12 +91,13 @@ class HashTransliterator{
 
 	public function transliterate($string, $replacement = null){
 		return preg_replace_callback('/[^\x00-\x7f]/u', function($char) use ($replacement){
-			return $this->approximations[$char] ?: $replacement ?: Transliterator::DEFAULT_REPLACEMENT_CHAR;
+			return $this->approximations[$char[0]] ?: ( $replacement ?: Transliterator::DEFAULT_REPLACEMENT_CHAR );
 		}, $string);
 	}
 	
 	private function approximations(){
 		$this->approximations = $this->approximations ?: array();
+		return $this->approximations;
 	}
 
 	# Add transliteration rules to the approximations hash.
@@ -106,6 +107,6 @@ class HashTransliterator{
 		#	$hash[(string)$key] = (string)Helpers\delete($hash, $key);
 		#}
 		#hash.keys.each {|key| hash[key.to_s] = hash.delete(key).to_s}
-		$this->approximations = array_merge($this->approximations, $hash);
+		$this->approximations = array_merge($this->approximations(), $hash);
 	}
 }
