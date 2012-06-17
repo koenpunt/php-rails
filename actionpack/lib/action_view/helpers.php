@@ -3,12 +3,12 @@
 namespace ActionView\Helpers;
 #    extend ActiveSupport::Autoload
 	
-\PHPRails::import('action_view/asset_tag_helper');
-\PHPRails::import('action_view/csrf_helper');
-\PHPRails::import('action_view/date_helper');
-\PHPRails::import('action_view/form_helper');
-\PHPRails::import('action_view/form_tag_helper');
-\PHPRails::import('action_view/tag_helper');
+\PHPRails::import('action_view/helpers/asset_tag_helper');
+\PHPRails::import('action_view/helpers/csrf_helper');
+\PHPRails::import('action_view/helpers/date_helper');
+\PHPRails::import('action_view/helpers/form_helper');
+\PHPRails::import('action_view/helpers/form_tag_helper');
+\PHPRails::import('action_view/helpers/tag_helper');
 
 #    autoload :ActiveModelHelper
 #    autoload :AssetTagHelper
