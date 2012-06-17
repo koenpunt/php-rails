@@ -35,6 +35,8 @@ class PHPRails{
 			'action_view' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
 			'ruby' => array(__DIR__ . DS . 'ruby' . DS . 'lib') ,
 		);
+		
+		PHPRails::import('action_view/helpers');
 	}
 	
 	public static function import($path){
@@ -46,7 +48,7 @@ class PHPRails{
 				return require_once $file;
 			}
 		}
-		throw new Exception("LoadError: cannot load such file -- {$path}");
+		throw new LoadError("LoadError: cannot load such file -- {$path}");
 	}
 	
 	public static function path($location) {
@@ -58,33 +60,6 @@ class PHPRails{
 		if (!isset(self::$_packages[$type])) {
 			return array($location);
 		}
-		return self::$_packages[$type]; // . DS . $location;
-		return array_map(function($package) use ($location){
-			$package . DS . $location;
-		}, self::$_packages[$type]);
-	}
-	
-	protected static function _map($path, $file) {
-		self::$_map[$path] = $file;
-	}
-	
-	/**
-	 * Returns a file's complete path.
-	 *
-	 * @param string $name unique name
-	 * @return mixed file path if found, false otherwise
-	 */
-	protected static function _mapped($name) {
-		return isset(self::$_map[$name]) ? self::$_map[$name] : false;
-	}
-	
-	protected static function _get_namespaces($className){
-		if( self::_is_namespaced($className) ){
-			return explode('\\', $className);
-		}
-	}
-	
-	protected static function _is_namespaced($className){
-		return (strpos($className, '\\') !== false);
+		return self::$_packages[$type];
 	}
 }
