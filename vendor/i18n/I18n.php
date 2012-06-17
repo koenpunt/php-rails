@@ -392,12 +392,12 @@ class I18n
 			case 'throw':
 				throw $exception;
 			default:
-				$handler = Helpers\get($options, 'exception_handler') ?: self::get_exception_handler();
+				$handler = Helpers\get($options, 'exception_handler') ?: self::config()->exception_handler;
 				switch(true){
 					case $handler instanceof Symbol:
-						#send(handler, exception, locale, key, options);
+						return call_user_func($handler, $exception, $locale, $key, $options);
 					default:
-					return call_user_func($handler, $exception, $locale, $key, $options);
+						return $handler->call($exception, $locale, $key, $options);
 			}
 		}
 	}

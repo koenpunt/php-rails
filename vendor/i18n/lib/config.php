@@ -38,9 +38,7 @@ class Config{
 				return $this->_default_separator;
 			case 'exception_handler':
 				# Return the current exception handler. Defaults to :default_exception_handler.
-				$this->_exception_handler = $this->_exception_handler ?: function($exception, $locale, $key, $options){
-					throw $exception;
-				}; //  new \ExceptionHandler();
+				$this->_exception_handler = $this->_exception_handler ?: new ExceptionHandler();
 				return $this->_exception_handler;
 			case 'load_path':
 				# Allow clients to register paths providing translation data sources. The
