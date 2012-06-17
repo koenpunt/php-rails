@@ -9,9 +9,9 @@ class ExceptionHandler{
 		if( $exception instanceof MissingTranslation ){
 			return $options['rescue_format'] == 'html' ? $exception->html_message : $exception->getMessage();
 		}elseif($exception instanceof \Exception){
-			return throw $exception;
+			throw $exception;
 		}else{
-			return throw new Exception( $exception );
+			throw new Exception( $exception );
 		}
 	}
 }
