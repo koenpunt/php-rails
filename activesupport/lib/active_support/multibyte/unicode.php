@@ -2,7 +2,7 @@
 
 namespace ActiveSupport\Multibyte;
 
-\PHPRails::uses('active_support/multibyte');
+\PHPRails::import('active_support/multibyte');
 
 class Unicode{
 	

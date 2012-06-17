@@ -10,7 +10,7 @@
 namespace ActionView\Helpers;
 
 #require 'cgi'
-\PHPRails::uses('action_view/helpers/tag_helper');
+\PHPRails::import('action_view/helpers/tag_helper');
 #require 'active_support/core_ext/object/blank'
 #require 'active_support/core_ext/string/output_safety'
 #require 'active_support/core_ext/module/attribute_accessors'

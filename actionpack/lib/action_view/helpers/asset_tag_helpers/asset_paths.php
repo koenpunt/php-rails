@@ -4,7 +4,7 @@
 #require 'active_support/core_ext/file'
 #require 'active_support/core_ext/module/attribute_accessors'
 
-namespace ActionView\Helpers\AssetTagHelpers;
+namespace ActionView\Helpers\AssetTagHelper;
 
 class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 	# You can enable or disable the asset tag ids cache.

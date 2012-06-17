@@ -13,7 +13,7 @@ namespace ActiveSupport;
 #require 'active_support/core_ext/string/inflections'
 // http://api.rubyonrails.org/classes/ActiveSupport/Inflector.html
 
-\PHPRails::uses('active_support/multibyte/unicode');
+\PHPRails::import('active_support/multibyte/unicode');
 
 # The Inflector transforms words from singular to plural, class names to table names, modularized class names to ones without,
 # and class names to foreign keys. The default inflections for pluralization, singularization, and uncountable words are kept

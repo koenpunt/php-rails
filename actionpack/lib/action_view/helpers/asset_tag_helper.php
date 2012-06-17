@@ -2,11 +2,11 @@
 
 namespace ActionView\Helpers;
 
-#\PHPRails::uses('active_support/core_ext/array/extract_options');
-#\PHPRails::uses('active_support/core_ext/hash/keys');
-\PHPRails::uses('action_view/helpers/asset_tag_helpers/javascript_include_tag');
-\PHPRails::uses('action_view/helpers/asset_tag_helpers/stylesheet_include_tag');
-\PHPRails::uses('action_view/helpers/asset_tag_helpers/asset_paths');
+#\PHPRails::import('active_support/core_ext/array/extract_options');
+#\PHPRails::import('active_support/core_ext/hash/keys');
+\PHPRails::import('action_view/helpers/asset_tag_helpers/javascript_include_tag');
+\PHPRails::import('action_view/helpers/asset_tag_helpers/stylesheet_include_tag');
+\PHPRails::import('action_view/helpers/asset_tag_helpers/asset_paths');
 
 #module ActionView
   # = Action View Asset Tag Helpers
@@ -664,7 +664,7 @@ class AssetTagHelper{
 	#   javascript_include_tag :all, :cache => true, :recursive => true
 	public static function javascript_include_tag(/* $sources */){
 		$sources = func_get_args();
-		self::$javascript_include = self::$javascript_include ?: new AssetTagHelpers\JavascriptIncludeTag($this->config, $this->asset_paths());
+		self::$javascript_include = self::$javascript_include ?: new AssetTagHelper\JavascriptIncludeTag($this->config, $this->asset_paths());
 		return call_user_func_array(array(self::$javascript_include, 'include_tag'), $sources);
 	}
 
@@ -779,13 +779,13 @@ class AssetTagHelper{
 	#
 	public static function stylesheet_link_tag(/* $sources */){
 		$sources = func_get_args();
-		self::$stylesheet_include = self::$stylesheet_include ?: new AssetTagHelpers\StylesheetIncludeTag($this->config, $this->asset_paths());
+		self::$stylesheet_include = self::$stylesheet_include ?: new AssetTagHelper\StylesheetIncludeTag($this->config, $this->asset_paths());
 		return call_user_func_array(array(self::$stylesheet_include, 'include_tag'), $sources);
 	}
 
 	private static function asset_paths(){
 		if(is_null(self::$asset_paths)){
-			self::$asset_paths = new AssetTagHelpers\AssetPaths($this->config, $this->controller);
+			self::$asset_paths = new AssetTagHelper\AssetPaths($this->config, $this->controller);
 		}
 		return self::$asset_paths;
 	}

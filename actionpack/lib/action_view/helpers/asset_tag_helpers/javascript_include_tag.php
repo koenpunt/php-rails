@@ -1,10 +1,10 @@
 <?php
 	
-namespace ActionView\Helpers\AssetTagHelpers;
+namespace ActionView\Helpers\AssetTagHelper;
 
 #require 'active_support/concern'
 #require 'active_support/core_ext/file'
-\PHPRails::uses('action_view/helpers/asset_tag_helpers/asset_include_tag');
+\PHPRails::import('action_view/helpers/asset_tag_helpers/asset_include_tag');
 
 class JavascriptIncludeTag extends AssetIncludeTag{
 
