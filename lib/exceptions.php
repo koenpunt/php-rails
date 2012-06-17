@@ -7,7 +7,7 @@ use InvalidArgumentException;
 class ExceptionHandler{
 	public function call($exception, $locale, $key, $options){
 		if( $exception instanceof MissingTranslation ){
-			$options['rescue_format'] == 'html' ? $exception->html_message : $exception->message;
+			return $options['rescue_format'] == 'html' ? $exception->html_message : $exception->getMessage();
 		}elseif($exception instanceof \Exception){
 			throw $exception;
 		}else{
