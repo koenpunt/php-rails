@@ -20,8 +20,8 @@ class NotImplementedError extends \Exception{
 	
 }
 
-class InvalidLocale extends InvalidArgumentException
-{
+class InvalidLocale extends InvalidArgumentException{
+	
 	private $locale;
 
 	public function __construct($locale)
@@ -31,8 +31,8 @@ class InvalidLocale extends InvalidArgumentException
 	}
 }
 
-class MissingTranslation extends InvalidArgumentException
-{
+class MissingTranslation extends InvalidArgumentException{
+	
 	private $key;
 	private $locale;
 	private $options;
