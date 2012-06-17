@@ -13,7 +13,7 @@ class Unicode{
 		/*
 			TODO Port ruby source
 		*/
-		return iconv('ISO-8859-1', 'UTF-8', $data);
+		return $data;
 		
 		#if force
 		#  return string.unpack("C*").map do |b|
