@@ -1,6 +1,6 @@
 <?php
 
-namespace ActionView\Helpers\AssetTagHelper;
+namespace ActionView\Helpers\AssetTagHelpers;
 
 #\PHPRails::uses('active_support/concern');
 #\PHPRails::uses('active_support/core_ext/file');

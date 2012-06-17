@@ -5,7 +5,7 @@
 #require 'active_support/core_ext/file'
 \PHPRails::uses('action_view/helpers/tag_helper');
 
-namespace ActionView\Helpers\AssetTagHelper;
+namespace ActionView\Helpers\AssetTagHelpers;
 
 class AssetIncludeTag{
 	#include TagHelper

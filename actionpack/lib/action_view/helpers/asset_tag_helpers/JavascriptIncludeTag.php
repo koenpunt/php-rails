@@ -1,6 +1,6 @@
 <?php
 	
-namespace ActionView\Helpers\AssetTagHelper;
+namespace ActionView\Helpers\AssetTagHelpers;
 
 #require 'active_support/concern'
 #require 'active_support/core_ext/file'
