@@ -1,11 +1,11 @@
 <?php
 
+namespace ActionView\Helpers\AssetTagHelpers;
+
 #require 'active_support/core_ext/class/attribute'
 #require 'active_support/core_ext/string/inflections'
 #require 'active_support/core_ext/file'
 \PHPRails::uses('action_view/helpers/tag_helper');
-
-namespace ActionView\Helpers\AssetTagHelpers;
 
 class AssetIncludeTag{
 	#include TagHelper
