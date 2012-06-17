@@ -34,6 +34,7 @@ class PHPRails{
 		self::$_packages = array(
 			'active_support' => __DIR__ . DS . 'activesupport' . DS . 'lib',
 			'action_pack' => __DIR__ . DS . 'actionpack' . DS . 'lib',
+			'action_view' => __DIR__ . DS . 'actionpack' . DS . 'lib',
 			'helper' => __DIR__ . DS . 'actionpack' . DS . 'lib' . DS . 'action_view' . DS . 'helpers',
 			'ruby' => __DIR__ . DS . 'ruby' . DS . 'lib' ,
 		);
