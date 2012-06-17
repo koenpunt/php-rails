@@ -22,8 +22,6 @@ require __DIR__ . DS . 'utils.php';
 
 class PHPRails{
 	
-	static $current = array();
-	
 	static $_classMap = array();
 	
 	static $_map = array();
@@ -32,22 +30,23 @@ class PHPRails{
 	
 	public static function init(){
 		self::$_packages = array(
-			'active_support' => __DIR__ . DS . 'activesupport' . DS . 'lib',
-			'action_pack' => __DIR__ . DS . 'actionpack' . DS . 'lib',
-			'action_view' => __DIR__ . DS . 'actionpack' . DS . 'lib',
-			'ruby' => __DIR__ . DS . 'ruby' . DS . 'lib' ,
+			'active_support' => array(__DIR__ . DS . 'activesupport' . DS . 'lib'),
+			'action_pack' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
+			'action_view' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
+			'ruby' => array(__DIR__ . DS . 'ruby' . DS . 'lib') ,
 		);
 	}
 	
 	public static function import($path){
-#		if ($file = self::_mapped($path)) {
-#			return include $file;
-#		}
-		$file = self::path($path) . '.php';
-		if(file_exists($file)){
-			self::_map($path, $file);
-			return require_once $file;
+		$paths = self::path($path);
+
+		foreach($paths as $_path){
+			$file = $_path . DS . $path . '.php';
+			if(file_exists($file)){
+				return require_once $file;
+			}
 		}
+		throw new Exception("LoadError: cannot load such file -- {$path}");
 	}
 	
 	public static function path($location) {
@@ -59,9 +58,9 @@ class PHPRails{
 		if (!isset(self::$_packages[$type])) {
 			return array($location);
 		}
-		return self::$_packages[$type] . DS . $location;
+		return self::$_packages[$type]; // . DS . $location;
 		return array_map(function($package) use ($location){
-			self::$_packages[$type] . DS . $location;
+			$package . DS . $location;
 		}, self::$_packages[$type]);
 	}
 	
@@ -89,5 +88,3 @@ class PHPRails{
 		return (strpos($className, '\\') !== false);
 	}
 }
-
-PHPRails::init();
