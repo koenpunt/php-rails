@@ -2,7 +2,7 @@
 
 namespace PHPRails;
 
-PHPRails::import('active_support/safe_buffer');
+\PHPRails::import('active_support/safe_buffer');
 
 use ActiveSupport\SafeBuffer;
 
