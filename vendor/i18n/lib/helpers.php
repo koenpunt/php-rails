@@ -39,7 +39,8 @@ function is_hash(&$array){
 }
 
 function extract_options(&$arguments){
-	if(is_hash( end($arguments) )){
+	$last_argument = end($arguments);
+	if(is_hash( $last_argument )){
 		return array_pop($arguments);
 	}
 	return false;
