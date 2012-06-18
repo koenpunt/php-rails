@@ -18,7 +18,7 @@ class StylesheetIncludeTag extends AssetIncludeTag{
 
 	public function asset_tag($source, $options){
 		# We force the :request protocol here to avoid a double-download bug in IE7 and IE8
-		\ActionView\Helpers\TagHelper::tag("link", array_merge( array( "rel" => "stylesheet", "type" => RMime::CSS, "media" => "screen", "href" => $this->path_to_asset($source, array('protocol' => 'request')) ), $options));
+		\ActionView\Helpers\TagHelper::tag("link", array_merge( array( "rel" => "stylesheet", "type" => \RMime::CSS, "media" => "screen", "href" => $this->path_to_asset($source, array('protocol' => 'request')) ), $options));
 	}
 
 	public function custom_dir(){
