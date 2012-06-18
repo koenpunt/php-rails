@@ -143,7 +143,7 @@ class AssetPaths{ #:nodoc:
 
 	# Returns the arity of a callable
 	private function arity_of($callable){
-		$method = new RMethod($callable, 'call');
+		$method = new \RMethod($callable, 'call');
 		return is_object($callable) && method_exists($callable, 'arity') ? $callable->arity() : $method->arity();
 	}
 

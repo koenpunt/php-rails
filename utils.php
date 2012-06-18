@@ -53,7 +53,7 @@ function get(array &$data, $key){
 }
 
 function to_sym($content){
-	return new RSymbol($content);
+	return new \RSymbol($content);
 }
 
 function html_safe($content){

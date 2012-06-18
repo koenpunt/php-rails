@@ -431,7 +431,7 @@ class Engine extends Railtie{
 	public function find($path){
 		$expanded_path = \RFile::expand_path( (string)$path );
 		\PHPRails\Engine\Railties::engines()->find(function($engine){
-			return RFile::expand_path((string)$engine->root()) == $expanded_path;
+			return \RFile::expand_path((string)$engine->root()) == $expanded_path;
 		});
 	}
 

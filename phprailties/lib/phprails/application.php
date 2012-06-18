@@ -101,8 +101,8 @@ class Application extends Engine{
 	public function add_lib_to_load_path__(){ #:nodoc:
 		# path = config.root.join('lib').to_s
 		# $LOAD_PATH.unshift(path) if File.exists?(path)
-		$path = RFile::join($this->config->root, 'lib');
-		if( RFile::exists($path) ){
+		$path = \RFile::join($this->config->root, 'lib');
+		if( \RFile::exists($path) ){
 			set_include_path(
 				$path . PS .
 				get_include_path()

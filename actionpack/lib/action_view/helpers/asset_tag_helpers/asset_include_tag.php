@@ -7,6 +7,8 @@ namespace ActionView\Helpers\AssetTagHelper;
 #require 'active_support/core_ext/file'
 \PHPRails::import('action_view/helpers/tag_helper');
 
+\PHPRails::import('ruby/RFile');
+
 class AssetIncludeTag{
 	#include TagHelper
 
@@ -51,7 +53,7 @@ class AssetIncludeTag{
 		if( $concat || ($this->config->perform_caching && $cache) ){
 			$joined_name = ($cache == true ? "all" : $cache) + ".{$extension}";
 			$joined_path = \RFile::join((preg_match('/^#{File::SEPARATOR}/', $joined_name) ? $this->config->assets_dir : $custom_dir), $joined_name);
-			if(! ($this->config->perform_caching && RFile::exists($joined_path)) ){
+			if(! ($this->config->perform_caching && \RFile::exists($joined_path)) ){
 				$this->write_asset_file_contents($joined_path, $this->compute_paths($sources, $recursive));
 			}
 			$this->asset_tag($joined_name, $options);
@@ -113,7 +115,7 @@ class AssetIncludeTag{
 
 		$asset_files = array_map( function($file) use ($dir){
 			return preg_replace('/\.\w+$/', '', substr($file, -(strlen($file) - strlen($dir) - 1), -1));
-		}, RDir::glob(call_user_func_array(array('RFile', 'join'), array_filter($path))));
+		}, \RDir::glob(call_user_func_array(array('\RFile', 'join'), array_filter($path))));
 		
 		sort($asset_files);
 		return $asset_files;
@@ -133,12 +135,12 @@ class AssetIncludeTag{
 
 	private function join_asset_file_contents($paths){
 		return implode("\n\n", array_map(function($path){
-			return RFile::read($this->asset_file_path_($path, true)); 
+			return \RFile::read($this->asset_file_path_($path, true)); 
 		}));
 	}
 
 	private function write_asset_file_contents($joined_asset_path, $asset_paths){
-		\RFileUtils::mkdir_p(RFile::dirname($joined_asset_path));
+		\RFileUtils::mkdir_p(\RFile::dirname($joined_asset_path));
 		\RFile::atomic_write($joined_asset_path, function(&$cache){
 			$cache->write($this->join_asset_file_contents($asset_paths));
 		});
@@ -148,7 +150,7 @@ class AssetIncludeTag{
 		$mt = max(array_map(function($p){
 			return \RFile::mtime($this->asset_file_path_($p));
 		}, $asset_paths));
-		return File::utime($mt, $mt, $joined_asset_path);
+		return \RFile::utime($mt, $mt, $joined_asset_path);
 	}
 
 	/*

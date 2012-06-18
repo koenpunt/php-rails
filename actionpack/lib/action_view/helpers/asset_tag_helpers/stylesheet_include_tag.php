@@ -6,6 +6,8 @@ namespace ActionView\Helpers\AssetTagHelper;
 #\PHPRails::import('active_support/core_ext/file');
 \PHPRails::import('action_view/helpers/asset_tag_helpers/asset_include_tag');
 
+\PHPRails::import('ruby/RMime');
+
 class StylesheetIncludeTag extends AssetIncludeTag{
 	
 	public function asset_name(){
