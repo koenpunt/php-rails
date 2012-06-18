@@ -10,8 +10,6 @@ namespace PHPRails;
 
 class Configuration{
 	
-	public $stylesheets_dir;
-	
 	public $javascripts_dir      = "public/javascripts";
 	public $stylesheets_dir      = "public/stylesheets";
 	public $page_cache_directory = "public";
