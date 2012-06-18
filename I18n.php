@@ -228,7 +228,7 @@ class I18n
 	# values.
 	public static function translate(){
 		$args     = func_get_args();
-		$options  = Helpers\is_hash(end($args)) ? array_pop($args) : array();
+		$options  = Helpers\extract_options($args) ?: array();
 		$key      = array_shift($args);
 		$backend  = self::get_backend();
 		$locale   = Helpers\delete($options, 'locale') ?: self::get_locale();
