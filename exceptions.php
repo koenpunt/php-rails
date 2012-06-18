@@ -12,6 +12,10 @@ class KeyErrorException extends RuntimeException{
 	
 }
 
+class NotImplementedError extends ErrorException{
+	
+}
+
 class Errno{
 	
 	const ENOENT = -1;

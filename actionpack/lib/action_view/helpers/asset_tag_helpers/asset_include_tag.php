@@ -74,16 +74,16 @@ class AssetIncludeTag{
 		return $this->asset_paths->compute_public_path($source, \ActiveSupport\Inflector::pluralize($asset_name), array_merge($options, array('ext' => $this->extension())));
 	}
 
-	protected function path_to_asset_source($source){
+	private function path_to_asset_source($source){
 		return $this->asset_paths->compute_source_path($source, \ActiveSupport\Inflector::pluralize($asset_name), $this->extension());
 	}
 
-	protected function compute_paths(/* $args */){
+	private function compute_paths(/* $args */){
 		$args = func_get_args();
 	#	$this->expand_sources(*args).collect { |source| path_to_asset_source(source) }
 	}
 
-	protected function expand_sources($sources, $recursive){
+	private function expand_sources($sources, $recursive){
 		if( reset($sources) == 'all' ){
 			return $this->collect_asset_files($this->custom_dir, ($recursive ? '**' : null), "*.{$extension}");
 		}else{
@@ -94,7 +94,7 @@ class AssetIncludeTag{
 		}
 	}
 
-	protected function update_source_list(&$list, $source){
+	private function update_source_list(&$list, $source){
 		switch(true){
 			case is_string($source):
 				\PHPRails\delete($list, $source);
@@ -105,13 +105,13 @@ class AssetIncludeTag{
 		}
 	}
 
-	protected function ensure_sources_($sources){
+	private function ensure_sources_($sources){
 		foreach($sources as $source){
 			$this->asset_file_path_($this->path_to_asset_source($source));
 		}
 	}
 
-	protected function collect_asset_files(/* $path */){
+	private function collect_asset_files(/* $path */){
 		$path = func_get_args();
 		$dir = reset($path);
 
@@ -123,7 +123,7 @@ class AssetIncludeTag{
 		return $asset_files;
 	}
 
-	protected function determine_source($source, $collection){
+	private function determine_source($source, $collection){
 		switch(true){
 			case is_a($source, '\RSymbol'):
 				if($collection[$source]){
@@ -135,13 +135,13 @@ class AssetIncludeTag{
 		}
 	}
 
-	protected function join_asset_file_contents($paths){
+	private function join_asset_file_contents($paths){
 		return implode("\n\n", array_map(function($path){
 			return \RFile::read($this->asset_file_path_($path, true)); 
 		}));
 	}
 
-	protected function write_asset_file_contents($joined_asset_path, $asset_paths){
+	private function write_asset_file_contents($joined_asset_path, $asset_paths){
 		\RFileUtils::mkdir_p(\RFile::dirname($joined_asset_path));
 		\RFile::atomic_write($joined_asset_path, function(&$cache){
 			$cache->write($this->join_asset_file_contents($asset_paths));
@@ -158,7 +158,7 @@ class AssetIncludeTag{
 	/*
 		TODO Implement Errno class, or replace with different exceptions
 	*/
-	protected function asset_file_path_($absolute_path, $error_if_file_is_uri = false){
+	private function asset_file_path_($absolute_path, $error_if_file_is_uri = false){
 		if( $this->asset_paths->is_uri__($absolute_path) ){
 			if( $error_if_file_is_uri ){
 				#Errno::ENOENT

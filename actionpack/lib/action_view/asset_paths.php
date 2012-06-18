@@ -52,11 +52,11 @@ class AssetPaths{ #:nodoc:
 	}
 
 	private function rewrite_extension($source, $dir, $ext){
-		throw new NotImplementedException();
+		throw new \NotImplementedError();
 	}
 
 	private function rewrite_asset_path($source, $path = null){
-		throw new NotImplementedException();
+		throw new \NotImplementedError();
 	}
 
 	private function rewrite_relative_url_root($source, $relative_url_root){
@@ -146,6 +146,4 @@ class AssetPaths{ #:nodoc:
 		$method = new \RMethod($callable, 'call');
 		return is_object($callable) && method_exists($callable, 'arity') ? $callable->arity() : $method->arity();
 	}
-
 }
-
