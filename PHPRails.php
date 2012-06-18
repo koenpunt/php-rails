@@ -57,7 +57,7 @@ class PHPRails{
 				return require_once $file;
 			}
 		}
-		throw new LoadError("cannot load such file -- {$path}");
+		throw new \LoadError("cannot load such file -- {$path}");
 	}
 	
 	public static function path($location) {
