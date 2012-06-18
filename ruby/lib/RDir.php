@@ -74,32 +74,48 @@ class RDir{
 	var_dump('FLAG_3', !!($flags_or_block & Flag::FLAG_3));
 	var_dump('FLAG_4', !!($flags_or_block & Flag::FLAG_4));
 	*/
-	
+	/*
+		TODO Implement flags
+	*/
 	public static function glob($pattern, $flags = null){
-		$pattern_recursion = explode('**', $pattern, 2);
+		$args = func_get_args();
+		$yield = \PHPRails\block_given__($args);
 		
-		if(count($pattern_recursion) == 1){
-			return glob($pattern, $flags);
+		$regex_pattern = '';
+		$wildcard_1 = strpos($pattern, '*');
+		$wildcard_2 = strpos($pattern, '{');
+		$wildcard = $wildcard_1 == false ? $wildcard_2 : ( $wildcard_2 == false ? $wildcard_1 : min($wildcard_1, $wildcard_2) ); 
+		$base = $pattern;
+		
+		
+		if($wildcard !== false){
+			$base = substr($pattern, 0, $wildcard);
+			$regex_pattern = substr($pattern, $wildcard);
+		
+			$regex_pattern = preg_replace_callback('/\{(.*?)\}/', function($match){
+				return '(' . str_replace(',', '|', str_replace('|', '\|', $match[1])) . ')';
+			}, $regex_pattern);
+		
+			$regex_pattern = str_replace(
+				array('.'	, '**/'		, '**'			, '*'			, '?'), 
+				array('\.'	, '[^\.]+'	, '[^\./][^/]+'	, '[^\./][^/]+'	, '.{1}'), 
+			$regex_pattern);
 		}
 		
-		if($pattern_recursion[1] == ''){
-			return glob($pattern_recursion[0] . '*', $flags);
-		}
+		$regex = "#^{$base}{$regex_pattern}$#";
 		
-		if(substr($pattern, -1, 1) == '/'){
-			$flags = $flags ? $flags | GLOB_ONLYDIR : GLOB_ONLYDIR;
-		}
-		$first_matches = glob($pattern_recursion[0], GLOB_ONLYDIR);
-		$matches = $pattern_recursion[1] == '/' ? $first_matches : array();
-		foreach($first_matches as $match){
-			$matches = array_merge($matches, self::glob_recursion($match . '*' . $pattern_recursion[1], $flags));
-		}
-		if($yield = \PHPRails\block_given__(func_get_args())){
-			foreach($matches as $match){
+		$directory = new RecursiveDirectoryIterator($base,  FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS );
+		$iterator = new RecursiveIteratorIterator( $directory, RecursiveIteratorIterator::SELF_FIRST );
+		$directory = new RegexIterator($iterator, $regex, RecursiveRegexIterator::MATCH);
+		
+		$matches = array();
+		foreach($directory as $match) {
+			$matches[] = $match->getPathname();
+			if( $yield ){
 				$yield( $match );
 			}
-			return null;
-		}else{
+		}
+		if( !$yield ){
 			return $matches;
 		}
 	}
