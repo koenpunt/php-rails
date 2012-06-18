@@ -198,9 +198,9 @@ namespace ActionView\Helpers;
 #   RewriteEngine On
 #   RewriteRule ^/release-\d+/(images|javascripts|stylesheets)/(.*)$ /$1/$2 [L]
 class AssetTagHelper{
-	#include TagHelper
-	#include JavascriptTagHelpers
-	#include StylesheetTagHelpers
+	#use TagHelper,
+	#	 JavascriptTagHelpers,
+	#	 StylesheetTagHelpers;
 		
 	static $asset_paths = null;
 	
@@ -664,7 +664,7 @@ class AssetTagHelper{
 	#   javascript_include_tag :all, :cache => true, :recursive => true
 	public static function javascript_include_tag(/* $sources */){
 		$sources = func_get_args();
-		self::$javascript_include = self::$javascript_include ?: new AssetTagHelper\JavascriptIncludeTag($this->config, $this->asset_paths());
+		self::$javascript_include = self::$javascript_include ?: new AssetTagHelper\JavascriptIncludeTag(\PHPRails::config(), self::asset_paths());
 		return call_user_func_array(array(self::$javascript_include, 'include_tag'), $sources);
 	}
 
@@ -702,7 +702,7 @@ class AssetTagHelper{
 	#   stylesheet_path "http://www.example.com/css/style"       # => http://www.example.com/css/style
 	#   stylesheet_path "http://www.example.com/css/style.css"   # => http://www.example.com/css/style.css
 	public static function stylesheet_path($source){
-		return $this->asset_paths()->compute_public_path($source, 'stylesheets', array('ext' => 'css', 'protocol' => 'request'));
+		return self::asset_paths()->compute_public_path($source, 'stylesheets', array('ext' => 'css', 'protocol' => 'request'));
 	}
 	# aliased to avoid conflicts with a stylesheet_path named route
 	public static function path_to_stylesheet($source){
@@ -779,13 +779,13 @@ class AssetTagHelper{
 	#
 	public static function stylesheet_link_tag(/* $sources */){
 		$sources = func_get_args();
-		self::$stylesheet_include = self::$stylesheet_include ?: new AssetTagHelper\StylesheetIncludeTag($this->config, $this->asset_paths());
+		self::$stylesheet_include = self::$stylesheet_include ?: new AssetTagHelper\StylesheetIncludeTag(\PHPRails::config(), self::asset_paths());
 		return call_user_func_array(array(self::$stylesheet_include, 'include_tag'), $sources);
 	}
 
 	private static function asset_paths(){
 		if(is_null(self::$asset_paths)){
-			self::$asset_paths = new AssetTagHelper\AssetPaths($this->config, $this->controller);
+			self::$asset_paths = new AssetTagHelper\AssetPaths(\PHPRails::config(), $this->controller);
 		}
 		return self::$asset_paths;
 	}

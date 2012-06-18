@@ -23,17 +23,24 @@ require __DIR__ . DS . 'exceptions.php';
 
 class PHPRails{
 	
+	static $application = null;
+	
 	static $_classMap = array();
 	
 	static $_map = array();
 	
 	static $_packages = array();
 	
+	static $_config = array();
+	
+	static $_imported = array();
+	
 	public static function init(){
 		self::$_packages = array(
 			'active_support' => array(__DIR__ . DS . 'activesupport' . DS . 'lib'),
 			'action_pack' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
 			'action_view' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
+			'phprails' => array(__DIR__ . DS . 'phprailties' . DS . 'lib'),
 			'ruby' => array(__DIR__ . DS . 'ruby' . DS . 'lib') ,
 		);
 		PHPRails::import('action_view');
@@ -41,10 +48,12 @@ class PHPRails{
 	}
 	
 	public static function import($path){
+		if(array_search($path, self::$_imported))return;
 		$paths = self::path($path);
 		foreach($paths as $_path){
 			$file = $_path . DS . $path . '.php';
 			if(file_exists($file)){
+				array_push(self::$_imported, $path);
 				return require_once $file;
 			}
 		}
@@ -61,5 +70,11 @@ class PHPRails{
 			return array($location);
 		}
 		return self::$_packages[$type];
+	}
+	
+	public static function config(){
+		self::import('phprails/configuration');
+		self::$_config = self::$_config ?: new \PHPRails\Configuration();
+		return self::$_config;
 	}
 }
