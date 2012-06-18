@@ -26,19 +26,19 @@ class AssetIncludeTag{
 	}
 
 	public function asset_name(){
-		\PHPRails\raise( NotImplementedError );
+		throw new \PHPRails\NotImplementedError();
 	}
 
 	public function extension(){
-		\PHPRails\raise( NotImplementedError );
+		throw new \PHPRails\NotImplementedError();
 	}
 
 	public function custom_dir(){
-		\PHPRails\raise( NotImplementedError );
+		throw new \PHPRails\NotImplementedError();
 	}
 
 	public function asset_tag($source, $options){
-		\PHPRails\raise( NotImplementedError );
+		throw new \PHPRails\NotImplementedError();
 	}
 
 	public function include_tag(/* $sources */){
@@ -122,7 +122,10 @@ class AssetIncludeTag{
 	private function determine_source($source, $collection){
 		switch(true){
 			case is_a($source, '\RSymbol'):
-				return $collection[$source] || raise(ArgumentError, "No expansion found for #{source.inspect}");
+				if($collection[$source]){
+					return $collection[$source];
+				}
+				throw new \ArgumentError("No expansion found for #{source.inspect}");
 			default:
 				return $source;
 		}
@@ -135,27 +138,31 @@ class AssetIncludeTag{
 	}
 
 	private function write_asset_file_contents($joined_asset_path, $asset_paths){
-		RFileUtils::mkdir_p(RFile::dirname($joined_asset_path));
-		RFile::atomic_write($joined_asset_path, function(&$cache){
+		\RFileUtils::mkdir_p(RFile::dirname($joined_asset_path));
+		\RFile::atomic_write($joined_asset_path, function(&$cache){
 			$cache->write($this->join_asset_file_contents($asset_paths));
 		});
 
 		# Set mtime to the latest of the combined files to allow for
 		# consistent ETag without a shared filesystem.
 		$mt = max(array_map(function($p){
-			return RFile::mtime($this->asset_file_path_($p));
+			return \RFile::mtime($this->asset_file_path_($p));
 		}, $asset_paths));
 		return File::utime($mt, $mt, $joined_asset_path);
 	}
 
+	/*
+		TODO Implement Errno class, or replace with different exceptions
+	*/
 	private function asset_file_path_($absolute_path, $error_if_file_is_uri = false){
 		if( $this->asset_paths->is_uri__($absolute_path) ){
 			if( $error_if_file_is_uri ){
-				raise(Errno::ENOENT, "Asset file #{path} is uri and cannot be merged into single file");
+				#Errno::ENOENT
+				throw new \RuntimeException( "Asset file {$path} is uri and cannot be merged into single file" );
 			}
 		}else{
-			if( ! File::exist($absolute_path) ){
-				raise(Errno::ENOENT, "Asset file not found at '#{absolute_path}'" );
+			if( ! \RFile::exist($absolute_path) ){
+				throw new \RuntimeException( "Asset file not found at '{$absolute_path}'" );
 			}
 			return $absolute_path;
 		}

@@ -39,7 +39,7 @@ function fetch(array $data, $key, $alternative=false){
 		return $data[$key];
 	}
 	if($alternative === false){
-		throw new KeyErrorException(); 
+		throw new \KeyErrorException(); 
 	}
 	if(is_callable($alternative)){
 		return call_user_func($alternative, $key);
@@ -75,7 +75,7 @@ function assert_valid_keys(array $data, $valid_keys){
 	$valid_keys = \PHPRails\array_flatten($valid_keys);
 	foreach($data as $k => $v){
 		if(!in_array($k, $valid_keys)){
-			throw new InvalidArgumentError("Unknown key: {$k}");
+			throw new \ArgumentError("Unknown key: {$k}");
 		}
 	}
 }
@@ -158,6 +158,7 @@ function acts_like__($object, $type){
 	}
 	return false;
 }
+
 /**
  * Move to date-utils.php or something alike
  *
