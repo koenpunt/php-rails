@@ -15,10 +15,10 @@ namespace ActionView\Helpers;
 #require 'active_support/core_ext/hash/slice'
 #require 'active_support/core_ext/object/with_options'
 
-require_once 'action_view/helpers/TagHelper.php';
-require_once 'active_support/core_ext/Date.php';
-require_once 'active_support/core_ext/Time.php';
-require_once 'active_support/core_ext/TimeSpan.php';
+\PHPRails::import('action_view/helpers/tag_helper');
+#require_once 'active_support/core_ext/Date.php';
+#require_once 'active_support/core_ext/Time.php';
+#require_once 'active_support/core_ext/TimeSpan.php';
 
 
 use \I18n\I18n;

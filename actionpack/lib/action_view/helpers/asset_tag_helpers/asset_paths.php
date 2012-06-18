@@ -44,7 +44,7 @@ class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 
 	# Break out the asset path rewrite in case plugins wish to put the asset id
 	# someplace other than the query string.
-	private function rewrite_asset_path($source, $dir, $options = null){
+	private function rewrite_asset_path($source, $dir = null){
 		if( !($source[0] == '?/') ){ //== ?/) ){
 			$source = "/{$dir}/{$source}";
 		}

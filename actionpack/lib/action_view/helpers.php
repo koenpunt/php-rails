@@ -6,7 +6,7 @@ namespace ActionView\Helpers;
 \PHPRails::import('action_view/helpers/asset_tag_helper');
 \PHPRails::import('action_view/helpers/csrf_helper');
 \PHPRails::import('action_view/helpers/date_helper');
-\PHPRails::import('action_view/helpers/form_helper');
+#\PHPRails::import('action_view/helpers/form_helper');
 \PHPRails::import('action_view/helpers/form_tag_helper');
 \PHPRails::import('action_view/helpers/tag_helper');
 

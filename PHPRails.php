@@ -15,6 +15,7 @@ if(!defined('DS'))
 # Add lib directories of different sections to include path
 
 require __DIR__ . DS . 'utils.php';
+require __DIR__ . DS . 'exceptions.php';
 
 #if (!defined('PHP_RAILS_AUTOLOAD_DISABLE')){
 #	spl_autoload_register(array('PHPRails', 'load'), false, PHP_RAILS_AUTOLOAD_PREPEND);
@@ -35,20 +36,19 @@ class PHPRails{
 			'action_view' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
 			'ruby' => array(__DIR__ . DS . 'ruby' . DS . 'lib') ,
 		);
-		
+		PHPRails::import('action_view');
 		PHPRails::import('action_view/helpers');
 	}
 	
 	public static function import($path){
 		$paths = self::path($path);
-
 		foreach($paths as $_path){
 			$file = $_path . DS . $path . '.php';
 			if(file_exists($file)){
 				return require_once $file;
 			}
 		}
-		throw new LoadError("LoadError: cannot load such file -- {$path}");
+		throw new LoadError("cannot load such file -- {$path}");
 	}
 	
 	public static function path($location) {
