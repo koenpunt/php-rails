@@ -62,6 +62,7 @@
 #    autoload :XmlMini
 #  end
 #
+PHPRails::import('active_support/safe_buffer');
 #  autoload :SafeBuffer, "active_support/core_ext/string/output_safety"
 #  autoload :TestCase
 #

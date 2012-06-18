@@ -1,6 +1,6 @@
 <?php
 
-class LoadError extends RuntimeException{
+class LoadError extends ErrorException{
 	
 }
 

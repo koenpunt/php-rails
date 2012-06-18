@@ -14,12 +14,13 @@ if(!defined('DS'))
 
 # Add lib directories of different sections to include path
 
-require __DIR__ . DS . 'utils.php';
-require __DIR__ . DS . 'exceptions.php';
-
 #if (!defined('PHP_RAILS_AUTOLOAD_DISABLE')){
 #	spl_autoload_register(array('PHPRails', 'load'), false, PHP_RAILS_AUTOLOAD_PREPEND);
 #}
+
+include __DIR__ . DS . 'utils.php';
+include __DIR__ . DS . 'exceptions.php';
+
 
 class PHPRails{
 	
@@ -57,7 +58,10 @@ class PHPRails{
 				return require_once $file;
 			}
 		}
-		throw new \LoadError("cannot load such file -- {$path}");
+		$backtrace = debug_backtrace();
+		$parent = array_shift($backtrace);
+		require_once __DIR__ . DS . 'exceptions.php';
+		throw new LoadError("cannot load such file -- {$path}", 0, 1, $parent['file'], $parent['line'] );
 	}
 	
 	public static function path($location) {

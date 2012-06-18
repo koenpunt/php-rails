@@ -2,8 +2,6 @@
 
 namespace PHPRails;
 
-\PHPRails::import('active_support/safe_buffer');
-
 use ActiveSupport\SafeBuffer;
 
 # args.extract_options!
