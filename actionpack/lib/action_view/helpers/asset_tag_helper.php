@@ -784,8 +784,11 @@ class AssetTagHelper{
 	}
 
 	private static function asset_paths(){
+		/*
+			TODO controller
+		*/
 		if(is_null(self::$asset_paths)){
-			self::$asset_paths = new AssetTagHelper\AssetPaths(\PHPRails::config(), $this->controller);
+			self::$asset_paths = new AssetTagHelper\AssetPaths(\PHPRails::config() /*, $this->controller */);
 		}
 		return self::$asset_paths;
 	}
