@@ -86,11 +86,11 @@ class AssetIncludeTag{
 			return array_reduce($sources, function($list, $source){
 				$determined_source = $this->determine_source($source, $this->expansions);
 				return $this->update_source_list($list, $determined_source);
-			});
+			}, array());
 		}
 	}
 
-	private function update_source_list($list, $source){
+	private function update_source_list(&$list, $source){
 		switch(true){
 			case is_string($source):
 				\PHPRails\delete($list, $source);
