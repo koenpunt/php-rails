@@ -27,14 +27,14 @@ class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 		#end
 	}
 
-	private function rewrite_extension($source, $dir, $ext){
+	protected function rewrite_extension($source, $dir, $ext){
 		$source_ext = \RFile::extname($source);
 		
 		if( empty($source_ext) ){
 			$source_with_ext = "{$source}.{$ext}";
 		}elseif( $ext != substr($source_ext, 1, -1) ){
 			$with_ext = "{$source}.{$ext}";
-			if( \RFile::exist__(\RFile::join($config->assets_dir, $dir, $with_ext))) {
+			if( \RFile::exist(\RFile::join($config->assets_dir, $dir, $with_ext))) {
 				return $with_ext;
 			}
 		}
@@ -44,7 +44,7 @@ class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 
 	# Break out the asset path rewrite in case plugins wish to put the asset id
 	# someplace other than the query string.
-	private function rewrite_asset_path($source, $dir = null){
+	protected function rewrite_asset_path($source, $dir = null){
 		if( !($source[0] == '?/') ){ //== ?/) ){
 			$source = "/{$dir}/{$source}";
 		}
@@ -82,7 +82,7 @@ class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 				return $asset_id;
 			}else{
 				$path = \RFile::join($config->assets_dir, $source);
-				$asset_id = \RFile::exist__($path) ? (string)(int)\RFile::mtime($path) : '';
+				$asset_id = \RFile::exist($path) ? (string)(int)\RFile::mtime($path) : '';
 
 				if( self::$cache_asset_ids ){
 					$this->add_to_asset_ids_cache($source, $asset_id);

@@ -2,6 +2,8 @@
 
 namespace ActionView\Helpers;
 
+\PHPRails::import('ruby/RSecureRandom');
+
 #module ActionView
   # = Action View CSRF Helper
   #module Helpers
