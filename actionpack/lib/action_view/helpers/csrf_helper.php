@@ -113,7 +113,8 @@ class CsrfHelper{
 	}
 
 	# Sets the token value for the current session.
-	protected static function form_authenticity_token(){
+	/*protected*/
+	public static function form_authenticity_token(){
 		if(!isset($_SESSION['_csrf_token'])){
 			$_SESSION['_csrf_token'] = RSecureRandom::base64(32);
 		}
@@ -124,8 +125,8 @@ class CsrfHelper{
 	protected static function form_authenticity_param(){
 		return $_REQUEST[self::$request_forgery_protection_token];
 	}
-
-	protected static function protect_against_forgery__(){
+	/*protected*/
+	public static function protect_against_forgery__(){
 		return self::$allow_forgery_protection;
 	}
 

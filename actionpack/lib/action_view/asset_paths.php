@@ -65,7 +65,7 @@ class AssetPaths{ #:nodoc:
 
 	private function has_request__(){
 		#controller.respond_to?(:request)
-		return $controller->request;
+		return $controller->request ? true : false;
 	}
 
 	private function rewrite_host_and_protocol($source, $protocol = null){

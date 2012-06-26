@@ -16,6 +16,10 @@ class NotImplementedError extends ErrorException{
 	
 }
 
+class SafeConcatError extends ErrorException{
+	
+}
+
 class Errno{
 	
 	const ENOENT = -1;

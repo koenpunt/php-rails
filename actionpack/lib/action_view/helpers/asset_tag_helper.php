@@ -797,7 +797,7 @@ class AssetTagHelper{
 		$options = \PHPRails\extract_options($sources);
 		$sources = \PHPRails\array_flatten($sources);
 
-		if( $yield = \PHPRails::block_given__(func_get_args()) ){
+		if( $yield = \PHPRails\block_given__(func_get_args()) ){
 			$yield( $options );
 		}
 

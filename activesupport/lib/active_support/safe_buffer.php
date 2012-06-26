@@ -19,4 +19,17 @@ class SafeBuffer{
 		return $this;
 	}
 	
+	public function safe_concat( $value ){
+		if(!\PHPRails\html_safe__($value)){
+			throw new SafeConcatError();
+		}
+		return $this->original_concat($value);
+	}
+	
+	private function original_concat( $value ){
+		$this->content .= (string)$value;
+		return $this;
+	}
+	
+	
 }
