@@ -9,6 +9,7 @@ namespace ActionView\Helpers;
 #\PHPRails::import('action_view/helpers/form_helper');
 \PHPRails::import('action_view/helpers/form_tag_helper');
 \PHPRails::import('action_view/helpers/tag_helper');
+\PHPRails::import('action_view/helpers/url_helper');
 
 #    autoload :ActiveModelHelper
 #    autoload :AssetTagHelper
