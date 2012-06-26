@@ -44,6 +44,8 @@ class PHPRails{
 			'phprails' => array(__DIR__ . DS . 'phprailties' . DS . 'lib'),
 			'ruby' => array(__DIR__ . DS . 'ruby' . DS . 'lib') ,
 		);
+		PHPRails::_initInflections();
+		
 		PHPRails::import('action_view');
 		PHPRails::import('action_view/helpers');
 	}
