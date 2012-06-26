@@ -51,11 +51,11 @@ class AssetPaths{ #:nodoc:
 		return preg_match(self::URI_REGEXP, $path) > 0;
 	}
 
-	private function rewrite_extension($source, $dir, $ext){
+	protected function rewrite_extension($source, $dir, $ext){
 		throw new \NotImplementedError();
 	}
 
-	private function rewrite_asset_path($source, $path = null){
+	protected function rewrite_asset_path($source, $path = null){
 		throw new \NotImplementedError();
 	}
 
