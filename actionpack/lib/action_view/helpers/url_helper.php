@@ -344,7 +344,7 @@ class UrlHelper{
 		$url    = is_string($options) ? $options : self::url_for($options);
 		$remote = \PHPRails\delete($html_options, 'remote');
 
-		$method     = (string)\PHPRails\delete(html_options, 'method');
+		$method     = (string)\PHPRails\delete($html_options, 'method');
 		$method_tag = in_array($method, array('patch', 'put', 'delete')) ? self::method_tag($method) : \PHPRails\html_safe('');
 
 		$form_method  = $method == 'get' ? 'get' : 'post';
