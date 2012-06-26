@@ -29,7 +29,6 @@ class AssetPaths{ #:nodoc:
 		if( $this->is_uri__($source) ){
 			return $source;
 		}
-
 		if( \PHPRails\get($options, 'ext') ){
 			$source = $this->rewrite_extension($source, $dir, $options['ext']);
 		}
@@ -44,7 +43,7 @@ class AssetPaths{ #:nodoc:
 		if( $ext ){
 			$source = $this->rewrite_extension($source, $dir, $ext);
 		}
-		return \RFile::join($config->assets_dir, $dir, $source);
+		return \RFile::join($this->config->assets_dir, $dir, $source);
 	}
 
 	public function is_uri__($path){

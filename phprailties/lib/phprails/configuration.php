@@ -10,9 +10,20 @@ namespace PHPRails;
 
 class Configuration{
 	
+	public function __construct($config = array()){
+		foreach($config as $var => $value){
+			if(property_exists($this, $var)){
+				$this->$var = $value;
+			}
+		}
+	}
+	
+	public $assets_dir;
+	public $asset_path;
 	public $javascripts_dir      = "public/javascripts";
 	public $stylesheets_dir      = "public/stylesheets";
-	public $page_cache_directory = "public";
+	
+	#public $page_cache_directory = "public";
 
     # Ensure readers methods get compiled
 	#public $asset_path           ||= app.config.asset_path

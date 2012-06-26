@@ -36,7 +36,11 @@ class PHPRails{
 	
 	static $_imported = array();
 	
-	public static function init(){
+	public static function initialize($config = null){
+		if(!is_null($config)){
+			PHPRails::import('phprails/configuration');
+			self::$_config = new \PHPRails\Configuration($config);
+		}
 		self::$_packages = array(
 			'active_support' => array(__DIR__ . DS . 'activesupport' . DS . 'lib'),
 			'action_pack' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
@@ -79,7 +83,6 @@ class PHPRails{
 	}
 	
 	public static function config(){
-		self::import('phprails/configuration');
 		self::$_config = self::$_config ?: new \PHPRails\Configuration();
 		return self::$_config;
 	}
