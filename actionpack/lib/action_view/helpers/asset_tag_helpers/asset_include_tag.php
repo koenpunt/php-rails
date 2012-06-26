@@ -56,7 +56,7 @@ class AssetIncludeTag{
 			if(! ($this->config->perform_caching && \RFile::exists($joined_path)) ){
 				$this->write_asset_file_contents($joined_path, $this->compute_paths($sources, $recursive));
 			}
-			$this->asset_tag($joined_name, $options);
+			return $this->asset_tag($joined_name, $options);
 		}else{
 			$sources = $this->expand_sources($sources, $recursive);
 			if( $cache ){
