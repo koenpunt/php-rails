@@ -138,12 +138,12 @@ class AssetIncludeTag{
 	private function join_asset_file_contents($paths){
 		return implode("\n\n", array_map(function($path){
 			return \RFile::read($this->asset_file_path_($path, true)); 
-		}));
+		}, $paths));
 	}
 
 	private function write_asset_file_contents($joined_asset_path, $asset_paths){
 		\RFileUtils::mkdir_p(\RFile::dirname($joined_asset_path));
-		\RFile::atomic_write($joined_asset_path, function(&$cache){
+		\RFile::atomic_write($joined_asset_path, function(&$cache) use ($asset_paths){
 			$cache->write($this->join_asset_file_contents($asset_paths));
 		});
 
