@@ -71,11 +71,11 @@ class AssetIncludeTag{
 	# PRIVATE
 
 	protected function path_to_asset($source, $options = array()){
-		return $this->asset_paths->compute_public_path($source, \ActiveSupport\Inflector::pluralize($asset_name), array_merge($options, array('ext' => $this->extension())));
+		return $this->asset_paths->compute_public_path($source, \ActiveSupport\Inflector::pluralize($this->asset_name()), array_merge($options, array('ext' => $this->extension())));
 	}
 
 	private function path_to_asset_source($source){
-		return $this->asset_paths->compute_source_path($source, \ActiveSupport\Inflector::pluralize($asset_name), $this->extension());
+		return $this->asset_paths->compute_source_path($source, \ActiveSupport\Inflector::pluralize($this->asset_name()), $this->extension());
 	}
 
 	private function compute_paths(/* $args */){
