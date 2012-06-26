@@ -7,7 +7,7 @@ namespace ActionView\Helpers;
 #\PHPRails::import('active_support/core_ext/array/access');
 #\PHPRails::import('active_support/core_ext/hash/keys');
 #\PHPRails::import('active_support/core_ext/string/output_safety');
-\PHPRails::import('action_dispatch');
+#\PHPRails::import('action_dispatch');
 
 \PHPRails::import('ruby/RFunction');
 
