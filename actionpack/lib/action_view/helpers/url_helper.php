@@ -239,7 +239,7 @@ class UrlHelper{
 	#   # => <a href='http://www.example.com' rel="nofollow" data-method="delete" data-confirm="Are you sure?">Destroy</a>
 	public static function link_to(/* *$args , &block */){
 		$args = func_get_args();
-		if($block = \PHPRails\block_given__()){
+		if($block = \PHPRails\block_given__($args)){
 			$options      = reset($args) ?: array();
 			$html_options = next($args);
 			return self::link_to(call_user_func($block), $options, $html_options);
