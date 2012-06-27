@@ -77,12 +77,12 @@ class FormTagHelper{
 	#   # form with custom authenticity token
 	#
 	public static function form_tag($url_for_options = array(), $options = array()){ //, &$block){
-		$html_options = self::html_options_for_form($url_for_options, $options);
+		$html_options = static::html_options_for_form($url_for_options, $options);
 		/*
 		if(block_given_()){
 			return form_tag_in_block(html_options, &block);
 		}else{*/
-			return self::form_tag_html($html_options);
+			return static::form_tag_html($html_options);
 		/* } */
 	}
 
@@ -144,7 +144,7 @@ class FormTagHelper{
 			$option_tags = "<option value=\"\">{$prompt}</option>" . $option_tags;
 		}
 
-		return TagHelper::content_tag('select', $option_tags, array_merge(array("name" => $html_name, "id" => self::sanitize_to_id($name)), $options));
+		return TagHelper::content_tag('select', $option_tags, array_merge(array("name" => $html_name, "id" => static::sanitize_to_id($name)), $options));
 	}
 
 	# Creates a standard text field; use these text fields to input smaller chunks of text like a username
@@ -182,7 +182,7 @@ class FormTagHelper{
 	#   text_field_tag 'ip', '0.0.0.0', :maxlength => 15, :size => 20, :class => "ip-input"
 	#   # => <input class="ip-input" id="ip" maxlength="15" name="ip" size="20" type="text" value="0.0.0.0" />
 	public static function text_field_tag($name, $value = null, $options = array()){
-		return TagHelper::tag('input', array_merge(array( "type" => "text", "name" => $name, "id" => self::sanitize_to_id($name), "value" => $value), $options));
+		return TagHelper::tag('input', array_merge(array( "type" => "text", "name" => $name, "id" => static::sanitize_to_id($name), "value" => $value), $options));
 	}
 
 	# Creates a label element. Accepts a block.
@@ -207,7 +207,7 @@ class FormTagHelper{
 			#options = options.stringify_keys
 		//}
 		if(!isset($options['for']) && !empty($name)){
-			$options["for"] = self::sanitize_to_id($name);
+			$options["for"] = static::sanitize_to_id($name);
 		} 
 		return TagHelper::content_tag('label', ($content_or_options ?: humanize($name)), $options); //, &block
 	}
@@ -229,7 +229,7 @@ class FormTagHelper{
 	#   # => <input id="collected_input" name="collected_input" onchange="alert('Input collected!')"
 	#   #    type="hidden" value="" />
 	public static function hidden_field_tag($name, $value = null, $options = array()){
-		return self::text_field_tag($name, $value, array_merge($options, array("type" => "hidden")));
+		return static::text_field_tag($name, $value, array_merge($options, array("type" => "hidden")));
 	}
 
 	# Creates a file upload field. If you are using file uploads then you will also need
@@ -266,7 +266,7 @@ class FormTagHelper{
 	#   file_field_tag 'file', :accept => 'text/html', :class => 'upload', :value => 'index.html'
 	#   # => <input accept="text/html" class="upload" id="file" name="file" type="file" value="index.html" />
 	public static function file_field_tag($name, $options = array()){
-		return self::text_field_tag($name, null, array_merge($options, array("type" => "file")));
+		return static::text_field_tag($name, null, array_merge($options, array("type" => "file")));
 	}
 
 	# Creates a password field, a masked text field that will hide the users input behind a mask character.
@@ -299,7 +299,7 @@ class FormTagHelper{
 	#   password_field_tag 'pin', '1234', :maxlength => 4, :size => 6, :class => "pin_input"
 	#   # => <input class="pin_input" id="pin" maxlength="4" name="pin" size="6" type="password" value="1234" />
 	public static function password_field_tag($name = "password", $value = null, $options = array()){
-		return self::text_field_tag($name, $value, array_merge($options, array("type" => "password")));
+		return static::text_field_tag($name, $value, array_merge($options, array("type" => "password")));
 	}
 
 	# Creates a text input area; use a textarea for longer text inputs such as blog posts or descriptions.
@@ -348,7 +348,7 @@ class FormTagHelper{
 			#content = ERB::Util.html_escape(content)
 		}
 
-		return TagHelper::content_tag('textarea', $content, array_merge(array( "name" => $name, "id" => self::sanitize_to_id($name)), $options));
+		return TagHelper::content_tag('textarea', $content, array_merge(array( "name" => $name, "id" => static::sanitize_to_id($name)), $options));
 	}
 
 	# Creates a check box form input tag.
@@ -373,7 +373,7 @@ class FormTagHelper{
 	#   check_box_tag 'eula', 'accepted', false, :disabled => true
 	#   # => <input disabled="disabled" id="eula" name="eula" type="checkbox" value="accepted" />
 	public static function check_box_tag($name, $value = "1", $checked = false, $options = array()){
-		$html_options = array_merge(array( "type" => "checkbox", "name" => $name, "id" => self::sanitize_to_id($name), "value" => $value), $options);
+		$html_options = array_merge(array( "type" => "checkbox", "name" => $name, "id" => static::sanitize_to_id($name), "value" => $value), $options);
 		if($checked){
 			$html_options["checked"] = "checked";
 		}
@@ -400,7 +400,7 @@ class FormTagHelper{
 	#   radio_button_tag 'color', "green", true, :class => "color_input"
 	#   # => <input checked="checked" class="color_input" id="color_green" name="color" type="radio" value="green" />
 	public static function radio_button_tag($name, $value, $checked = false, $options = array()){
-		$html_options = array_merge(array( "type" => "radio", "name" => $name, "id" => self::sanitize_to_id($name) . "_" . self::sanitize_to_id($value), "value" => $value), $options);
+		$html_options = array_merge(array( "type" => "radio", "name" => $name, "id" => static::sanitize_to_id($name) . "_" . static::sanitize_to_id($value), "value" => $value), $options);
 		if($checked){
 			$html_options["checked"] = "checked";
 		}
@@ -588,7 +588,7 @@ class FormTagHelper{
 	# ==== Options
 	# * Accepts the same options as text_field_tag.
 	public static function search_field_tag($name, $value = null, $options = array()){
-		return self::text_field_tag($name, $value, array_merge($options, array("type" => "search")));
+		return static::text_field_tag($name, $value, array_merge($options, array("type" => "search")));
 	}
 
 	# Creates a text field of type "tel".
@@ -596,7 +596,7 @@ class FormTagHelper{
 	# ==== Options
 	# * Accepts the same options as text_field_tag.
 	public static function telephone_field_tag($name, $value = null, $options = array()){
-		return self::text_field_tag($name, $value, array_merge($options, array("type" => "tel")));
+		return static::text_field_tag($name, $value, array_merge($options, array("type" => "tel")));
 	}
 	public static function phone_field_tag(){
 		return call_user_func_array(array(__CLASS__, 'telephone_field_tag'), func_get_args());
@@ -607,7 +607,7 @@ class FormTagHelper{
 	# ==== Options
 	# * Accepts the same options as text_field_tag.
 	public static function url_field_tag($name, $value = null, $options = array()){
-		return self::text_field_tag($name, $value, array_merge($options, array("type" => "url")));
+		return static::text_field_tag($name, $value, array_merge($options, array("type" => "url")));
 	}
 
 	# Creates a text field of type "email".
@@ -615,7 +615,7 @@ class FormTagHelper{
 	# ==== Options
 	# * Accepts the same options as text_field_tag.
 	public static function email_field_tag($name, $value = null, $options = array()){
-		return self::text_field_tag($name, $value, array_merge($options, array("type" => "email")));
+		return static::text_field_tag($name, $value, array_merge($options, array("type" => "email")));
 	}
 
 	# Creates a number field.
@@ -638,7 +638,7 @@ class FormTagHelper{
 			unset($options['in'], $options['within']);
 			$options = array_merge($options, array("min" => min($range), "max" => max($range)));
 		}
-		return self::text_field_tag($name, $value, $options);
+		return static::text_field_tag($name, $value, $options);
 	}
 
 	# Creates a range form element.
@@ -646,7 +646,7 @@ class FormTagHelper{
 	# ==== Options
 	# * Accepts the same options as number_field_tag.
 	public static function range_field_tag($name, $value = null, $options = array()){
-		return self::number_field_tag($name, $value, array_merge($options, array("type" => "range")));
+		return static::number_field_tag($name, $value, array_merge($options, array("type" => "range")));
 	}
 
 	# Creates the hidden UTF8 enforcer tag. Override this method in a helper
@@ -682,25 +682,25 @@ class FormTagHelper{
 				break;
 			case preg_match('/^post$/i', $method): //, "", nil
 				$html_options["method"] = "post";
-				$method_tag = self::token_tag($authenticity_token);
+				$method_tag = static::token_tag($authenticity_token);
 				break;
 			default:
 				$html_options["method"] = "post";
-				$method_tag = TagHelper::tag('input', array('type' => "hidden", 'name' => "_method", 'value' => $method)) . self::token_tag($authenticity_token);
+				$method_tag = TagHelper::tag('input', array('type' => "hidden", 'name' => "_method", 'value' => $method)) . static::token_tag($authenticity_token);
 		}
-		$tags = self::utf8_enforcer_tag() . $method_tag;
+		$tags = static::utf8_enforcer_tag() . $method_tag;
 		return TagHelper::content_tag('div', $tags, array('style' => 'margin:0;padding:0;display:inline'));
 	}
 
 	private static function form_tag_html($html_options){
-		$extra_tags = self::extra_tags_for_form($html_options);
+		$extra_tags = static::extra_tags_for_form($html_options);
 		return TagHelper::tag('form', $html_options, true) . $extra_tags;
 	}
 
 	private static function form_tag_in_block($html_options, &$block = null){
 		$content = \PHPRails\capture($block);
 		$output = new ActiveSupport\SafeBuffer();
-		$output->append( self::form_tag_html($html_options) );
+		$output->append( static::form_tag_html($html_options) );
 		$output->append( $content );
 		return $output->append( "</form>" );
 	}

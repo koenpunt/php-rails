@@ -35,7 +35,7 @@ class Inflector{
 	#   "words".pluralize            # => "words"
 	#   "CamelOctopus".pluralize     # => "CamelOctopi"
 	public static function pluralize($word){
-		return self::apply_inflections($word, self::inflections()->plurals);
+		return static::apply_inflections($word, static::inflections()->plurals);
 	}
 
 	# The reverse of +pluralize+, returns the singular form of a word in a string.
@@ -47,7 +47,7 @@ class Inflector{
 	#   "word".singularize             # => "word"
 	#   "CamelOctopi".singularize      # => "CamelOctopus"
 	public static function singularize($word){
-		return self::apply_inflections($word, self::inflections()->singulars);
+		return static::apply_inflections($word, static::inflections()->singulars);
 	}
 
 	# By default, +camelize+ converts strings to UpperCamelCase. If the argument to +camelize+
@@ -68,13 +68,13 @@ class Inflector{
 	public static function camelize($term, $uppercase_first_letter = true){
 		$string = (string)$term;
 		if( $uppercase_first_letter ){
-			$string = preg_replace_callback('/^[a-z\d]*/', function($matches){ return self::inflections()->acronyms[$matches[0]] ?: ucfirst($matches[0]); }, $string, 1);
+			$string = preg_replace_callback('/^[a-z\d]*/', function($matches){ return static::inflections()->acronyms[$matches[0]] ?: ucfirst($matches[0]); }, $string, 1);
 		}else{
-			$acronym_regex = self::inflections()->acronym_regex;
+			$acronym_regex = static::inflections()->acronym_regex;
 			$string = preg_replace_callback("/^(?:{$acronym_regex}(?=\b|[A-Z_])|\w)/", function($matches) { return strtolower($matches[0]); }, $string);
 		}
 		return preg_replace_callback('/(?:_|(\/))([a-z\d]*)/i', function($matches){ 
-			return str_replace('/', '::', "{$matches[1]}" . (self::inflections()->acronyms[$matches[2]] ?: ucfirst($matches[2])));
+			return str_replace('/', '::', "{$matches[1]}" . (static::inflections()->acronyms[$matches[2]] ?: ucfirst($matches[2])));
 		}, $string);
 	}
 	
@@ -94,7 +94,7 @@ class Inflector{
 	public static function underscore($camel_cased_word){
 		$word = $camel_cased_word;
 		$word = preg_replace('/::/', '/', $word);
-		$acronym_regex = self::inflections()->acronym_regex;
+		$acronym_regex = static::inflections()->acronym_regex;
 		$word = preg_replace_callback("/(?:([A-Za-z\d])|^)({$acronym_regex})(?=\b|[^a-z])/", function($matches){ 
 			return "{$matches[1]}" . ($matches[1] ? '_' : '') . strtolower($matches[2]); 
 		}, $word);
@@ -113,14 +113,14 @@ class Inflector{
 	#   "author_id"       # => "Author"
 	public static function humanize($lower_case_and_underscored_word){
 		$result = $lower_case_and_underscored_word;
-		foreach(self::inflections()->humans as $rule => $replacement){
+		foreach(static::inflections()->humans as $rule => $replacement){
 			if(preg_replace($rule, $replacement, $result, 1))break; 
 		};
 		$result = preg_replace('/_id$/', "", $result);
 		$result = strtr('_', ' ', $result);
 		
 		return ucfirst(preg_replace_callback('/([a-z\d]*)/i', function($matches){
-			return self::inflections()->acronyms[$matches[0]] ?: strtolower($matches[0]);
+			return static::inflections()->acronyms[$matches[0]] ?: strtolower($matches[0]);
 		}, $result));
 		
 		#return $result->gsub('/(_)?([a-z\d]*)/i', "#{$1 && ' '}#{inflections.acronyms[$2] || $2.downcase}" }.gsub(/^\w/) { $&.upcase }
@@ -140,7 +140,7 @@ class Inflector{
 	public static function titleize($word){
 		return preg_replace_callback("/\b(?<!['’`])[a-z]/", function($r1) use ($word){ 
 			return ucfirst($r1); 
-		}, self::humanize(self::underscore($word)));
+		}, static::humanize(static::underscore($word)));
 	}
 
 	# Create the name of a table like Rails does for models to table names. This method
@@ -151,7 +151,7 @@ class Inflector{
 	#   "egg_and_ham".tableize     # => "egg_and_hams"
 	#   "fancyCategory".tableize   # => "fancy_categories"
 	public static function tableize($class_name){
-		return self::pluralize(self::underscore($class_name));
+		return static::pluralize(static::underscore($class_name));
 	}
 
 	# Create a class name from a plural table name like Rails does for table names to models.
@@ -166,7 +166,7 @@ class Inflector{
 	#   "business".classify     # => "Busines"
 	public static function classify($table_name){
 		# strip out any leading schema name
-		return self::camelize(self::singularize(preg_replace('/.*\./', '', $table_name, 1)));
+		return static::camelize(static::singularize(preg_replace('/.*\./', '', $table_name, 1)));
 	}
 
 	# Replaces underscores with dashes in the string.
@@ -195,7 +195,7 @@ class Inflector{
 	#   "Message".foreign_key(false) # => "messageid"
 	#   "Admin::Post".foreign_key    # => "post_id"
 	public static function foreign_key($class_name, $separate_class_name_and_id_with_underscore = true){
-		return self::underscore(self::demodulize($class_name)) . ($separate_class_name_and_id_with_underscore ? "_id" : "id");
+		return static::underscore(static::demodulize($class_name)) . ($separate_class_name_and_id_with_underscore ? "_id" : "id");
 	}
 
 	# Tries to find a constant with the name specified in the argument string:
@@ -255,7 +255,7 @@ class Inflector{
 	#
 	public static function safe_constantize($camel_cased_word){
 		try{
-			return self::constantize($camel_cased_word);
+			return static::constantize($camel_cased_word);
 		}catch(NameError $e){
 			#raise unless e.message =~ /uninitialized constant #{const_regexp(camel_cased_word)}$/ || e.name.to_s == camel_cased_word.to_s
 		}catch(ArgumentError $e){
@@ -383,7 +383,7 @@ class Inflector{
 	#   # => <a href="/person/1-donald-e-knuth">Donald E. Knuth</a>
 	public static function parameterize($string, $sep = '-'){
 		# replace accented chars with their ascii equivalents
-		$parameterized_string = self::transliterate($string);
+		$parameterized_string = static::transliterate($string);
 		# Turn unwanted chars into the separator
 		$parameterized_string = preg_replace('/[^a-z0-9\-_]+/i', $sep, $parameterized_string);
 		if(!(is_null($sep) || empty($sep))){
@@ -420,7 +420,7 @@ class Inflector{
 	private static function apply_inflections($word, $rules){
 		$result = $word;
 		preg_match('/\b\w+\Z/', strtolower($result), $matches);
-		if( empty($word) || array_search($matches[0], self::inflections()->uncountables) ){
+		if( empty($word) || array_search($matches[0], static::inflections()->uncountables) ){
 			return $result;
 		}else{
 			foreach($rules as $rule_replacement){
@@ -457,10 +457,10 @@ class Inflections{
 	protected static $_instance = null;
 	
 	public static function instance(){
-		if(is_null(self::$_instance)){
-			self::$_instance = new Inflections();
+		if(is_null(static::$_instance)){
+			static::$_instance = new Inflections();
 		}
-		return self::$_instance;
+		return static::$_instance;
 	}
 
 	#attr_reader :plurals, :singulars, :uncountables, :humans, :acronyms, :acronym_regex

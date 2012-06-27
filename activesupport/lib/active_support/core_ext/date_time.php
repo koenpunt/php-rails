@@ -21,7 +21,7 @@ class DateTime extends \DateTime{
 	}
 	
 	public function update($time){
-		return self::calculate($this, $time);
+		return static::calculate($this, $time);
 	}
 	
 	public function year(){

@@ -21,7 +21,7 @@ class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 	# for SASS on Heroku.
 	# :api: public
 	public function add_to_asset_ids_cache($source, $asset_id){
-		self::$asset_ids_cache_guard[$source] = $asset_id;
+		static::$asset_ids_cache_guard[$source] = $asset_id;
 		#self.asset_ids_cache_guard.synchronize do
 		#  self.asset_ids_cache[source] = asset_id
 		#end
@@ -78,13 +78,13 @@ class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 		if( $asset_id = \PHPRails\get($_SERVER, "RAILS_ASSET_ID") ){
 			return $asset_id;
 		}else{
-			if( self::$cache_asset_ids && ($asset_id = self::$asset_ids_cache[$source]) ){
+			if( static::$cache_asset_ids && ($asset_id = static::$asset_ids_cache[$source]) ){
 				return $asset_id;
 			}else{
 				$path = \RFile::join($config->assets_dir, $source);
 				$asset_id = \RFile::exist($path) ? (string)(int)\RFile::mtime($path) : '';
 
-				if( self::$cache_asset_ids ){
+				if( static::$cache_asset_ids ){
 					$this->add_to_asset_ids_cache($source, $asset_id);
 				}
 

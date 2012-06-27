@@ -115,7 +115,7 @@ class UrlHelper{
 		}else if(is_null($options) || \PHPRails\is_hash($options)){ 
 			$options = $options ?: array();
 			$options = array_merge(array('only_path' => is_null($options['host'])), $options);
-			return parent::url_for($options);
+			return static::url_for($options);
 		}else{
 			return polymorphic_path($options);
 		}
@@ -238,18 +238,19 @@ class UrlHelper{
 	#   link_to("Destroy", "http://www.example.com", :method => :delete, :confirm => "Are you sure?")
 	#   # => <a href='http://www.example.com' rel="nofollow" data-method="delete" data-confirm="Are you sure?">Destroy</a>
 	public static function link_to(/* *$args , &block */){
+		$called_class = get_called_class();
 		$args = func_get_args();
 		if($block = \PHPRails\block_given__($args)){
 			$options      = reset($args) ?: array();
 			$html_options = next($args);
-			return self::link_to(call_user_func($block), $options, $html_options);
+			return static::link_to(call_user_func($block), $options, $html_options);
 		}else{
 			$name         = $args[0];
 			$options      = $args[1] ?: array();
 			$html_options = $args[2] ?: array();
 			
-			$html_options = self::convert_options_to_data_attributes($options, $html_options);
-			$url = self::url_for($options);
+			$html_options = static::convert_options_to_data_attributes($options, $html_options);
+			$url = static::url_for($options);
 
 			$href = $html_options['href'];
 			$tag_options = TagHelper::tag_options($html_options);
@@ -339,13 +340,13 @@ class UrlHelper{
 	#   #
 	public static function button_to($name, $options = array(), $html_options = array()){
 		#$html_options = html_options.stringify_keys
-		self::convert_boolean_attributes_($html_options, array('disabled'));
+		static::convert_boolean_attributes_($html_options, array('disabled'));
 
-		$url    = is_string($options) ? $options : self::url_for($options);
+		$url    = is_string($options) ? $options : static::url_for($options);
 		$remote = \PHPRails\delete($html_options, 'remote');
 
 		$method     = (string)\PHPRails\delete($html_options, 'method');
-		$method_tag = in_array($method, array('patch', 'put', 'delete')) ? self::method_tag($method) : \PHPRails\html_safe('');
+		$method_tag = in_array($method, array('patch', 'put', 'delete')) ? static::method_tag($method) : \PHPRails\html_safe('');
 
 		$form_method  = $method == 'get' ? 'get' : 'post';
 		$form_options = \PHPRails\delete($html_options, 'form') ?: array();
@@ -355,9 +356,9 @@ class UrlHelper{
 			$form_options = array_merge($form_options, array("data-remote" => "true"));
 		}
 
-		$request_token_tag = $form_method == 'post' ? self::token_tag() : '';
+		$request_token_tag = $form_method == 'post' ? static::token_tag() : '';
 
-		$html_options = self::convert_options_to_data_attributes($options, $html_options);
+		$html_options = static::convert_options_to_data_attributes($options, $html_options);
 		$html_options = array_merge($html_options, array("type" => "submit", "value" => $name ?: $url));
 
 		$inner_tags = $method_tag->safe_concat( TagHelper::tag('input', $html_options)->safe_concat( $request_token_tag ) );
@@ -406,7 +407,7 @@ class UrlHelper{
 	public static function link_to_unless_current($name, $options = array(), $html_options = array()/*, &$block */){
 		$args = func_get_args();
 		$block = \PHPRails\block_given__($args);
-		return self::link_to_unless( current_page__($options), $name, $options, $html_options, $block );
+		return static::link_to_unless( current_page__($options), $name, $options, $html_options, $block );
 	}
 
 	# Creates a link tag of the given +name+ using a URL created by the set of
@@ -442,7 +443,7 @@ class UrlHelper{
 				return $name;
 			}
 		}else{
-			return self::link_to($name, $options, $html_options);
+			return static::link_to($name, $options, $html_options);
 		}
 	}
 
@@ -469,7 +470,7 @@ class UrlHelper{
 	public static function link_to_if($condition, $name, $options = array(), $html_options = array()/*, &block */){
 		$args = func_get_args();
 		$block = \PHPRails\block_given__($args);
-		return self::link_to_unless( !$condition, $name, $options, $html_options, $block );
+		return static::link_to_unless( !$condition, $name, $options, $html_options, $block );
 	}
 
 	# Creates a mailto link tag to the specified +email_address+, which is
@@ -625,7 +626,7 @@ class UrlHelper{
 			return false;
 		}
 
-		$url_string = self::url_for($options);
+		$url_string = static::url_for($options);
 
 		# We ignore any extra parameters in the request_uri if the
 		# submitted url doesn't have any either. This lets the function
@@ -643,7 +644,7 @@ class UrlHelper{
 	private static function convert_options_to_data_attributes($options, $html_options){
 		if( $html_options ){
 			# html_options = html_options.stringify_keys
-			if( self::link_to_remote_options__($options) || self::link_to_remote_options__($html_options) ){
+			if( static::link_to_remote_options__($options) || static::link_to_remote_options__($html_options) ){
 				$html_options['data-remote'] = 'true';
 			}
 
@@ -658,12 +659,12 @@ class UrlHelper{
 				$html_options["data-confirm"] = $confirm;
 			}
 			if( $method ){
-				self::add_method_to_attributes_($html_options, $method);
+				static::add_method_to_attributes_($html_options, $method);
 			}
 
 			return $html_options;
 		}else{
-			return self::link_to_remote_options__($options) ? array('data-remote' => 'true') : array();
+			return static::link_to_remote_options__($options) ? array('data-remote' => 'true') : array();
 		}
 	}
 

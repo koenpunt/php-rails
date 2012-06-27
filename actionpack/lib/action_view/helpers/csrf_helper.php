@@ -28,10 +28,10 @@ class CsrfHelper{
 	# Note that regular forms generate hidden fields, and that Ajax calls are whitelisted,
 	# so they do not use these tags.
 	public static function csrf_meta_tags(){
-		if(self::protect_against_forgery__()){
+		if(static::protect_against_forgery__()){
 			$tags = array(
-				TagHelper::tag('meta', array('name' => 'csrf-param', 'content' => self::$request_forgery_protection_token)),
-				TagHelper::tag('meta', array('name' => 'csrf-token', 'content' => self::form_authenticity_token()))
+				TagHelper::tag('meta', array('name' => 'csrf-param', 'content' => static::$request_forgery_protection_token)),
+				TagHelper::tag('meta', array('name' => 'csrf-token', 'content' => static::form_authenticity_token()))
 			);
 			
 			return join($tags, "\n");
@@ -40,7 +40,7 @@ class CsrfHelper{
 
 	# For backwards compatibility.
 	public static function csrf_meta_tag(){
-		return self::csrf_meta_tags();
+		return static::csrf_meta_tags();
 	}
 	
 	# Turn on request forgery protection. Bear in mind that only non-GET, HTML/JavaScript requests are checked.
@@ -63,9 +63,9 @@ class CsrfHelper{
 	# * <tt>:only/:except</tt> - Passed to the <tt>before_filter</tt> call. Set which actions are verified.
 	# * <tt>:with</tt> - Set the method to handle unverified request. Valid values: <tt>:exception</tt> and <tt>:reset_session</tt> (default).
 	public static function protect_from_forgery($options = array()){
-		self::$request_forgery_protection_token = self::$request_forgery_protection_token ?: 'authenticity_token';
+		static::$request_forgery_protection_token = static::$request_forgery_protection_token ?: 'authenticity_token';
 		if(array_key_exists('with', $options)){
-			self::$request_forgery_protection_method = \PHPRails\delete($options, 'with');
+			static::$request_forgery_protection_method = \PHPRails\delete($options, 'with');
 		}
 		#$this->callback->register('before_save', function(Model $model) { $model->set_timestamps(); }, array('prepend' => true));
 		#prepend_before_filter :verify_authenticity_token, options
@@ -75,9 +75,9 @@ class CsrfHelper{
 	# The actual before_filter that is used. Modify this to change how you handle unverified requests.
 	#protected static function
 	public static function verify_authenticity_token(){
-		if(!self::verified_request__()){
+		if(!static::verified_request__()){
 			error_log("WARNING: Can't verify CSRF token authenticity");
-			self::handle_unverified_request();
+			static::handle_unverified_request();
 			return false;
 		}
 	}
@@ -88,7 +88,7 @@ class CsrfHelper{
 	# * <tt>:reset_session</tt> - Resets the session.
 	# * <tt>:exception</tt>: - Raises ActionController::InvalidAuthenticityToken exception.
 	protected static function handle_unverified_request(){
-		switch(self::$request_forgery_protection_method){
+		switch(static::$request_forgery_protection_method){
 			case 'exception':
 				throw new \ActionController\InvalidAuthenticityToken();
 				break;
@@ -107,9 +107,9 @@ class CsrfHelper{
 	# * Does the form_authenticity_token match the given token value from the params?
 	# * Does the X-CSRF-Token header match the form_authenticity_token
 	protected static function verified_request__(){
-		return !self::protect_against_forgery__() || strtolower($_SERVER['REQUEST_METHOD']) == 'get' || 
-			self::form_authenticity_token() == $_REQUEST[self::$request_forgery_protection_token] || 
-			self::form_authenticity_token() == $_SERVER['HTTP_X_CSRF_TOKEN'];
+		return !static::protect_against_forgery__() || strtolower($_SERVER['REQUEST_METHOD']) == 'get' || 
+			static::form_authenticity_token() == $_REQUEST[static::$request_forgery_protection_token] || 
+			static::form_authenticity_token() == $_SERVER['HTTP_X_CSRF_TOKEN'];
 	}
 
 	# Sets the token value for the current session.
@@ -123,11 +123,11 @@ class CsrfHelper{
 
 	# The form's authenticity parameter. Override to provide your own.
 	protected static function form_authenticity_param(){
-		return $_REQUEST[self::$request_forgery_protection_token];
+		return $_REQUEST[static::$request_forgery_protection_token];
 	}
 	/*protected*/
 	public static function protect_against_forgery__(){
-		return self::$allow_forgery_protection;
+		return static::$allow_forgery_protection;
 	}
 
 }

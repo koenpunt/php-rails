@@ -195,12 +195,12 @@ class DateHelper{
 	#   time_ago_in_words(from_time)      # => 3 days
 	#
 	public static function time_ago_in_words($from_time, $include_seconds_or_options = array()){
-		return self::distance_of_time_in_words($from_time, Time::now(), $include_seconds_or_options);
+		return static::distance_of_time_in_words($from_time, Time::now(), $include_seconds_or_options);
 	}
 	
 	# Alias of 'time_ago_in_words'
 	public static function distance_of_time_in_words_to_now($from_time, $include_seconds_or_options = array()){
-		return self::time_ago_in_words($from_time, $include_seconds_or_options);
+		return static::time_ago_in_words($from_time, $include_seconds_or_options);
 	}
 	
 	# Returns a set of select tags (one for year, month, and day) pre-selected for accessing a specified date-based
@@ -1065,7 +1065,7 @@ class DateTimeSelector{ #:nodoc:
 				$tag_options['selected'] = "selected";
 			}
 			$text = $options['use_two_digit_numbers'] ? sprintf("%02d", $i) : $value;
-			$text = $options['ampm'] ? self::$AMPM_TRANSLATION[$i] : $text;
+			$text = $options['ampm'] ? static::$AMPM_TRANSLATION[$i] : $text;
 			array_push($select_options, TagHelper::content_tag('option', $text, $tag_options));
 		}
 		

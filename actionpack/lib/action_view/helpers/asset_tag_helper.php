@@ -268,7 +268,7 @@ class AssetTagHelper{
 		return TagHelper::tag('link', array_merge(array(
 			'rel'  => 'shortcut icon',
 			'type' => 'image/vnd.microsoft.icon',
-			'href' => self::path_to_image($source)
+			'href' => static::path_to_image($source)
 		), $options));
 	}
 
@@ -286,23 +286,23 @@ class AssetTagHelper{
 	# The alias +path_to_image+ is provided to avoid that. Rails uses the alias internally, and
 	# plugin authors are encouraged to do so.
 	public static function image_path($source){
-		return self::asset_paths()->compute_public_path($source, 'images');
+		return static::asset_paths()->compute_public_path($source, 'images');
 	}
 	
 	# aliased to avoid conflicts with an image_path named route
 	public static function path_to_image($source){
-		return self::image_path($source);
+		return static::image_path($source);
 	}
 	
 	# Computes the full URL to an image asset.
 	# This will use +image_path+ internally, so most of their behaviors will be the same.
 	public static function image_url($source){
-		return (string)RURI::join(self::current_host(), self::path_to_image($source));
+		return (string)RURI::join(static::current_host(), static::path_to_image($source));
 	}
 
 	# aliased to avoid conflicts with an image_url named route
 	public static function url_to_image($source){
-		return self::image_url($source);
+		return static::image_url($source);
 	}
 
 	# Computes the path to a video asset in the public videos directory.
@@ -316,22 +316,22 @@ class AssetTagHelper{
 	#   video_path("/trailers/hd.avi")                              # => /trailers/hd.avi
 	#   video_path("http://www.example.com/vid/hd.avi")             # => http://www.example.com/vid/hd.avi
 	public static function video_path($source){
-		return self::asset_paths()->compute_public_path($source, 'videos');
+		return static::asset_paths()->compute_public_path($source, 'videos');
 	}
 	
 	# aliased to avoid conflicts with a video_path named route
 	public static function path_to_video($source){
-		return self::video_path($source);
+		return static::video_path($source);
 	}
 	
 	# Computes the full URL to a video asset in the public videos directory.
 	# This will use +video_path+ internally, so most of their behaviors will be the same.
 	public static function video_url($source){
-		return (string)RURI::join(self::current_host(), self::path_to_video($source));
+		return (string)RURI::join(static::current_host(), static::path_to_video($source));
 	}
 	# aliased to avoid conflicts with an video_url named route
 	public static function url_to_video($source){
-		return self::video_url($source);
+		return static::video_url($source);
 	}
 
 	# Computes the path to an audio asset in the public audios directory.
@@ -345,21 +345,21 @@ class AssetTagHelper{
 	#   audio_path("/sounds/horse.wav")                                # => /sounds/horse.wav
 	#   audio_path("http://www.example.com/sounds/horse.wav")          # => http://www.example.com/sounds/horse.wav
 	public static function audio_path($source){
-		return self::asset_paths()->compute_public_path($source, 'audios');
+		return static::asset_paths()->compute_public_path($source, 'audios');
 	}
 	# aliased to avoid conflicts with an audio_path named route
 	public static function path_to_audio($source){
-		return self::audio_path($source);
+		return static::audio_path($source);
 	}
 
 	# Computes the full URL to a audio asset in the public audios directory.
 	# This will use +audio_path+ internally, so most of their behaviors will be the same.
 	public static function audio_url($source){
-		return (string)RURI::join(self::current_host(), self::path_to_audio(source));
+		return (string)RURI::join(static::current_host(), static::path_to_audio(source));
 	}
 	# aliased to avoid conflicts with an audio_url named route
 	public static function url_to_audio($source){
-		return self::audio_url($source);
+		return static::audio_url($source);
 	}
 
 	# Computes the path to a font asset.
@@ -372,21 +372,21 @@ class AssetTagHelper{
 	#   font_path("/dir/font.ttf")                                  # => /dir/font.ttf
 	#   font_path("http://www.example.com/dir/font.ttf")            # => http://www.example.com/dir/font.ttf
 	public static function font_path($source){
-		return self::asset_paths()->compute_public_path($source, 'fonts');
+		return static::asset_paths()->compute_public_path($source, 'fonts');
 	}
 	# aliased to avoid conflicts with an font_path named route
 	public static function path_to_font($source){
-		return self::font_path($source);
+		return static::font_path($source);
 	}
 
 	# Computes the full URL to a font asset.
 	# This will use +font_path+ internally, so most of their behaviors will be the same.
 	public static function font_url($source){
-		return (string)RURI::join(self::current_host(), self::path_to_font($source));
+		return (string)RURI::join(static::current_host(), static::path_to_font($source));
 	}
 	# aliased to avoid conflicts with an font_url named route
 	public static function url_to_font($source){
-		return self::font_url($source);
+		return static::font_url($source);
 	}
 
 	# Returns an html image tag for the +source+. The +source+ can be a full
@@ -425,10 +425,10 @@ class AssetTagHelper{
 	public static function image_tag($source, $options=array()){
 		#$options = options.symbolize_keys
 		
-		$src = $options['src'] = self::path_to_image($source);
+		$src = $options['src'] = static::path_to_image($source);
 		
 		if(preg_match('/^cid:/', $src) == 0){
-			$options['alt'] = \PHPRails\fetch($options, 'alt', function($key){ return self::image_alt($src); });
+			$options['alt'] = \PHPRails\fetch($options, 'alt', function($key){ return static::image_alt($src); });
 		}
 		
 		if( $size = delete($options, 'size') ){
@@ -438,7 +438,7 @@ class AssetTagHelper{
 		}
 		
 		if( $mouseover = delete($options, 'mouseover') ){
-			$options['onmouseover'] = sprintf("this.src='%s'", self::path_to_image($mouseover));
+			$options['onmouseover'] = sprintf("this.src='%s'", static::path_to_image($mouseover));
 			$options['onmouseout']  = sprintf("this.src='%s'", $src);
 		}
 		
@@ -490,7 +490,7 @@ class AssetTagHelper{
 		
 		return multiple_sources_tag('video', $sources, function(&$options){
 			if( \PHPRails\get($options, 'poster') ){
-				$options['poster'] = self::path_to_image($options['poster']);
+				$options['poster'] = static::path_to_image($options['poster']);
 			}
 
 			if( $size = delete($options, 'size') ){
@@ -515,7 +515,7 @@ class AssetTagHelper{
 	#  audio_tag("sound.wav", "sound.mid")  # =>
 	#    <audio><source src="/audios/sound.wav" /><source src="/audios/sound.mid" /></audio>
 	public static function audio_tag($sources){
-		return self::multiple_sources_tag('audio', $sources);
+		return static::multiple_sources_tag('audio', $sources);
 	}
 	
 	#module JavascriptTagHelpers
@@ -552,21 +552,21 @@ class AssetTagHelper{
 	#   javascript_path "http://www.example.com/js/xmlhr"    # => http://www.example.com/js/xmlhr
 	#   javascript_path "http://www.example.com/js/xmlhr.js" # => http://www.example.com/js/xmlhr.js
 	public static function javascript_path($source){
-		return self::asset_paths()->compute_public_path($source, 'javascript_path', array('ext' => 'js'));
+		return static::asset_paths()->compute_public_path($source, 'javascript_path', array('ext' => 'js'));
 	}
 	# aliased to avoid conflicts with an javascript_path named route
 	public static function path_to_javascript($source){
-		return self::javascript_path($source);
+		return static::javascript_path($source);
 	}
 
 	# Computes the full URL to a javascript asset in the public javascripts directory.
 	# This will use +javascript_path+ internally, so most of their behaviors will be the same.
 	public static function javascript_url($source){
-		return (string)\RURI::join(self::current_host(), self::path_to_javascript($source));
+		return (string)\RURI::join(static::current_host(), static::path_to_javascript($source));
 	}
 	# aliased to avoid conflicts with a javascript_url named route
 	public static function url_to_javascript($source){
-		return self::javascript_url($source);
+		return static::javascript_url($source);
 	}
 
 	# Returns an HTML script tag for each of the +sources+ provided.
@@ -664,8 +664,8 @@ class AssetTagHelper{
 	#   javascript_include_tag :all, :cache => true, :recursive => true
 	public static function javascript_include_tag(/* $sources */){
 		$sources = func_get_args();
-		self::$javascript_include = self::$javascript_include ?: new AssetTagHelper\JavascriptIncludeTag(\PHPRails::config(), self::asset_paths());
-		return call_user_func_array(array(self::$javascript_include, 'include_tag'), $sources);
+		static::$javascript_include = static::$javascript_include ?: new AssetTagHelper\JavascriptIncludeTag(\PHPRails::config(), static::asset_paths());
+		return call_user_func_array(array(static::$javascript_include, 'include_tag'), $sources);
 	}
 
 	#module StylesheetTagHelpers
@@ -702,11 +702,11 @@ class AssetTagHelper{
 	#   stylesheet_path "http://www.example.com/css/style"       # => http://www.example.com/css/style
 	#   stylesheet_path "http://www.example.com/css/style.css"   # => http://www.example.com/css/style.css
 	public static function stylesheet_path($source){
-		return self::asset_paths()->compute_public_path($source, 'stylesheets', array('ext' => 'css', 'protocol' => 'request'));
+		return static::asset_paths()->compute_public_path($source, 'stylesheets', array('ext' => 'css', 'protocol' => 'request'));
 	}
 	# aliased to avoid conflicts with a stylesheet_path named route
 	public static function path_to_stylesheet($source){
-		return self::stylesheet_path($source);
+		return static::stylesheet_path($source);
 	}
 
 	# Returns a stylesheet link tag for the sources specified as arguments. If
@@ -779,18 +779,18 @@ class AssetTagHelper{
 	#
 	public static function stylesheet_link_tag(/* $sources */){
 		$sources = func_get_args();
-		self::$stylesheet_include = self::$stylesheet_include ?: new AssetTagHelper\StylesheetIncludeTag(\PHPRails::config(), self::asset_paths());
-		return call_user_func_array(array(self::$stylesheet_include, 'include_tag'), $sources);
+		static::$stylesheet_include = static::$stylesheet_include ?: new AssetTagHelper\StylesheetIncludeTag(\PHPRails::config(), static::asset_paths());
+		return call_user_func_array(array(static::$stylesheet_include, 'include_tag'), $sources);
 	}
 
 	private static function asset_paths(){
 		/*
 			TODO controller
 		*/
-		if(is_null(self::$asset_paths)){
-			self::$asset_paths = new AssetTagHelper\AssetPaths(\PHPRails::config() /*, $this->controller */);
+		if(is_null(static::$asset_paths)){
+			static::$asset_paths = new AssetTagHelper\AssetPaths(\PHPRails::config() /*, $this->controller */);
 		}
-		return self::$asset_paths;
+		return static::$asset_paths;
 	}
 
 	private static function multiple_sources_tag($type, $sources /*, &$block */){

@@ -17,7 +17,7 @@ class JavascriptIncludeTag extends AssetIncludeTag{
 	}
 
 	public function asset_tag($source, $options){
-		return \ActionView\Helpers\TagHelper::content_tag('script', '', array_merge(array('src' => self::path_to_asset($source)), $options));
+		return \ActionView\Helpers\TagHelper::content_tag('script', '', array_merge(array('src' => static::path_to_asset($source)), $options));
 	}
 
 	public function custom_dir(){

@@ -27,7 +27,7 @@ class JavaScriptHelper{
 	public static function escape_javascript($javascript){
 		if( $javascript ){
 			$result = preg_replace_callback('/(\\|<\/|\r\n|\342\200\250|\342\200\251|[\n\r"\'])/u', function($match){
-				return self::$JS_ESCAPE_MAP[$match];
+				return static::$JS_ESCAPE_MAP[$match];
 			}, $javascript);
 			return \PHPRails\html_safe__($javascript) ? \PHPRails\html_safe($result) : $result;
 		}else{
@@ -36,7 +36,7 @@ class JavaScriptHelper{
 	}
 	# alias
 	public static function j($javascript){
-		return self::escape_javascript($javascript);
+		return static::escape_javascript($javascript);
 	}
 
 	# Returns a JavaScript tag with the +content+ inside. Example:
@@ -69,7 +69,7 @@ class JavaScriptHelper{
 		}else{
 			$content = $content_or_options_with_block;
 		}
-		return TagHelper::content_tag('script', self::javascript_cdata_section($content), $html_options);
+		return TagHelper::content_tag('script', static::javascript_cdata_section($content), $html_options);
 	}
 
 	public static function javascript_cdata_section($content){

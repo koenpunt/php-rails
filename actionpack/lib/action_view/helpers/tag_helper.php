@@ -69,7 +69,7 @@ class TagHelper {
 	#   tag("div", :data => {:name => 'Stephen', :city_state => %w(Chicago IL)})
 	#   # => <div data-name="Stephen" data-city-state="[&quot;Chicago&quot;,&quot;IL&quot;]" />
 	public static function tag($name, $options = null, $open = false, $escape = true){
-		$tag_options = $options ? self::tag_options($options, $escape) : "";
+		$tag_options = $options ? static::tag_options($options, $escape) : "";
 		$open = $open ? ">" : " />";
 		return \PHPRails\html_safe("<{$name} {$tag_options} {$open}");
 	}
@@ -103,9 +103,9 @@ class TagHelper {
 				$options = $content_or_options_with_block;
 				$block = $options;
 			}
-			return self::content_tag_string($name, call_user_func($block), $options, $escape);
+			return static::content_tag_string($name, call_user_func($block), $options, $escape);
 		}else{
-			return self::content_tag_string($name, $content_or_options_with_block, $options, $escape);
+			return static::content_tag_string($name, $content_or_options_with_block, $options, $escape);
 		}
 	}
 
@@ -158,9 +158,9 @@ class TagHelper {
 	}
 
 	private static function content_tag_string($name, $content, $options, $escape = true){
-		$tag_options = \PHPRails\is_hash($options) ? self::tag_options($options, $escape) : "";
+		$tag_options = \PHPRails\is_hash($options) ? static::tag_options($options, $escape) : "";
 		$content = \PHPRails\html_safe__($content) ? $content : ( $escape ? htmlspecialchars($content) : $content);
-		$pre_content_string = isset(self::$PRE_CONTENT_STRINGS['name']) ? self::$PRE_CONTENT_STRINGS['name'] : '';
+		$pre_content_string = isset(static::$PRE_CONTENT_STRINGS['name']) ? static::$PRE_CONTENT_STRINGS['name'] : '';
 		return \PHPRails\html_safe("<{$name} {$tag_options}>{$pre_content_string}{$content}</{$name}>");
 	}
 	
@@ -170,14 +170,14 @@ class TagHelper {
 		foreach($options as $key => $value){
 			if($key == 'data' && is_array($value)){
 				foreach($value as $k => $v){
-					array_push($attrs, self::data_tag_option($k, $v, $escape));
+					array_push($attrs, static::data_tag_option($k, $v, $escape));
 				}
-			}elseif(in_array($key, self::$BOOLEAN_ATTRIBUTES)){
+			}elseif(in_array($key, static::$BOOLEAN_ATTRIBUTES)){
 				if($value){
-					array_push($attrs, self::boolean_tag_option($key));
+					array_push($attrs, static::boolean_tag_option($key));
 				}
 			}elseif(!is_null($value)){
-				array_push($attrs, self::tag_option($key, $value, $escape));
+				array_push($attrs, static::tag_option($key, $value, $escape));
 			}
 		}
 		sort($attrs);
@@ -192,7 +192,7 @@ class TagHelper {
 		if(!is_string($v) && !is_object($value)){
 			$value = json_encode($value);
 		}
-		return self::tag_option($key, $value, $escape);
+		return static::tag_option($key, $value, $escape);
 	}
 	
 	private static function boolean_tag_option($key){

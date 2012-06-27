@@ -80,7 +80,7 @@ class AssetPaths{ #:nodoc:
 	}
 
 	private function compute_protocol($protocol){
-		$protocol = $protocol ?: self::default_protocol();
+		$protocol = $protocol ?: static::default_protocol();
 		switch($protocol){
 			case 'relative';
 				return "//";
