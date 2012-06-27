@@ -164,7 +164,8 @@ class TagHelper {
 		return \PHPRails\html_safe("<{$name} {$tag_options}>{$pre_content_string}{$content}</{$name}>");
 	}
 	
-	private static function tag_options($options, $escape = true){
+	/*private*/
+	public static function tag_options($options, $escape = true){
 		if(empty($options))return;
 		$attrs = array();
 		foreach($options as $key => $value){
