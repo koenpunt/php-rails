@@ -9,6 +9,10 @@
 
 namespace ActionView\Helpers;
 
+#if(!class_exists('\UrlHelper')){
+use UrlHelper as UrlHelper;
+#}
+
 #require 'cgi'
 \PHPRails::import('action_view/helpers/tag_helper');
 #require 'active_support/core_ext/object/blank'
@@ -79,7 +83,6 @@ class FormTagHelper{
 	public static function form_tag($url_for_options = array(), $options = array()/*, &$block */){
 		$args = func_get_args();
 		$html_options = static::html_options_for_form($url_for_options, $options);
-		
 		if($block = \PHPRails\block_given__($args)){
 			return static::form_tag_in_block($html_options, $block);
 		}else{
@@ -662,13 +665,13 @@ class FormTagHelper{
 	# private
 
 	private static function html_options_for_form($url_for_options, $options){
-		return array_map(function($html_options) use ($url_for_options){
+		$_tmp = function($html_options) use ($url_for_options){
 			if( \PHPRails\delete($html_options, "multipart") ){
 				$html_options["enctype"] = "multipart/form-data";
 			}
 			# The following URL is unescaped, this is just a hash of options, and it is the
 			# responsibility of the caller to escape all the values.
-			$html_options["action"] = UrlHelper::url_for($url_for_options);
+			$html_options["action"] = \UrlHelper::url_for($url_for_options);
 			$html_options["accept-charset"] = "UTF-8";
 
 			if( \PHPRails\delete($html_options, "remote") ){
@@ -685,11 +688,14 @@ class FormTagHelper{
 				# but we needed the true value to override the default of no authenticity_token on data-remote.
 				$html_options["authenticity_token"] = null;
 			}
+			return $html_options;
 			
-		}, $options);
+		};
+		
+		return call_user_func($_tmp, $options);
 	}
 
-	private static function extra_tags_for_form($html_options){
+	private static function extra_tags_for_form(&$html_options){
 		$authenticity_token = $html_options['authenticity_token'];
 		$method = $html_options['method'];
 		switch(1){
@@ -705,13 +711,13 @@ class FormTagHelper{
 				$html_options["method"] = 'post';
 				$method_tag = TagHelper::tag('input', array('type' => 'hidden', 'name' => '_method', 'value' => $method)) . static::token_tag($authenticity_token);
 		}
-		$tags = static::utf8_enforcer_tag() . $method_tag;
+		$tags = \PHPRails\html_safe(static::utf8_enforcer_tag() . $method_tag);
 		return TagHelper::content_tag('div', $tags, array('style' => 'margin:0;padding:0;display:inline'));
 	}
 
 	private static function form_tag_html($html_options){
 		$extra_tags = static::extra_tags_for_form($html_options);
-		return TagHelper::tag('form', $html_options, true) . $extra_tags;
+		return TagHelper::tag('form', $html_options, true) . "\n" . $extra_tags;
 	}
 
 	private static function form_tag_in_block($html_options, &$block = null){
