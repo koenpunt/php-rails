@@ -31,7 +31,7 @@ class FormTagHelper{
 	#include TextHelper
 
 	#mattr_accessor :embed_authenticity_token_in_remote_forms
-	#self.embed_authenticity_token_in_remote_forms = false
+	static $embed_authenticity_token_in_remote_forms = false;
 
 	# Starts a form tag that points the action to an url configured with <tt>url_for_options</tt> just like
 	# ActionController::Base#url_for. The method for the form defaults to POST.
@@ -76,14 +76,15 @@ class FormTagHelper{
 	#   form_tag('http://far.away.com/form', :authenticity_token => "cf50faa3fe97702ca1ae")
 	#   # form with custom authenticity token
 	#
-	public static function form_tag($url_for_options = array(), $options = array()){ //, &$block){
+	public static function form_tag($url_for_options = array(), $options = array()/*, &$block */){
+		$args = func_get_args();
 		$html_options = static::html_options_for_form($url_for_options, $options);
-		/*
-		if(block_given_()){
-			return form_tag_in_block(html_options, &block);
-		}else{*/
+		
+		if($block = \PHPRails\block_given__($args)){
+			return static::form_tag_in_block($html_options, $block);
+		}else{
 			return static::form_tag_html($html_options);
-		/* } */
+		}
 	}
 
 	# Creates a dropdown selection box, or if the <tt>:multiple</tt> option is set to true, a multiple
@@ -199,17 +200,17 @@ class FormTagHelper{
 	#
 	#   label_tag 'name', nil, :class => 'small_label'
 	#   # => <label for="name" class="small_label">Name</label>
-	public static function label_tag($name = null, $content_or_options = null, $options = null){ //, &$block){
-		//if(block_given_() && \PHPRails\is_hash($content_or_options)){
-		//	$options = $content_or_options = $content_or_options;
-		//}else{
+	public static function label_tag($name = null, $content_or_options = null, $options = null/*, &$block */){
+		$args = func_get_args();
+		if($block = \PHPRails\block_given__($args) && \PHPRails\is_hash($content_or_options)){
+			$options = $content_or_options;
+		}else{
 			$options = $options ?: array();
-			#options = options.stringify_keys
-		//}
-		if(!isset($options['for']) && !empty($name)){
+		}
+		if(!(array_key_exists('for', $options) || empty($name))){
 			$options["for"] = static::sanitize_to_id($name);
 		} 
-		return TagHelper::content_tag('label', ($content_or_options ?: humanize($name)), $options); //, &block
+		return TagHelper::content_tag('label', ($content_or_options ?: Inflector::humanize($name)), $options, $block);
 	}
 
 	# Creates a hidden form input field used to transmit data that would be lost due to HTTP's statelessness or
@@ -344,8 +345,8 @@ class FormTagHelper{
 		$escape = array_key_exists('escape', $options) ? $options['escape'] : true;
 		unset($options['escape']);
 		if($escape){
+			# ERB::Util.html_escape
 			$content = htmlspecialchars($content);
-			#content = ERB::Util.html_escape(content)
 		}
 
 		return TagHelper::content_tag('textarea', $content, array_merge(array( "name" => $name, "id" => static::sanitize_to_id($name)), $options));
@@ -497,9 +498,10 @@ class FormTagHelper{
 	#                type="submit">Checkout</button>
 	#
 	public static function button_tag($content_or_options = null, $options = null){ //, &$block){
-		#if( block_given_() && \PHPRails\is_hash($content_or_options)){
-		#	$options = $content_or_options;
-		#}
+		$args = func_get_args();
+		if( $block = \PHPRails\block_given__($args) && \PHPRails\is_hash($content_or_options) ){
+			$options = $content_or_options;
+		}
 		$options = $options ?: array();
 		#options = options.stringify_keys
 
@@ -515,7 +517,7 @@ class FormTagHelper{
 		
 		$options = array_merge(array('name' => 'button', 'type' => 'submit'), $options);
 
-		return TagHelper::content_tag('button', $content_or_options ?: 'Button', $options); //, &block
+		return TagHelper::content_tag('button', $content_or_options ?: 'Button', $options, $block);
 	}
 
 	# Displays an image which when clicked will submit the form.
@@ -572,13 +574,15 @@ class FormTagHelper{
 	#     <p><%= text_field_tag 'name' %></p>
 	#   <% end %>
 	#   # => <fieldset class="format"><p><input id="name" name="name" type="text" /></p></fieldset>
-	public static function field_set_tag($legend = null, $options = null){ //, &$block){
-		#$content = capture(&$block);
+	public static function field_set_tag($legend = null, $options = null/*, &$block */){
+		$args = func_get_args();
 		$output = TagHelper::tag('fieldset', $options, true);
 		if(!is_null($legend)){
 			$output .= TagHelper::content_tag('legend', $legend);
 		}
-		$output .= $content;
+		if($block = \PHPRails\block_given__($args)){
+			$output .= \PHPRails\capture($block);
+		}
 		$output .= "</fieldset>";
 		return $output;
 	}
@@ -598,8 +602,8 @@ class FormTagHelper{
 	public static function telephone_field_tag($name, $value = null, $options = array()){
 		return static::text_field_tag($name, $value, array_merge($options, array("type" => "tel")));
 	}
-	public static function phone_field_tag(){
-		return call_user_func_array(array(__CLASS__, 'telephone_field_tag'), func_get_args());
+	public static function phone_field_tag($name, $value = null, $options = array()){
+		return static::telephone_field_tag($name, $value, $options);
 	}
 
 	# Creates a text field of type "url".
@@ -652,23 +656,36 @@ class FormTagHelper{
 	# Creates the hidden UTF8 enforcer tag. Override this method in a helper
 	# to customize the tag.
 	public static function utf8_enforcer_tag(){
-		return TagHelper::tag('input', array('type' => "hidden", 'name' => "utf8", 'value' => "&#x2713;"));
+		return TagHelper::tag('input', array('type' => "hidden", 'name' => "utf8", 'value' => \PHPRails\html_safe("&#x2713;")));
 	}
 
 	# private
 
 	private static function html_options_for_form($url_for_options, $options){
 		return array_map(function($html_options) use ($url_for_options){
-			if(isset($html_options['multipart']))
+			if( \PHPRails\delete($html_options, "multipart") ){
 				$html_options["enctype"] = "multipart/form-data";
+			}
 			# The following URL is unescaped, this is just a hash of options, and it is the
 			# responsibility of the caller to escape all the values.
-			$html_options['action'] = UrlHelper::url_for($url_for_options);
-			$html_options['accept-charset'] = "UTF-8";
-			if(isset($html_options['remote']))
+			$html_options["action"] = UrlHelper::url_for($url_for_options);
+			$html_options["accept-charset"] = "UTF-8";
+
+			if( \PHPRails\delete($html_options, "remote") ){
 				$html_options["data-remote"] = true;
-			if( array_key_exists('authenticity_token', $html_options) && $authenticity_token = $html_options['authenticity_token'])
-				$html_options["authenticity_token"] = $html_options['authenticity_token'];
+			}
+
+			if( $html_options["data-remote"]
+				&& !self::$embed_authenticity_token_in_remote_forms
+				&& empty($html_options["authenticity_token"]) ){
+				# The authenticity token is taken from the meta tag in this case
+				$html_options["authenticity_token"] = false;
+			}elseif( $html_options["authenticity_token"] == true ){
+				# Include the default authenticity_token, which is only generated when its set to nil,
+				# but we needed the true value to override the default of no authenticity_token on data-remote.
+				$html_options["authenticity_token"] = null;
+			}
+			
 		}, $options);
 	}
 
@@ -677,16 +694,16 @@ class FormTagHelper{
 		$method = $html_options['method'];
 		switch(1){
 			case preg_match('/^get$/i', $method): # must be case-insensitive, but can't use downcase as might be nil
-				$html_options["method"] = "get";
+				$html_options["method"] = 'get';
 				$method_tag = '';
 				break;
-			case preg_match('/^post$/i', $method): //, "", nil
-				$html_options["method"] = "post";
+			case preg_match('/^post$/i', $method) || $method === "" || is_null($method):
+				$html_options["method"] = 'post';
 				$method_tag = static::token_tag($authenticity_token);
 				break;
 			default:
-				$html_options["method"] = "post";
-				$method_tag = TagHelper::tag('input', array('type' => "hidden", 'name' => "_method", 'value' => $method)) . static::token_tag($authenticity_token);
+				$html_options["method"] = 'post';
+				$method_tag = TagHelper::tag('input', array('type' => 'hidden', 'name' => '_method', 'value' => $method)) . static::token_tag($authenticity_token);
 		}
 		$tags = static::utf8_enforcer_tag() . $method_tag;
 		return TagHelper::content_tag('div', $tags, array('style' => 'margin:0;padding:0;display:inline'));

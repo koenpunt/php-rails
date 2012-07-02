@@ -21,6 +21,8 @@ if(!defined('DS'))
 include __DIR__ . DS . 'utils.php';
 include __DIR__ . DS . 'exceptions.php';
 
+# Include I18n 
+include __DIR__ . DS . 'vendor' . DS . 'i18n' . DS . 'I18n.php';
 
 class PHPRails{
 	
