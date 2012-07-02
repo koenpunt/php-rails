@@ -254,10 +254,10 @@ class UrlHelper{
 			$href = $html_options['href'];
 			$tag_options = TagHelper::tag_options($html_options);
 			$url = htmlspecialchars($url);
-			$href_attr = $href ? "" : "href=\"{$url}\"";
+			$href_attr = $href ? "" : "href=\"{$url}\" ";
 			# ERB::Util.html_escape
 			$name_or_url = $name ? ( \PHPRails\html_safe__($name) ? $name : htmlspecialchars($name) ) : $url;
-			return \PHPRails\html_safe("<a {$href_attr} {$tag_options}>{$name_or_url}</a>");
+			return \PHPRails\html_safe("<a {$href_attr}{$tag_options}>{$name_or_url}</a>");
 		}
 	}
 
