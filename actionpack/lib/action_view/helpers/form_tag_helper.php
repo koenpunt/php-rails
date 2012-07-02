@@ -729,7 +729,7 @@ class FormTagHelper{
 	}
 
 	private static function token_tag($token){
-		if($token == false || !CsrfHelper::protect_against_forgery()){
+		if($token === false || !CsrfHelper::protect_against_forgery__()){
 			return '';
 		}else{
 			$token = $token ?: CsrfHelper::form_authenticity_token();

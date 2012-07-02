@@ -30,7 +30,7 @@ class CsrfHelper{
 	public static function csrf_meta_tags(){
 		if(static::protect_against_forgery__()){
 			$tags = array(
-				TagHelper::tag('meta', array('name' => 'csrf-param', 'content' => static::$request_forgery_protection_token)),
+				TagHelper::tag('meta', array('name' => 'csrf-param', 'content' => static::form_authenticity_param())),
 				TagHelper::tag('meta', array('name' => 'csrf-token', 'content' => static::form_authenticity_token()))
 			);
 			
@@ -67,8 +67,6 @@ class CsrfHelper{
 		if(array_key_exists('with', $options)){
 			static::$request_forgery_protection_method = \PHPRails\delete($options, 'with');
 		}
-		#$this->callback->register('before_save', function(Model $model) { $model->set_timestamps(); }, array('prepend' => true));
-		#prepend_before_filter :verify_authenticity_token, options
 	}
 	
 	
@@ -122,8 +120,9 @@ class CsrfHelper{
 	}
 
 	# The form's authenticity parameter. Override to provide your own.
-	protected static function form_authenticity_param(){
-		return $_REQUEST[static::$request_forgery_protection_token];
+	/*protected*/
+	public static function form_authenticity_param(){
+		return static::$request_forgery_protection_token;
 	}
 	/*protected*/
 	public static function protect_against_forgery__(){
