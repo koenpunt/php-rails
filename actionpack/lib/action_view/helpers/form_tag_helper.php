@@ -696,8 +696,8 @@ class FormTagHelper{
 	}
 
 	private static function extra_tags_for_form(&$html_options){
-		$authenticity_token = $html_options['authenticity_token'];
-		$method = $html_options['method'];
+		$authenticity_token = \PHPRails\delete($html_options, 'authenticity_token');
+		$method = \PHPRails\delete($html_options, 'method');
 		switch(1){
 			case preg_match('/^get$/i', $method): # must be case-insensitive, but can't use downcase as might be nil
 				$html_options["method"] = 'get';
