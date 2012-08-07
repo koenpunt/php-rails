@@ -138,17 +138,15 @@ class FormTagHelper{
 	public static function select_tag($name, $option_tags = null, $options = array()){
 		$html_name = $options['multiple'] == true && substr($name, -2) !== '[]' ? "{$name}[]" : $name;
 
-		if(isset($options['include_blank'])){
-			unset($options['include_blank']);
-			$option_tags = "<option value=\"\"></option>" . $option_tags;
+		if(\PHPRails\delete($options, 'include_blank')){
+			$option_tags = TagHelper::content_tag('option', '', array('value' => '')) . $option_tags;
 		}
 
-		if(isset($options['prompt']) && $promp = $options['prompt']){
-			unset($options['prompt']);
-			$option_tags = "<option value=\"\">{$prompt}</option>" . $option_tags;
+		if($promp = \PHPRails\delete($options, 'prompt')){
+			$option_tags = TagHelper::content_tag('option', $prompt, array('value' => '')) . $option_tags;
 		}
 
-		return TagHelper::content_tag('select', $option_tags, array_merge(array("name" => $html_name, "id" => static::sanitize_to_id($name)), $options));
+		return TagHelper::content_tag('select', \PHPRails\html_safe($option_tags), array_merge(array("name" => $html_name, "id" => static::sanitize_to_id($name)), $options));
 	}
 
 	# Creates a standard text field; use these text fields to input smaller chunks of text like a username
