@@ -117,13 +117,10 @@ class Inflector{
 			if(preg_replace($rule, $replacement, $result, 1))break; 
 		};
 		$result = preg_replace('/_id$/', "", $result);
-		$result = strtr('_', ' ', $result);
-		
+		$result = strtr($result, '_', ' ');
 		return ucfirst(preg_replace_callback('/([a-z\d]*)/i', function($matches){
 			return static::inflections()->acronyms[$matches[0]] ?: strtolower($matches[0]);
 		}, $result));
-		
-		#return $result->gsub('/(_)?([a-z\d]*)/i', "#{$1 && ' '}#{inflections.acronyms[$2] || $2.downcase}" }.gsub(/^\w/) { $&.upcase }
 	}
 
 	# Capitalizes all the words and replaces some characters in the string to create
