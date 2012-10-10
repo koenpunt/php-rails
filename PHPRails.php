@@ -21,9 +21,6 @@ if(!defined('DS'))
 include __DIR__ . DS . 'utils.php';
 include __DIR__ . DS . 'exceptions.php';
 
-# Include I18n 
-include __DIR__ . DS . 'vendor' . DS . 'i18n' . DS . 'I18n.php';
-
 class PHPRails{
 	
 	static $application = null;
@@ -44,7 +41,8 @@ class PHPRails{
 			'action_pack' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
 			'action_view' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
 			'phprails' => array(__DIR__ . DS . 'phprailties' . DS . 'lib'),
-			'ruby' => array(__DIR__ . DS . 'ruby' . DS . 'lib') ,
+			'ruby' => array(__DIR__ . DS . 'ruby' . DS . 'lib'),
+			'vendor' => array(__DIR__ . DS . 'vendor')
 		);
 		if(!is_null($config)){
 			PHPRails::import('phprails/configuration');
@@ -52,6 +50,7 @@ class PHPRails{
 		}
 		
 		PHPRails::_initInflections();
+		PHPRails::_initI18n();
 		
 		PHPRails::import('action_view');
 		PHPRails::import('action_view/helpers');
@@ -153,5 +152,12 @@ class PHPRails{
 
 			$inflect->uncountable(array('equipment', 'information', 'rice', 'money', 'species', 'series', 'fish', 'sheep', 'jeans', 'police'));
 		});
+	}
+	
+	private static function _initI18n(){
+		PHPRails::import('vendor/i18n/i18n');
+		$load_path = \I18n\I18n::config()->load_path;
+		array_push($load_path, 'actionpack/lib/action_view/locale/en.yml');
+		\I18n\I18n::config()->load_path = $load_path;
 	}
 }

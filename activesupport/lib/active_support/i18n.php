@@ -12,7 +12,3 @@ try{
 }
 
 ActiveSupport::run_load_hooks('i18n');
-
-$load_path = I18n::config()->load_path;
-array_push($load_path, dirname(__FILE__) . "/locale/en.yml");
-I18n::config()->load_path = $load_path;

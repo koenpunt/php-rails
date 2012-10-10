@@ -114,17 +114,17 @@ class DateHelper{
 							$locale->t('x_minutes', array('count' => $distance_in_minutes));
 					}
 					switch(true){
-						case \PHPRails\between($distance_in_seconds, 0, 4): 
+						case \PHPRails\between($distance_in_seconds, 0, 4):
 							return $locale->t('less_than_x_seconds', array('count' => 5));
-						case \PHPRails\between($distance_in_seconds, 5, 9): 
+						case \PHPRails\between($distance_in_seconds, 5, 9):
 							return $locale->t('less_than_x_seconds', array('count' => 10));
-						case \PHPRails\between($distance_in_seconds, 10, 19): 
+						case \PHPRails\between($distance_in_seconds, 10, 19):
 							return $locale->t('less_than_x_seconds', array('count' => 20));
-						case \PHPRails\between($distance_in_seconds, 20, 39): 
+						case \PHPRails\between($distance_in_seconds, 20, 39):
 							return $locale->t('half_a_minute');
-						case \PHPRails\between($distance_in_seconds, 40, 59): 
+						case \PHPRails\between($distance_in_seconds, 40, 59):
 							return $locale->t('less_than_x_minutes', array('count' => 1));
-						default: 
+						default:
 							return $locale->t('x_minutes', array('count' => 1));
 					}
 				case \PHPRails\between($distance_in_minutes, 2, 44):
