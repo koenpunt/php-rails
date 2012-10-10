@@ -11,25 +11,28 @@ class Transliterator{
 	# approximation for the string.
 	public function transliterate($locale, $string, $replacement = null){
 		$this->transliterators = $this->transliterators ?: array();
-		$this->transliterators[$locale] = $this->transliterators[$locale] ?: Transliterator::get( \I18n\I18n::t('i18n.transliterate.rule',
-			array('locale' => $locale, 'resolve' => false, 'default' => array())));
+		
+		if(!isset($this->transliterators[$locale])){
+			$this->transliterators[$locale] = Transliterator::get( \I18n\I18n::t('i18n.transliterate.rule',
+				array('locale' => $locale, 'resolve' => false, 'default' => array())));
+		}
 		return $this->transliterators[$locale]->transliterate($string, $replacement);
 	}
 
 	# Get a transliterator instance.
 	public static function get($rule = null){
-		if( !$rule || Helpers\is_hash($rule) ){
+		if( is_null($rule) || \I18n\Helpers\is_hash($rule) ){
 			return new HashTransliterator($rule);
-		}elseif( $rule instanceof Closure ){
-			return new ProcTransliterator($rule);
+		}elseif( $rule instanceof \Closure ){
+			return new ClosureTransliterator($rule);
 		}else{
-			throw new \InvalidArgumentException("Transliteration rule must be a proc or a hash.");
+			throw new \InvalidArgumentException("Transliteration rule must be a closure or a hash.");
 		}
 	}
 }
 
-# A transliterator which accepts a Proc as its transliteration rule.
-class ProcTransliterator{
+# A transliterator which accepts a Closure as its transliteration rule.
+class ClosureTransliterator{
 	
 	protected $rule;
 
@@ -90,8 +93,14 @@ class HashTransliterator{
 	}
 
 	public function transliterate($string, $replacement = null){
-		return preg_replace_callback('/[^\x00-\x7f]/u', function($char) use ($replacement){
-			return $this->approximations[$char[0]] ?: ( $replacement ?: Transliterator::DEFAULT_REPLACEMENT_CHAR );
+		$approximations = $this->approximations;
+		if(!mb_detect_encoding($string, 'UTF-8', true)){
+			throw new \InvalidArgumentException("'$string' is not valid");
+		}
+		return preg_replace_callback('/[^\x00-\x7f]/u', function($char) use ($replacement, $approximations){
+			return isset($approximations[$char[0]]) ?
+				$approximations[$char[0]] :
+				( $replacement ?: Transliterator::DEFAULT_REPLACEMENT_CHAR );
 		}, $string);
 	}
 	
@@ -102,11 +111,10 @@ class HashTransliterator{
 
 	# Add transliteration rules to the approximations hash.
 	private function add($hash){
-		#$keys = array_keys($hash);
-		#foreach($keys as $key){
-		#	$hash[(string)$key] = (string)Helpers\delete($hash, $key);
-		#}
-		#hash.keys.each {|key| hash[key.to_s] = hash.delete(key).to_s}
+		$keys = array_keys($hash);
+		foreach($keys as $key){
+			$hash[(string)$key] = (string)\I18n\Helpers\delete($hash, $key);
+		}
 		$this->approximations = array_merge($this->approximations(), $hash);
 	}
 }

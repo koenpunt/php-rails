@@ -5,7 +5,7 @@ require_once(dirname(__FILE__) . '/../I18n.php');
 use I18n\I18n;
 use I18n\Symbol;
 
-class Symbol_Test  extends PHPUnit_Framework_TestCase
+class Symbol_Test extends PHPUnit_Framework_TestCase
 {
 	private $base = null;
 

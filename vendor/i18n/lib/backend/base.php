@@ -90,19 +90,19 @@ class Base extends Transliterator{
 		# format = resolve(locale, object, format, options)
 		$format = preg_replace_callback('/%[aAbBp]/', function($match) use ($object, $locale, $format){
 			switch($match[0]){
-				case '%a': 
+				case '%a':
 					$f = I18n::t("date.abbr_day_names",                  array('locale' => $locale, 'format' => $format));
 					return $f[$object->wday()];
-				case '%A': 
+				case '%A':
 					$f = I18n::t("date.day_names",                       array('locale' => $locale, 'format' => $format));
 					return $f[$object->wday()];
-				case '%b': 
+				case '%b':
 					$f = I18n::t("date.abbr_month_names",                array('locale' => $locale, 'format' => $format));
 					return $f[$object->mon()];
-				case '%B': 
+				case '%B':
 					$f = I18n::t("date.month_names",                     array('locale' => $locale, 'format' => $format));
 					return $f[$object->mon()];
-				case '%p': 
+				case '%p':
 					if(method_exists('hour', $object)){
 						$meridian = $object->hour() < 12 ? 'am' : 'pm';
 						return I18n::t("time.{$meridian}", array('locale' => $locale, 'format' => $format));
@@ -179,7 +179,7 @@ class Base extends Transliterator{
 		}
 		
 		if( $count == 0 && array_key_exists('zero', $entry)){
-			 $key = 'zero';
+			$key = 'zero';
 		}
 		$key = isset($key) ? $key : ( $count == 1 ? 'one' : 'other' );
 		if(!array_key_exists($key, $entry)){
@@ -204,7 +204,8 @@ class Base extends Transliterator{
 	# data to the existing translations. Raises I18n::UnknownFileType
 	# for all other file extensions.
 	protected function load_file($filename){
-		$type = strtolower(end(explode('.', $filename)));
+		$filename_splitted = explode('.', $filename);
+		$type = strtolower(end($filename_splitted));
 		$method_name = "load_{$type}";
 		if (!method_exists($this, $method_name)) {
 			throw new UnknownFileType($type, $filename);

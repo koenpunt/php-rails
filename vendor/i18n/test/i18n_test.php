@@ -146,7 +146,7 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	public function test_translate_null_key()
 	{
 		$expected = null;
-		$actual = I18n::translate(null);
+		$actual = I18n::translate(null, array('throw' => true));
 		$this->assertEquals($expected, $actual);
 	}
 
@@ -168,7 +168,7 @@ class I18n_Test extends PHPUnit_Framework_TestCase
 	 */
 	public function test_translate_with_exception()
 	{
-		$actual = I18n::translate('hello', array('locale' => 'xx'));
+		$actual = I18n::translate('hello', array('locale' => 'xx', 'throw' => true));
 	}
 
 	public function test_localize_time()
