@@ -42,13 +42,13 @@ class PHPRails{
 			'action_view' => array(__DIR__ . DS . 'actionpack' . DS . 'lib'),
 			'phprails' => array(__DIR__ . DS . 'phprailties' . DS . 'lib'),
 			'ruby' => array(__DIR__ . DS . 'ruby' . DS . 'lib'),
-			'vendor' => array(__DIR__ . DS . 'vendor')
+			'vendor' => array(__DIR__)
 		);
 		if(!is_null($config)){
 			PHPRails::import('phprails/configuration');
 			self::$_config = new \PHPRails\Configuration($config);
 		}
-		
+		PHPRails::_initI18n();	
 		PHPRails::_initInflections();
 		PHPRails::_initI18n();
 		
@@ -155,9 +155,9 @@ class PHPRails{
 	}
 	
 	private static function _initI18n(){
-		PHPRails::import('vendor/i18n/i18n');
+		PHPRails::import('vendor/i18n/I18n');
 		$load_path = \I18n\I18n::config()->load_path;
-		array_push($load_path, 'actionpack/lib/action_view/locale/en.yml');
+		array_push($load_path, __DIR__ . '/actionpack/lib/action_view/locale/en.yml');
 		\I18n\I18n::config()->load_path = $load_path;
 	}
 }
