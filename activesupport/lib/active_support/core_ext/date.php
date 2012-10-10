@@ -1,7 +1,8 @@
 <?php
+
 namespace ActiveSupport\CoreExt; 
 
-require_once 'active_support/core_ext/DateTime.php';
+\PHPRails::import('active_support/core_ext/date_time');
 
 class Date extends DateTime{
 	

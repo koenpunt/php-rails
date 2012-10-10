@@ -69,7 +69,7 @@ class RSecureRandom{
 			
 				if ($rand>57)
 					$rand+=7; 
-				if ($rand>90) 
+				if ($rand>90)
 					$rand+=6; 
 			
 				if ($rand==123) $rand=45; 

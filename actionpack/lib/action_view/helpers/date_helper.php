@@ -1,7 +1,7 @@
 <?php
 /**
  * DateHelper
- * 
+ *
  * Rails source: https://github.com/rails/rails/blob/master/actionpack/lib/action_view/helpers/date_helper.rb
  * @package PHP Rails
  * @author Koen Punt
@@ -16,10 +16,9 @@ namespace ActionView\Helpers;
 #require 'active_support/core_ext/object/with_options'
 
 \PHPRails::import('action_view/helpers/tag_helper');
-#require_once 'active_support/core_ext/Date.php';
-#require_once 'active_support/core_ext/Time.php';
-#require_once 'active_support/core_ext/TimeSpan.php';
-
+\PHPRails::import('active_support/core_ext/date');
+\PHPRails::import('active_support/core_ext/time');
+\PHPRails::import('active_support/core_ext/time_span');
 
 use \I18n\I18n;
 use \ActiveSupport\CoreExt\DateTime;

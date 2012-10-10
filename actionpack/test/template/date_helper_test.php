@@ -134,11 +134,12 @@ class DateHelperTest extends PHPUnit_Framework_TestCase{
 	public function test_distance_in_words_with_time_zones(){
 		$from = Time::mktime(2004, 6, 6, 21, 45, 0);
 		
-		$this->assert_distance_of_time_in_words($from->in_time_zone('America/Anchorage')); # In Rails source it was: 'Alaska'
-		$this->assert_distance_of_time_in_words($from->in_time_zone('Pacific/Honolulu')); # In Rails source it was: 'Hawaii'
+		$this->assert_distance_of_time_in_words($from->in_time_zone('America/Anchorage')); 
+										# In Rails source it was: 'Alaska'
+		$this->assert_distance_of_time_in_words($from->in_time_zone('Pacific/Honolulu')); 
+										# In Rails source it was: 'Hawaii'
 	}
 
-	
 	public function test_distance_in_words_with_different_time_zones(){
 		$from = Time::mktime(2004, 6, 6, 21, 45, 0);
 		$this->assert_distance_of_time_in_words(

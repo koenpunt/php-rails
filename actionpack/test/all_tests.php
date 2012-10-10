@@ -9,8 +9,8 @@ set_include_path(
 );
 
 
-$test_files = glob('*Test.php');
-$test_files += glob('template/*Test.php');
+$test_files = glob('_test.php');
+$test_files += glob('template/_test.php');
 
 foreach ($test_files as $file){
 	require $file;
