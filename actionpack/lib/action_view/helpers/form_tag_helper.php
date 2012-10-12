@@ -142,7 +142,7 @@ class FormTagHelper{
 			$option_tags = TagHelper::content_tag('option', '', array('value' => '')) . $option_tags;
 		}
 
-		if($prompt = \PHPRails\delete($options, 'prompt')){
+		if(($prompt = \PHPRails\delete($options, 'prompt'))){
 			$option_tags = TagHelper::content_tag('option', $prompt, array('value' => '')) . $option_tags;
 		}
 
@@ -336,15 +336,13 @@ class FormTagHelper{
 	public static function text_area_tag($name, $content = null, $options = array()){
 		#$options = $options.stringify_keys
 
-		if(isset($options['size']) && $size = $options['size']){
-			unset($options['size']);
+		if(($size = \PHPRails\delete($options, 'size'))){
 			if(is_string($size)){
 				list($options['cols'], $options['rows']) = explode('x', $size);
 			}
 		}
 
-		$escape = array_key_exists('escape', $options) ? $options['escape'] : true;
-		unset($options['escape']);
+		$escape = \PHPRails\delete($options, 'escape') ?: true;
 		if($escape){
 			# ERB::Util.html_escape
 			$content = htmlspecialchars($content);
@@ -450,14 +448,12 @@ class FormTagHelper{
 	public static function submit_tag($value = "Save changes", $options = array()){
 		#options = options.stringify_keys
 
-		if($disable_with = $options['disable_with']){
-			unset($options['disable_with']);
+		if(($disable_with = \PHPRails\delete($options, 'disable_with'))){
 			$options["data-disable-with"] = $disable_with;
 		}
 
-		if($confirm = $options['confirm']){
+		if(($confirm = \PHPRails\delete($options, 'confirm'))){
 			$options["data-confirm"] = $confirm;
-			unset($options['confirm']);
 		}
 
 		return TagHelper::tag('input', array_merge(array("type" => "submit", "name" => "commit", "value" => $value), $options));
@@ -500,20 +496,18 @@ class FormTagHelper{
 	#
 	public static function button_tag($content_or_options = null, $options = null){ //, &$block){
 		$args = func_get_args();
-		if( $block = \PHPRails\block_given__($args) && \PHPRails\is_hash($content_or_options) ){
+		if( ($block = \PHPRails\block_given__($args)) && \PHPRails\is_hash($content_or_options) ){
 			$options = $content_or_options;
 		}
 		$options = $options ?: array();
 		#options = options.stringify_keys
 
-		if($disable_with = $options['disable_with']){
-			unset($options['disable_with']);
+		if(($disable_with = \PHPRails\delete($options, 'disable_with'))){
 			$options["data-disable-with"] = $disable_with;
 		}
 
-		if($confirm = $options['confirm']){
+		if(($confirm = \PHPRails\delete($options, 'confirm'))){
 			$options["data-confirm"] = $confirm;
-			unset($options['confirm']);
 		}
 		
 		$options = array_merge(array('name' => 'button', 'type' => 'submit'), $options);
@@ -547,9 +541,8 @@ class FormTagHelper{
 	public static function image_submit_tag($source, $options = array()){
 		#options = options.stringify_keys
 		
-		if($confirm = $options['confirm']){
+		if(($confirm = \PHPRails\delete($options, 'confirm'))){
 			$options["data-confirm"] = $confirm;
-			unset($options['confirm']);
 		}
 		
 		return TagHelper::tag('input', array_merge(array("type" => "image", "src" => AssetTagHelper::path_to_image($source)), $options));
@@ -581,7 +574,7 @@ class FormTagHelper{
 		if(!is_null($legend)){
 			$output .= TagHelper::content_tag('legend', $legend);
 		}
-		if($block = \PHPRails\block_given__($args)){
+		if(($block = \PHPRails\block_given__($args))){
 			$output .= \PHPRails\capture($block);
 		}
 		$output .= "</fieldset>";
@@ -639,7 +632,7 @@ class FormTagHelper{
 	public static function number_field_tag($name, $value = null, $options = array()){
 		#options = options.stringify_keys
 		$options["type"] = $options["type"] ?: "number";
-		if($range = $options['in'] || $range = $options['within']){
+		if(($range = $options['in']) || ($range = $options['within'])){
 			unset($options['in'], $options['within']);
 			$options = array_merge($options, array("min" => min($range), "max" => max($range)));
 		}
