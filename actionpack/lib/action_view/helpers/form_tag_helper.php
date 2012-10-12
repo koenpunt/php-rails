@@ -142,7 +142,7 @@ class FormTagHelper{
 			$option_tags = TagHelper::content_tag('option', '', array('value' => '')) . $option_tags;
 		}
 
-		if($promp = \PHPRails\delete($options, 'prompt')){
+		if($prompt = \PHPRails\delete($options, 'prompt')){
 			$option_tags = TagHelper::content_tag('option', $prompt, array('value' => '')) . $option_tags;
 		}
 
