@@ -29,7 +29,6 @@ function delete(array &$data, $key){
 		unset($data[$key]);
 		return $value;
 	}
-	return false;
 }
 
 function fetch(array $data, $key, $alternative=false){

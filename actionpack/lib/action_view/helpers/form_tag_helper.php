@@ -341,8 +341,9 @@ class FormTagHelper{
 				list($options['cols'], $options['rows']) = explode('x', $size);
 			}
 		}
-
-		$escape = ($escape = \PHPRails\delete($options, 'escape')) ? $escape : true;
+		
+		$escape = \PHPRails\delete($options, 'escape');
+		$escape = is_null($escape) ? true : $escape;
 		if($escape){
 			# ERB::Util.html_escape
 			$content = htmlspecialchars($content);
