@@ -342,7 +342,7 @@ class FormTagHelper{
 			}
 		}
 
-		$escape = \PHPRails\delete($options, 'escape') ?: true;
+		$escape = ($escape = \PHPRails\delete($options, 'escape')) ? $escape : true;
 		if($escape){
 			# ERB::Util.html_escape
 			$content = htmlspecialchars($content);
