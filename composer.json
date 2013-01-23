@@ -1,0 +1,13 @@
+{
+    "name": "php-rails/php-rails",
+    "type": "library",
+    "description": "php-rails is an partial port of the Ruby on Rails framework.",
+    "keywords": ["php-rails", "php", "rails"],
+    "homepage": "https://github.com/koenpunt/php-rails",
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "files": [ "PHPRails.php" ]
+    }
+}
