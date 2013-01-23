@@ -114,7 +114,7 @@ class CsrfHelper{
 	/*protected*/
 	public static function form_authenticity_token(){
 		if(!isset($_SESSION['_csrf_token'])){
-			$_SESSION['_csrf_token'] = RSecureRandom::base64(32);
+			$_SESSION['_csrf_token'] = \RSecureRandom::base64(32);
 		}
 		return $_SESSION['_csrf_token'];
 	}
