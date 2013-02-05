@@ -76,7 +76,7 @@ class AssetPaths{ #:nodoc:
 				$host = sprintf("%s{$host}", $this->compute_protocol($protocol));
 			}
 		}
-		return $host ? "{$host}#{$source}" : $source;
+		return $host ? "{$host}{$source}" : $source;
 	}
 
 	private function compute_protocol($protocol){
