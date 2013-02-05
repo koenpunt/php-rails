@@ -18,6 +18,7 @@ class Configuration{
 		}
 	}
 	
+	public $asset_host;
 	public $assets_dir;
 	public $asset_path;
 	public $javascripts_dir      = "public/javascripts";
