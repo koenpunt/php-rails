@@ -431,13 +431,13 @@ class AssetTagHelper{
 			$options['alt'] = \PHPRails\fetch($options, 'alt', function($key){ return static::image_alt($src); });
 		}
 		
-		if( $size = delete($options, 'size') ){
+		if( ($size = \PHPRails\delete($options, 'size')) ){
 			if(preg_match('/^\d+x\d+$/', $size)){
 				list($options['width'], $options['height']) = explode('x', $size);
 			}
 		}
 		
-		if( $mouseover = delete($options, 'mouseover') ){
+		if( ($mouseover = \PHPRails\delete($options, 'mouseover')) ){
 			$options['onmouseover'] = sprintf("this.src='%s'", static::path_to_image($mouseover));
 			$options['onmouseout']  = sprintf("this.src='%s'", $src);
 		}
@@ -493,7 +493,7 @@ class AssetTagHelper{
 				$options['poster'] = static::path_to_image($options['poster']);
 			}
 
-			if( $size = delete($options, 'size') ){
+			if( ($size = \PHPRails\delete($options, 'size')) ){
 				if(preg_match('/^\d+x\d+$/', $size)){
 					list($options['width'], $options['height']) = explode('x', $size);
 				}
