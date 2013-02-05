@@ -446,7 +446,7 @@ class AssetTagHelper{
 	}
 
 	public static function image_alt($src){
-		return ucfirst(preg_replace('/-[[:xdigit:]]{32}\z/', '', RFile::basename($src, '.*'), 1));
+		return ucfirst(preg_replace('/-[[:xdigit:]]{32}\z/', '', \RFile::basename($src, '.*'), 1));
 	}
 
 	# Returns an html video tag for the +sources+. If +sources+ is a string,

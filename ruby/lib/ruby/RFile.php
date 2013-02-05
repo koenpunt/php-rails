@@ -17,6 +17,14 @@ class RFile{
 		return dirname($path);
 	}
 	
+	public static function basename($file_name, $suffix = null){
+		if($suffix == '.*'){
+			$extension = pathinfo($file, PATHINFO_EXTENSION);
+			$suffix = '.' . $extension;
+		}
+		return basename($file_name, $suffix);
+	}
+	
 	public static function read($file){
 		$this->_handle = fopen($file, 'r');
 		$content = fread($this->_handle, filesize($file));
