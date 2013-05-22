@@ -211,7 +211,7 @@ class FormTagHelper{
 		if(!(array_key_exists('for', $options) || empty($name))){
 			$options["for"] = static::sanitize_to_id($name);
 		} 
-		return TagHelper::content_tag('label', ($content_or_options ?: Inflector::humanize($name)), $options, $block);
+		return TagHelper::content_tag('label', ($content_or_options ?: \ActiveSupport\Inflector::humanize($name)), $options, $block);
 	}
 
 	# Creates a hidden form input field used to transmit data that would be lost due to HTTP's statelessness or
