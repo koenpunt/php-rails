@@ -34,7 +34,7 @@ class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 			$source_with_ext = "{$source}.{$ext}";
 		}elseif( $ext != substr($source_ext, 1, -1) ){
 			$with_ext = "{$source}.{$ext}";
-			if( \RFile::exist(\RFile::join($config->assets_dir, $dir, $with_ext))) {
+			if( \RFile::exist(\RFile::join($this->config->assets_dir, $dir, $with_ext))) {
 				return $with_ext;
 			}
 		}
@@ -48,7 +48,7 @@ class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 		if( !($source[0] == '?/') ){ //== ?/) ){
 			$source = "/{$dir}/{$source}";
 		}
-		$path = $config->asset_path;
+		$path = $this->config->asset_path;
 
 		if( $path && method_exists($path, 'call') ){
 			return $path->call($source);
@@ -81,7 +81,7 @@ class AssetPaths extends \ActionView\AssetPaths{ #:nodoc:
 			if( static::$cache_asset_ids && ($asset_id = static::$asset_ids_cache[$source]) ){
 				return $asset_id;
 			}else{
-				$path = \RFile::join($config->assets_dir, $source);
+				$path = \RFile::join($this->config->assets_dir, $source);
 				$asset_id = \RFile::exist($path) ? (string)(int)\RFile::mtime($path) : '';
 
 				if( static::$cache_asset_ids ){
